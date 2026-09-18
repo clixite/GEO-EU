@@ -14,9 +14,14 @@ createServer(async (req, res) => {
     if (path.endsWith('/')) path += 'index.html';
     let file = join(root, path);
     if (!file.startsWith(root)) { res.writeHead(403); res.end(); return; }
+    // Mirrors "clean URL" hosting: /docs → docs.html, or docs/index.html when it exists.
     try {
       const s = await stat(file);
-      if (s.isDirectory()) file = join(file, 'index.html');
+      if (s.isDirectory()) {
+        const index = join(file, 'index.html');
+        const sibling = `${file.replace(/[\\/]+$/, '')}.html`;
+        file = await stat(index).then(() => index).catch(() => sibling);
+      }
     } catch {
       if (!extname(file)) file = `${file}.html`;
     }

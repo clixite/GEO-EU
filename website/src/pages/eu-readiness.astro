@@ -1,0 +1,46 @@
+---
+import Base from '../layouts/Base.astro';
+const rows = [
+  ['EU AI Act (Reg. 2024/1689, as amended by Reg. 2026/1744)', 'applicable', 'Evidentia is a generative AI system; Clixite is provider, the customer is deployer. Not high-risk after Annex III screening. Article 50 transparency in force since 2 Aug 2026.', 'AI system register; Art. 50(2) machine-readable marking (signed manifest, IPTC metadata, JSON-LD); Art. 50(4) visible disclosure; human-review route with named editorial responsibility and post-approval lock; model registry; ledger', 'Register your own AI systems; deliver AI-literacy briefings (Art. 4); decide Article 50 scope for your content; keep the review dates.', 'Whether a specific customer publication is "on matters of public interest"'],
+  ['GDPR', 'applicable', 'Ingested content contains personal data (authors, spokespeople); model providers are sub-processors.', 'Data classes and provider policy gate; records of processing (Art. 30 style); DSAR find/redact; tenant export and erasure; retention; secure-delete SQLite; no prompt/answer logging', 'Controller duties: legal basis, DPIA (typically required), DPAs with providers, transfer assessments (DPF/SCC), data classification of sources.', 'Legitimate-interest balancing for your corpus; DPIA conclusions'],
+  ['Copyright (DSM 2019/790, InfoSoc, AI Act Art. 53)', 'applicable (TDM, quotation) · requires legal assessment (AI-output rights)', 'Third-party evidence fetching is text-and-data mining subject to lawful access and opt-outs.', 'First-party sources by default; third-party fetches honour robots.txt and are labelled; quotations must come verbatim from evidence with attribution', 'Respect rights reservations; decide who owns AI-assisted outputs in your contracts.', 'Protection of AI-assisted outputs (CJEU C-250/25 pending)'],
+  ['Cyber Resilience Act (Reg. 2024/2847)', 'applicable to the self-hosted product (Clixite = manufacturer); potentially applicable to SaaS', 'Commercially supplied software is a product with digital elements. Reporting obligations live since 11 Sep 2026; essential requirements from 11 Dec 2027.', 'SBOM (CycloneDX) per release; vulnerability disclosure policy and contact; secure-by-default configuration; signed releases; dependency audit and SAST in CI; support-period statement', 'Apply updates; report incidents affecting your deployment.', 'Product classification and conformity route (self-assessment expected for the default class)'],
+  ['NIS2 (Dir. 2022/2555; Belgian law of 26 Apr 2024)', 'customer-specific', 'In-scope customers must flow down supply-chain security requirements (Art. 21(2)(d)).', 'Threat model, security architecture, SBOM, audit ledger, hardening guidance — the evidence a supplier assessment asks for', 'Determine your own NIS2 status; include Evidentia in supplier risk management.', "Clixite's own NIS2 status"],
+  ['ePrivacy (Dir. 2002/58, Art. 5(3))', 'applicable to client-side measurement (none injected); customer-specific for published sites', 'Visitor counting is not "strictly necessary" per the Belgian DPA; consent-free analytics is not available in Belgium.', 'No trackers, cookies or beacons on published pages or this site; server-side counting recommended', 'Decide your own analytics and consent approach.', '—'],
+  ['Digital Services Act', 'potentially applicable at hosting tier for SaaS; non-applicable self-hosted', 'Evidentia stores customer content but does not disseminate it to the public.', '—', '—', 'Only if Clixite operates a hosted service'],
+  ['Accessibility (EAA 2019/882, WAD, EN 301 549, WCAG 2.2)', 'customer-specific', 'B2B enterprise software is outside the EAA; published content inherits the customer\'s duties.', 'Console and website built to WCAG 2.2 AA (landmarks, keyboard, contrast, reduced motion); published HTML uses semantic structure and alt text', 'Assess your own sites (e-commerce, public sector).', '—'],
+  ['Data Act (Reg. 2023/2854) — cloud switching', 'applicable to Clixite-operated SaaS; non-applicable self-hosted', 'Data-processing services must support export and switching since 12 Sep 2025.', 'Complete tenant export (JSON); open interfaces (CLI, documented schema)', '—', '—'],
+  ['Provenance standards (C2PA 2.4, IPTC)', 'applicable as the technical route for Art. 50; no standard mandated', 'The Code of Practice requires signed metadata and watermark layers; C2PA is not named.', 'Standard-neutral signed manifest; IPTC digitalSourceType; interoperable via JSON-LD and meta tags', 'Publish your verification key; choose image-side C2PA tooling if you generate images.', '—'],
+];
+---
+<Base title="EU readiness" description="How Evidentia maps to the EU AI Act, GDPR, copyright, Cyber Resilience Act, NIS2, ePrivacy, DSA, accessibility and Data Act: applicability verdicts, implemented controls, evidence produced, customer responsibilities and items that require legal assessment. No compliance badges." path="/eu-readiness" pageType="TechArticle" breadcrumbs={[{ name: 'EU readiness', path: '/eu-readiness' }]}>
+  <section class="hero wrap">
+    <span class="eyebrow">EU readiness</span>
+    <h1>Controls, evidence and responsibilities — per framework, without badges.</h1>
+    <p class="lede">We researched each framework against primary sources (EUR-Lex, the Commission's AI Office, EDPB, ENISA, the Belgian DPA) and recorded an applicability verdict, the controls Evidentia implements, what remains the customer's responsibility, and what still needs legal assessment. The full analysis with dated citations is in the documentation.</p>
+    <div class="callout warn"><strong>What we do not claim.</strong> Evidentia is not "EU compliant", "AI Act certified" or "GDPR approved" — no such certifications exist for this product category, and compliance is an outcome of how an organisation deploys and operates the system. This page is engineering information, not legal advice.</div>
+  </section>
+  <section class="block"><div class="wrap">
+    <div class="table-wrap" tabindex="0"><table>
+      <thead><tr><th scope="col">Framework</th><th scope="col">Verdict</th><th scope="col">Why</th><th scope="col">Evidentia controls &amp; evidence</th><th scope="col">Customer responsibilities</th><th scope="col">Requires legal assessment</th></tr></thead>
+      <tbody>{rows.map((r) => <tr>{r.map((c) => <td>{c}</td>)}</tr>)}</tbody>
+    </table></div>
+    <p class="kicker">Verdict vocabulary: applicable · potentially applicable · customer-specific · non-applicable · not yet applicable · requires legal assessment. Hard dates recorded in <a href="/docs/eu-governance">docs/EU_GOVERNANCE.md</a>; 68 primary sources in <code>governance/sources.yaml</code>.</p>
+  </div></section>
+  <section class="block"><div class="wrap prose">
+    <h2>Article 50 in practice</h2>
+    <ol>
+      <li><strong>Marking (Art. 50(2), provider duty).</strong> Every published page carries a signed manifest bound to the content hash, IPTC <code>digitalSourceType</code>, meta tags and a CreativeWork JSON-LD block. Verification uses the published Ed25519 public key.</li>
+      <li><strong>Disclosure (Art. 50(4), deployer duty).</strong> AI-assisted pages render a visible "AI transparency notice" naming the accountable reviewer. Policies can require it for every publication.</li>
+      <li><strong>Human-review route.</strong> The Commission's guidelines expect substantive fact-checking, named editorial responsibility and no AI edits after sign-off. Evidentia's verification, four-eyes approval bound to the body hash, and post-approval lock implement exactly that — and the ledger proves it.</li>
+      <li><strong>Limits.</strong> Token-level watermarking is a model-provider capability; Evidentia records which model produced a draft and signs the page, but does not watermark text itself.</li>
+    </ol>
+    <h2>Dated watchlist</h2>
+    <ul>
+      <li>2 Dec 2026 — end of the Art. 50 grace period for generative systems already on the market before 2 Aug 2026.</li>
+      <li>12 Jan 2027 — Data Act: cloud switching charges must be zero.</li>
+      <li>2 Feb 2027 — Transparency Code of Practice interoperability signpost.</li>
+      <li>11 Dec 2027 — CRA essential requirements fully applicable; 2 Dec 2027 — AI Act Annex III high-risk obligations.</li>
+    </ul>
+  </div></section>
+</Base>

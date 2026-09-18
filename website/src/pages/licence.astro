@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Licence & attribution" description="Evidentia licensing and open-source attribution: proprietary licence from Clixite SRL, clean-room relationship to GEOFlow (AGPL-3.0, Yao Jingang), and third-party dependencies with their licences." path="/licence" breadcrumbs={[{ name: 'Licence & attribution', path: '/licence' }]}>
+  <section class="hero wrap">
+    <span class="eyebrow">Licence &amp; attribution</span>
+    <h1>Who wrote what, under which terms.</h1>
+  </section>
+  <section class="block"><div class="wrap prose">
+    <h2>Evidentia</h2>
+    <p>Evidentia — the core engine, CLI, governance console, Agent Skill, documentation, demo dataset and this website — is original work by Clixite SRL (Belgium), licensed under the terms in the repository's <code>LICENSE</code> file. Source code is available to customers for inspection and self-hosting.</p>
+    <h2>GEOFlow (inspiration, no code)</h2>
+    <p><a href="https://github.com/yaojingang/GEOFlow" rel="noopener">GEOFlow</a> is an open-source GEO operations platform by Yao Jingang, licensed under the GNU Affero General Public License v3.0 only (with historical Apache-2.0 portions and MIT-licensed adaptations noted in its NOTICE). Evidentia was designed after studying GEOFlow's architecture and operational ideas — trusted knowledge, AI quality gates, human review, multi-channel distribution, an integrated Agent Skill. Evidentia is a clean-room reimplementation in TypeScript: no source code, prompts, templates, schemas, assets or documentation text were copied or translated, and no AGPL-licensed code is distributed with Evidentia. This attribution is given voluntarily as credit; it is not a licence obligation. The analysis is documented in <code>docs/UPSTREAM_ANALYSIS.md</code> and <code>docs/UPSTREAM_LICENSING.md</code>.</p>
+    <h2>Third-party dependencies</h2>
+    <p>Runtime dependencies are deliberately few and permissively licensed: <code>zod</code> (MIT) and <code>yaml</code> (ISC) in the core; <code>hono</code> and <code>@hono/node-server</code> (MIT) in the console; <code>astro</code> (MIT) at build time for this site. Development tooling: TypeScript (Apache-2.0), Playwright (Apache-2.0), @types/node (MIT). A complete CycloneDX SBOM with licences and hashes is generated for every release (<code>node scripts/sbom.ts</code>) and a licence allow-list is enforced in CI.</p>
+    <h2>Standards and vocabularies referenced</h2>
+    <p>Schema.org, IPTC digital source type vocabulary, Robots Exclusion Protocol (RFC 9309), CycloneDX. Legal sources cited in the governance documentation are listed with URLs and access dates in <code>governance/sources.yaml</code>.</p>
+    <h2>Trademarks</h2>
+    <p>Evidentia is a working product name of Clixite SRL; trademark clearance and registration are in progress. Other names are the property of their respective owners and are used for identification only.</p>
+  </div></section>
+</Base>

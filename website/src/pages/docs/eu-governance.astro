@@ -1,0 +1,10 @@
+---
+import Base from '../../layouts/Base.astro';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+const md = readFileSync(resolve('../docs/EU_GOVERNANCE.md'), 'utf8');
+---
+<Base title="EU governance (full)" description="The complete EU governance analysis for Evidentia: AI Act, GDPR, copyright, Cyber Resilience Act, NIS2, ePrivacy, DSA, accessibility, Data Act and provenance — applicability verdicts, obligations, controls, claims not to make, dated watchlist." path="/docs/eu-governance" pageType="TechArticle" breadcrumbs={[{ name: 'Documentation', path: '/docs' }, { name: 'EU governance', path: '/docs/eu-governance' }]}>
+  <section class="hero wrap"><span class="eyebrow">Docs · research brief</span><h1>EU governance — full analysis</h1><p class="lede">Rendered from <code>docs/EU_GOVERNANCE.md</code>. Engineering analysis based on primary sources accessed 2026-09-18; not legal advice.</p></section>
+  <section class="block"><div class="wrap prose"><pre tabindex="0" style="white-space:pre-wrap;background:#fff;color:var(--ink);border:1px solid var(--line)">{md}</pre></div></section>
+</Base>

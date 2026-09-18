@@ -17,3 +17,8 @@ out/
 .DS_Store
 Thumbs.db
 *.log
+
+# evidentia runtime
+.evidentia/
+tests/e2e/report/
+test-results/

@@ -1,0 +1,26 @@
+# Gitleaks configuration for Evidentia.
+# The default ruleset applies; the allowlist below covers deterministic TEST FIXTURES only:
+# - SHA-256 hashes of throwaway e2e tokens ("writer-e2e-token", "editor-e2e-token") in the
+#   Playwright config and console tests — hashes, not secrets, of values that grant nothing
+#   outside an in-memory test server;
+# - obviously fake provider-key-shaped strings ("sk-test-…", "sk-abcdef…") used to prove
+#   that the logger redacts them.
+# Real secrets never live in the repository (see .env.example and SECURITY.md).
+title = "evidentia"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Test fixtures that intentionally look like secrets"
+paths = [
+  '''tests/e2e/playwright\.config\.ts''',
+  '''apps/admin/test/app\.test\.ts''',
+  '''packages/core/test/observability/logger\.test\.ts''',
+  '''packages/core/test/providers/adapters\.test\.ts''',
+]
+regexes = [
+  '''sk-test-1234567890abcdef''',
+  '''sk-abcdefghijklmnop''',
+  '''sk-1234567890abcdef''',
+]

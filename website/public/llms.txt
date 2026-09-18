@@ -1,0 +1,27 @@
+# Evidentia
+
+> Governed Generative Engine Optimization platform and Agent Skill for European organisations. Built and maintained by Clixite SRL — Belgium.
+
+Note on this file: llms.txt is a community proposal, not a standard adopted by search or answer engines. As of September 2026 Google states it ignores such files and large-scale studies found no correlation with AI citations. We publish it because it is harmless and occasionally useful to people; we do not claim it affects visibility.
+
+## Product
+- [Product overview](https://evidentia.clixite.eu/product): capabilities from trusted knowledge to measurement.
+- [Architecture](https://evidentia.clixite.eu/architecture): TypeScript monorepo, Node.js 24, SQLite, framework-free core.
+- [Installation](https://evidentia.clixite.eu/installation): platform, console and Agent Skill.
+
+## Method
+- [GEO / AEO methodology](https://evidentia.clixite.eu/geo-aeo): evidence tiers and the readiness-v1 score.
+- [AI visibility](https://evidentia.clixite.eu/ai-visibility): repeated sampling with Wilson intervals.
+- [Trusted knowledge](https://evidentia.clixite.eu/trusted-knowledge): provenance, claims, entities, quarantine.
+
+## Trust
+- [Governance](https://evidentia.clixite.eu/governance): policies, registers, approvals, ledger, provenance.
+- [EU readiness](https://evidentia.clixite.eu/eu-readiness): per-framework controls and responsibilities, no badges.
+- [Security](https://evidentia.clixite.eu/security): threat model summary and disclosure policy.
+- [Licence and attribution](https://evidentia.clixite.eu/licence): clean-room relationship to GEOFlow (AGPL-3.0).
+
+## Documentation
+- [Getting started](https://evidentia.clixite.eu/docs/getting-started)
+- [CLI reference](https://evidentia.clixite.eu/docs/cli)
+- [Agent Skill](https://evidentia.clixite.eu/docs/skill)
+- [Policies](https://evidentia.clixite.eu/docs/policies)

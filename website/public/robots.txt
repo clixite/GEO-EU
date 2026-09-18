@@ -1,0 +1,6 @@
+# Evidentia website — Clixite SRL
+# Search-purpose AI agents are welcome. Training crawlers may index public marketing content.
+User-agent: *
+Allow: /
+
+Sitemap: https://evidentia.clixite.eu/sitemap.xml

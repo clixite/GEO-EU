@@ -34,7 +34,7 @@ const techniques = [
   </div></section>
   <section class="block"><div class="wrap">
     <h2>Technique catalogue (excerpt)</h2>
-    <div class="table-wrap"><table>
+    <div class="table-wrap" tabindex="0"><table>
       <thead><tr><th scope="col">Technique</th><th scope="col">Tier</th><th scope="col">Why</th></tr></thead>
       <tbody>{techniques.map(([t, tier, why]) => <tr><td>{t}</td><td><span class={`tier ${tier[0]}`}>{tier}</span></td><td>{why}</td></tr>)}</tbody>
     </table></div>
@@ -43,7 +43,7 @@ const techniques = [
   <section class="block"><div class="wrap prose">
     <h2>The readiness-v1 score</h2>
     <p>Readiness measures what a page controls and what engines document — never visibility, which is measured separately. Weights are a product design choice, published and versioned:</p>
-    <div class="table-wrap"><table>
+    <div class="table-wrap" tabindex="0"><table>
       <thead><tr><th scope="col">Dimension</th><th scope="col">Weight</th><th scope="col">Type</th><th scope="col">Examples</th></tr></thead>
       <tbody>
         <tr><td>Retrievability &amp; access</td><td>30</td><td>deterministic</td><td>robots.txt per agent, noindex/snippet directives, canonical, server-rendered content. A hard block on all search agents zeroes the score.</td></tr>

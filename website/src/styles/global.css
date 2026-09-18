@@ -5,7 +5,7 @@
 :root {
   --ink: #101418;
   --ink-2: #3a424c;
-  --muted: #6b7480;
+  --muted: #59626e;
   --line: #d8dde3;
   --paper: #fbfaf7;
   --paper-2: #f2f0ea;
@@ -93,8 +93,12 @@ section.block:first-of-type { border-top: 0; }
 .card .n { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); letter-spacing: 0.1em; margin-bottom: 8px; display: block; }
 .card.accent { background: var(--accent); color: #fff; border-color: var(--accent); }
 .card.accent a { color: #fff; }
+.card.accent .n { color: #e3f1ef; }
 .card.ink { background: var(--ink); color: #eef2f6; border-color: var(--ink); }
 .card.ink a { color: #bfe5e1; }
+.card.ink .n { color: #c9d3dc; }
+.card.ink code, .card.accent code { background: rgba(255, 255, 255, 0.14); color: inherit; }
+pre:focus-visible, .table-wrap:focus-visible { outline: 3px solid #f2b705; outline-offset: 2px; }
 
 /* Tables */
 table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
@@ -118,7 +122,9 @@ th { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; colo
 .toc ol { margin: 0; padding-left: 1.2em; }
 
 /* Diagram */
-.diagram { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px; overflow-x: auto; }
+.diagram { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+.diagram.scroll { overflow-x: auto; }
+.diagram.scroll:focus-visible { outline: 3px solid #f2b705; }
 .diagram svg { width: 100%; height: auto; display: block; font-family: var(--sans); }
 
 /* Footer */

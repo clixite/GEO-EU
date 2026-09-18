@@ -1,59 +1,45 @@
 # Build state — Evidentia (GEO-EU)
 
-Durable working state for long-horizon work. Updated continuously. This file is a
-log of decisions, phases and evidence; it is not a substitute for the real docs.
+Durable working state for long-horizon work. Updated 2026-09-18 (evening).
 
 ## Identity
 - Product: **Evidentia** — governed generative visibility for European organisations.
-- Owner: Clixite SRL (Belgium). Repo: github.com/clixite/GEO-EU (private).
-- Branch: `feat/evidentia-v1` (from `main`).
-- Upstream studied: yaojingang/GEOFlow @ `9ed2fe80457d5eb280a4bca7cf799895bf2ca3b1`
-  (source 3.2.0-beta.1, latest stable v3.1.0, AGPL-3.0-only + NOTICE).
+- Owner: Clixite SRL (Belgium). Repo: github.com/clixite/GEO-EU (private). Branch: `feat/evidentia-v1`.
+- Upstream studied: yaojingang/GEOFlow @ `9ed2fe80457d5eb280a4bca7cf799895bf2ca3b1` (3.2.0-beta.1; stable v3.1.0; AGPL-3.0-only). Clean-room (ADR-0003).
 
 ## Capability matrix (environment, verified 2026-09-18)
-| Capability | Status |
-|---|---|
-| Node.js 24.12 (native TS type-stripping, `node:sqlite` 3.50 with FTS5, `node:test`) | available, verified by probe |
-| pnpm 10.26, npm 11.6 | available |
-| Python 3.14 / 3.13 | available (not used at runtime) |
-| Docker 29.1 | available |
-| gh 2.83, git 2.52, GitHub MCP | available, authenticated as `clixite` |
-| Playwright 1.63 | available via npx |
-| gitleaks 8.30 | available |
-| semgrep, trivy, syft, osv-scanner, lighthouse | NOT installed locally (npm-based / GitHub Actions equivalents used) |
-| PHP / composer | NOT installed (upstream analysed statically, never executed) |
-| Hostinger, Vercel MCP connectors | available (deployment options) |
-| Skills used | superpowers (process), ai-seo, security-review, tdd-workflow, frontend-design |
+Node 24.12 (native TS, node:sqlite/FTS5, node:test) · pnpm 10.26 · Docker 29 · gh 2.83 + GitHub MCP (clixite) · Playwright 1.63 + Chromium · gitleaks 8.30 · Python 3.14 (not used at runtime) · no PHP (upstream analysed statically) · semgrep/trivy/syft/lighthouse not installed locally (CI equivalents configured).
 
 ## Phases
 | # | Phase | Status | Evidence |
 |---|---|---|---|
-| 0 | Repo created, skeleton, branch | done | commits on main + feat branch |
-| 1 | Environment discovery | done | table above; sqlite+fts5 probe passed |
-| 2 | Upstream forensic analysis | in progress (background agent) | -> docs/UPSTREAM_ANALYSIS.md |
-| 3 | GEO/AEO state of the art | in progress (background agent) | -> docs/GEO_METHODOLOGY.md |
-| 4 | EU governance primary sources | in progress (background agent) | -> docs/EU_GOVERNANCE.md, governance/sources.yaml |
-| 5 | Agent Skills conventions | in progress (background agent) | -> skill/ |
-| 6 | Product identity + ADRs | done | docs/ADR/0001..0003 |
-| 7 | Core engine (TypeScript) | in progress | packages/core |
-| 8 | Governance control plane | pending | packages/core/src/governance |
-| 9 | CLI | pending | packages/cli |
-| 10 | Agent Skill | pending | skill/ |
-| 11 | Admin app | pending | apps/admin |
-| 12 | Website | pending | website/ |
-| 13 | Security: threat model, scans, SBOM | pending | docs/THREAT_MODEL.md, .github/workflows |
-| 14 | Tests: unit/integration/e2e | pending | tests/ |
-| 15 | Adversarial review + fixes | pending | docs/reviews/ |
-| 16 | Release, FINAL_REPORT.md | pending | |
+| 0–1 | Repo, branch, environment discovery | done | this file; probe tests |
+| 2 | Upstream forensic analysis | done | docs/UPSTREAM_ANALYSIS.md (494 lines), docs/UPSTREAM_LICENSING.md |
+| 3 | GEO/AEO state of the art | done | docs/GEO_METHODOLOGY.md (31 techniques, 90 sources) |
+| 4 | EU governance primary sources | done | docs/EU_GOVERNANCE.md, governance/sources.yaml (68 sources) |
+| 5 | Agent Skills conventions | done | skill/evidentia (open spec layout; Claude-only fields avoided) |
+| 6 | Identity + ADRs | done | ADR-0001..0005 |
+| 7 | Core engine | done | packages/core — 81 node:test cases passing |
+| 8 | Governance control plane | done | policy engine, registers, approvals, provenance, retention, ledger |
+| 9 | CLI | done | packages/cli; 18-step smoke passes |
+| 10 | Agent Skill | done | SKILL.md + 10 references + 7 scripts; 6 script tests passing; install/verify/uninstall round trip |
+| 11 | Admin console | done | apps/admin; 5 tests passing; e2e critical flow passes on desktop |
+| 12 | Website | done (build ok, 25 pages) | website/dist; e2e: structure/JSON-LD/sitemap/keyboard/responsive pass; contrast fixes applied |
+| 13 | Security: threat model, scans, SBOM | done | docs/THREAT_MODEL.md, SECURITY_ARCHITECTURE.md, SECURITY.md; gitleaks clean (fixture allowlist); pnpm audit clean; SBOM 316 components; licence gate ok (platform-optional binaries reported as not-installed) |
+| 14 | Tests: unit/integration/e2e | done / final e2e pass in progress | see Verification log |
+| 15 | Adversarial review + fixes | in progress (independent agent writing docs/reviews/ADVERSARIAL_REVIEW.md) | |
+| 16 | Release, FINAL_REPORT.md, PR | pending | |
 
-## Decisions (see docs/ADR/)
-- ADR-0001 product identity: Evidentia.
-- ADR-0002 stack: TypeScript monorepo, Node >= 24, SQLite (node:sqlite) default store, zero-framework core, Hono admin, Astro website.
-- ADR-0003 clean-room implementation: no upstream code copied; upstream studied for ideas only.
+## Decisions
+ADR-0001 identity · ADR-0002 stack · ADR-0003 clean room · ADR-0004 native Node + SQLite · ADR-0005 deterministic verification before judgement.
 
 ## Blockers
-- none
+- None. Lighthouse not run locally (tool not installed); Playwright + axe cover accessibility/structure; performance budget documented, not measured with Lighthouse in this session.
 
-## Verification log
-- 2026-09-18: `node --test probe/a.ts` (node:sqlite + FTS5 + json_extract + TS stripping) — pass.
-- 2026-09-18: `pnpm install` root devDependencies (typescript 7.0.2, @types/node 24.12.0, @playwright/test 1.63.0) — ok, lockfile v9.
+## Verification log (2026-09-18)
+- `pnpm test` (core): 81 pass · admin: 5 pass · skill scripts: 6 pass.
+- `node scripts/smoke.ts`: 18 steps pass (ingest+quarantine, search, analyse ≥85, grounded draft 0 unsupported, gate→approval, four-eyes refusal, publish with manifest, double publish refused, observatory 28 obs with Wilson, policy denial of unapproved model, DSAR, audit verify, evals 4/4 datasets, export).
+- `evidentia evals run`: readiness 4/4, governance 21/21, grounding 6/6, retrieval 3/3.
+- `pnpm build` (website): 25 pages.
+- `pnpm test:e2e`: 13/18 → remaining failures being fixed (contrast, mobile viewport) — see FINAL_REPORT for final numbers.
+- `gitleaks detect`: no leaks. `pnpm audit --audit-level=high`: none. `node scripts/licenses.ts`: ok. `node scripts/sbom.ts`: dist/sbom.cdx.json.

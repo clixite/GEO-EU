@@ -1,0 +1,45 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Installation" description="Install Evidentia: requirements (Node.js 24, pnpm), repository setup, first store, offline demo, registering models, the governance console, and installing the Claude Code Agent Skill (user or project scope) with verification, upgrade and rollback." path="/installation" pageType="TechArticle" breadcrumbs={[{ name: 'Installation', path: '/installation' }]}>
+  <section class="hero wrap">
+    <span class="eyebrow">Installation</span>
+    <h1>Up and running in minutes. Every command below is validated in CI.</h1>
+    <p class="lede">Requirements: Node.js 24 or newer and pnpm 10. No database server, no PHP, no Docker required (a container recipe is in the operations guide).</p>
+  </section>
+  <section class="block"><div class="wrap prose">
+    <h2>1. Platform</h2>
+<pre is:raw tabindex="0"><code>git clone https://github.com/clixite/GEO-EU.git
+cd GEO-EU
+pnpm install --frozen-lockfile
+node packages/cli/bin/evidentia.mjs init        # creates .evidentia/evidentia.db and an Ed25519 signing key
+node packages/cli/bin/evidentia.mjs status</code></pre>
+    <p>Optional: expose the CLI as <code>evidentia</code> with <code>pnpm --filter @evidentia/cli link --global</code>, or set <code>EVIDENTIA_CLI=$PWD/packages/cli/bin/evidentia.mjs</code> for the skill scripts.</p>
+    <h2>2. Try the offline demo</h2>
+<pre is:raw tabindex="0"><code>evidentia init --db ./.evidentia/demo.db --tenant demo
+evidentia demo load --db ./.evidentia/demo.db --tenant demo
+evidentia search "how long are support recordings kept" --db ./.evidentia/demo.db --tenant demo</code></pre>
+    <p>The demo registers an in-process model that drafts by copying evidence sentences, so the full pipeline — including the poisoned-document quarantine and the four-eyes approval — runs without any API key.</p>
+    <h2>3. Register a real model</h2>
+<pre is:raw tabindex="0"><code>cp skill/evidentia/assets/model-record.template.json model.json   # fill hosting, retention, training, DPA facts
+export EVIDENTIA_PROVIDER_MISTRAL_API_KEY=…                          # secrets live in the environment only
+evidentia model register --file model.json
+evidentia model status &lt;id&gt; approved --note "DPA ref 2026-…"
+evidentia policy check --provider mistral --model mistral-large-latest --classes internal,personal</code></pre>
+    <h2>4. Governance console</h2>
+<pre is:raw tabindex="0"><code>export EVIDENTIA_ADMIN_SECRET="$(openssl rand -hex 32)"
+export EVIDENTIA_ADMIN_USERS='[{"name":"editor@acme.example","role":"approver","tokenHash":"&lt;sha256 of the token&gt;"}]'
+pnpm --filter @evidentia/admin start          # http://127.0.0.1:8787 — put TLS and SSO/MFA in front</code></pre>
+    <h2>5. Agent Skill (Claude Code)</h2>
+<pre is:raw tabindex="0"><code>node skill/evidentia/scripts/install.mjs --scope user      # ~/.claude/skills/evidentia
+node skill/evidentia/scripts/install.mjs --scope project   # ./.claude/skills/evidentia (add --agents for .agents/skills)
+node skill/evidentia/scripts/verify-install.mjs --scope user</code></pre>
+    <p>Restart Claude Code; the skill is available as <code>/evidentia</code> and is selected automatically for GEO, knowledge, drafting, governance and visibility tasks. Upgrade by running the installer from a newer checkout (the previous copy is backed up); roll back with <code>uninstall.mjs</code> or by renaming the backup.</p>
+    <h2>6. Verify the installation</h2>
+<pre is:raw tabindex="0"><code>pnpm typecheck && pnpm test          # unit and integration tests
+node scripts/smoke.ts                # 18-step offline end-to-end flow
+evidentia evals run                  # deterministic regression datasets
+evidentia audit verify               # ledger integrity</code></pre>
+    <p>Full guides: <a href="/docs">documentation</a> · operations, backup and upgrade in <code>docs/OPERATIONS.md</code>.</p>
+  </div></section>
+</Base>

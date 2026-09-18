@@ -1,0 +1,14 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Privacy" description="Privacy notice for the Evidentia website (no cookies, no trackers, no analytics scripts) and a summary of how the Evidentia product handles personal data." path="/privacy" breadcrumbs={[{ name: 'Privacy', path: '/privacy' }]}>
+  <section class="hero wrap"><span class="eyebrow">Privacy</span><h1>This website sets no cookies and loads no third-party scripts.</h1></section>
+  <section class="block"><div class="wrap prose">
+    <h2>This website</h2>
+    <p>Controller: Clixite SRL, Belgium (contact: <a href="mailto:privacy@clixite.eu">privacy@clixite.eu</a>). The site is static: no cookies, no analytics or tracking scripts, no embedded third-party content, no forms that submit data. The hosting provider processes standard server logs (IP address, user agent, requested URL, timestamp) for security and operation on the basis of legitimate interests (Art. 6(1)(f) GDPR), retained for a short period as described in the hosting agreement. Because no client-side storage or beacons are used, no ePrivacy consent is required for browsing. If you write to us, we process your message to answer it and keep it as long as the exchange requires.</p>
+    <h2>The Evidentia product</h2>
+    <p>Evidentia is self-hosted software: the organisation deploying it is the controller of the data it processes. The product is designed for data minimisation — first-party sources, data-class policies that decide which model may see what, no logging of prompts or answers, data-subject lookup and redaction across every derived artefact, retention jobs, complete tenant export and erasure. Model providers are sub-processors chosen and contracted by the deploying organisation; their hosting, retention, training-use and DPA facts are recorded in the model registry. See the <a href="/eu-readiness">EU readiness</a> page and <code>docs/GDPR.md</code>.</p>
+    <h2>Your rights</h2>
+    <p>You have the rights of access, rectification, erasure, restriction, portability and objection under the GDPR, and the right to lodge a complaint with the Belgian Data Protection Authority (Autorité de protection des données / Gegevensbeschermingsautoriteit). Contact <a href="mailto:privacy@clixite.eu">privacy@clixite.eu</a>.</p>
+  </div></section>
+</Base>

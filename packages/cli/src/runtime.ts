@@ -65,6 +65,15 @@ export function createRuntime(options: RuntimeOptions): Runtime {
   const approvals = new ApprovalService(db, ledger);
   const meter = new CostMeter(db);
   const secrets = envSecrets();
+  // The offline, self-hosted embedding model is always available so that ingestion
+  // works before any external provider is contracted. Registered once, audited.
+  if (!registry.find(options.tenantId, 'local', 'hash-384')) {
+    registry.upsert({ tenantId: options.tenantId, actor: 'system' }, {
+      provider: 'local', model: 'hash-384', displayName: 'Local hashed embeddings (offline, non-semantic)', adapter: 'local', hosting: 'self-hosted', modalities: ['embedding'],
+      dataPolicy: { retentionDays: 0, usedForTraining: false, dpaAvailable: true, zeroDataRetention: true }, allowedDataClasses: ['public', 'internal', 'confidential', 'personal', 'special-category'],
+      approvalStatus: 'approved', evaluationStatus: 'passed', qualityTier: 1, latencyTier: 1, riskNotes: 'Deterministic feature hashing; no data leaves the host. Replace with a real embedding model for semantic retrieval.',
+    });
+  }
   const records = registry.list(options.tenantId).map((r) => r.record);
   const adapters = buildAdapters(records, secrets, { webSearch: true }).filter((a) => a.id !== 'demo');
   if (records.some((r) => r.provider === 'demo')) adapters.push(new DemoProvider('demo'));

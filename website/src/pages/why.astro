@@ -1,0 +1,29 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Why Evidentia exists" description="Why a governed GEO operating platform instead of fragmented tools: the problems with crawlers, checkers, writers and trackers that do not share evidence, and what changes when knowledge, drafting, gates, publishing and measurement live in one audited pipeline." path="/why" breadcrumbs={[{ name: 'Why Evidentia exists', path: '/why' }]}>
+  <section class="hero wrap">
+    <span class="eyebrow">Why this exists</span>
+    <h1>Fragmented GEO tooling optimises pages. A governed platform accounts for them.</h1>
+    <p class="lede">Most organisations approach AI visibility with a rank tracker here, a schema plugin there, a writing assistant somewhere else and a compliance checklist in a shared drive. None of them know what the others did, and none of them can show a regulator why a sentence was published.</p>
+  </section>
+  <section class="block"><div class="wrap">
+    <div class="table-wrap" tabindex="0"><table>
+      <thead><tr><th scope="col">Question</th><th scope="col">Fragmented tools</th><th scope="col">Evidentia</th></tr></thead>
+      <tbody>
+        <tr><td>Where did this figure come from?</td><td>Nobody knows; the writer "researched it".</td><td>Passage [E2], source, heading, character offsets — verified before the gate.</td></tr>
+        <tr><td>Which model saw our confidential brief?</td><td>Whatever the assistant was configured with that day.</td><td>Only a model the policy allows for that data class; every call and denial in the ledger.</td></tr>
+        <tr><td>Who approved this page?</td><td>An email thread, maybe.</td><td>A named second person, bound to the exact content hash, recorded with the policy that required it.</td></tr>
+        <tr><td>Is this AI-generated?</td><td>Depends who you ask.</td><td>Visible notice plus a signed, machine-readable manifest naming the accountable editor.</td></tr>
+        <tr><td>Did our visibility actually improve?</td><td>One screenshot of one answer.</td><td>Repeated sampling per engine and language, intervals, and a two-proportion test before anyone says "improved".</td></tr>
+        <tr><td>What do we tell the DPO?</td><td>A checklist.</td><td>Records of processing, DSAR tooling, retention jobs, tenant export and erasure, provider data-policy metadata.</td></tr>
+      </tbody>
+    </table></div>
+  </div></section>
+  <section class="block"><div class="wrap prose">
+    <h2>What we are not saying</h2>
+    <p>We are not claiming other products are unsafe or non-compliant, and we make no comparative performance claims. The difference we claim is architectural: Evidentia puts knowledge, generation, verification, governance, publishing and measurement in one pipeline with one audit trail — and it is open to inspection.</p>
+    <h2>Lineage</h2>
+    <p>Evidentia was inspired by <a href="https://github.com/yaojingang/GEOFlow" rel="noopener">GEOFlow</a>, an open-source (AGPL-3.0) GEO operations platform by Yao Jingang, whose ideas about trusted knowledge, AI quality gates and human review we found compelling. Evidentia is an independent, clean-room implementation in TypeScript with a European governance model; it shares no code with GEOFlow. See <a href="/licence">Licence &amp; attribution</a>.</p>
+  </div></section>
+</Base>

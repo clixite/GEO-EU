@@ -28,7 +28,9 @@ header.page h1{margin:0;font-size:26px;letter-spacing:-.01em}header.page p{margi
 .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
 .card h2{margin:0 0 10px;font-size:15px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
 .kpi{font-size:32px;font-weight:700;letter-spacing:-.02em;line-height:1.1}.kpi small{font-size:13px;color:var(--muted);font-weight:400;margin-left:6px}
-table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.table-wrap{overflow-x:auto;max-width:100%}.table-wrap:focus-visible{outline:3px solid #ffbf47}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere}th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.mono,dl.kv dd{overflow-wrap:anywhere}pre{max-width:100%}
 tr:hover td{background:#fbfcfd}
 .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid transparent}
 .badge.ok{background:#e6f4ec;color:var(--ok)}.badge.warn{background:#fff4d6;color:var(--warn)}.badge.bad{background:#fbe9e7;color:var(--bad)}.badge.info{background:#eef0f3;color:var(--info)}.badge.pass{background:#e6f4ec;color:var(--ok)}.badge.fail{background:#fbe9e7;color:var(--bad)}.badge.na{background:#eef0f3;color:var(--info)}
@@ -41,7 +43,7 @@ textarea{min-height:160px;font-family:var(--mono);font-size:13px}
 pre{background:#0f1a2b;color:#e6edf5;padding:14px;border-radius:8px;overflow:auto;font-size:12.5px}
 footer.foot{margin:40px 0 0;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
 dl.kv{display:grid;grid-template-columns:max-content 1fr;gap:4px 16px;margin:0}dl.kv dt{color:var(--muted)}dl.kv dd{margin:0}
-@media (max-width:900px){.shell{grid-template-columns:1fr}nav.side{position:static;height:auto}main{padding:18px}}
+@media (max-width:900px){.shell{grid-template-columns:1fr}nav.side{position:static;height:auto}main{padding:18px;max-width:100vw;overflow-x:hidden}header.page{flex-direction:column;align-items:flex-start}.grid.c2,.grid.c3{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:no-preference){nav.side a{transition:background .15s}}
 `;
 
@@ -76,7 +78,7 @@ export function badge(status: string): string {
 
 export function table(headers: string[], rows: string[][], empty = 'Nothing to show yet.'): string {
   if (!rows.length) return `<p class="muted">${e(empty)}</p>`;
-  return `<table><thead><tr>${headers.map((h) => `<th scope="col">${e(h)}</th>`).join('')}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  return `<div class="table-wrap" tabindex="0"><table><thead><tr>${headers.map((h) => `<th scope="col">${e(h)}</th>`).join('')}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 }
 
 export function kpi(label: string, value: string | number, hint?: string): string {
