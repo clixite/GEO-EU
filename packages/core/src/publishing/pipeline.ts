@@ -240,7 +240,11 @@ export class ContentPipeline {
       });
       manifest = signManifest(m, this.signingKey);
       const art = markingArtifacts(manifest);
-      metaBlock += `\n${art.metaTags.join('\n')}\n<script type="application/ld+json">${jsonForScript(art.jsonLd)}</script>`;
+      // jsonForScript() escapes <, >, & and line separators specifically so this cannot break
+      // out of the <script> element (see governance/provenance.ts and the "jsonForScript
+      // escapes HTML-significant characters" test); Semgrep cannot see through that call and
+      // flags any dynamic content inside a manually built <script> tag regardless.
+      metaBlock += `\n${art.metaTags.join('\n')}\n<script type="application/ld+json">${jsonForScript(art.jsonLd)}</script>`; // nosemgrep: javascript.express.security.injection.raw-html-format
       if (gate?.requiresDisclosure || d.aiAssisted) disclosureBlock = art.visibleNoticeHtml;
     } else if (d.aiAssisted) {
       disclosureBlock = `<aside class="ai-disclosure" aria-label="AI disclosure"><p><strong>AI transparency notice.</strong> This text was drafted with AI assistance${d.reviewer ? ` and approved by ${escapeHtml(d.reviewer)}` : ''}; it is published under the editorial responsibility of ${escapeHtml(editorial.name)} (${escapeHtml(editorial.role)}).</p></aside>`;
@@ -299,7 +303,10 @@ export class ContentPipeline {
       ...(editorial ? { author: { '@type': 'Person', name: editorial.name, jobTitle: editorial.role } } : {}),
       ...(d.evidence.length ? { citation: [...new Set(d.evidence.map((e) => e.locator))] } : {}),
     };
-    return `<meta name="description" content="${escapeHtml(description)}">\n<script type="application/ld+json">${jsonForScript(article)}</script>`;
+    // The meta content is escapeHtml()'d (quotes/angle-brackets/ampersands) and the JSON-LD is
+    // jsonForScript()'d (escapes </script> breakout and HTML-significant characters); see the
+    // note on the sibling call in render() above.
+    return `<meta name="description" content="${escapeHtml(description)}">\n<script type="application/ld+json">${jsonForScript(article)}</script>`; // nosemgrep: javascript.express.security.injection.raw-html-format
   }
 
   #document(d: Draft, parts: { bodyHtml: string; metaBlock: string; disclosureBlock: string }): string {
