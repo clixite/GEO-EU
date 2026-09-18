@@ -50,6 +50,14 @@ test('keyboard navigation reaches the skip link and main content', async ({ page
 });
 
 test('accessibility: no serious or critical axe violations on key pages', async ({ page }) => {
+  // Entrance animations (.reveal, "rise" 0.7s + per-element stagger) fade text in from
+  // opacity: 0. Scanning immediately after navigation can race that animation — sampling
+  // mid-fade genuinely does lower the rendered text's contrast, so a scan on a slower or
+  // differently-scheduled runner can catch it transiently. The site's own CSS already
+  // disables these animations under prefers-reduced-motion; emulating it here removes the
+  // race entirely rather than adding an arbitrary wait, and matches what a user who has
+  // that OS preference set actually sees.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   for (const path of ['/', '/geo-aeo', '/eu-readiness', '/installation', '/faq']) {
     await page.goto(`${SITE}${path}`);
     const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
