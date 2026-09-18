@@ -41,6 +41,30 @@ Northwind Bank is the largest payment processor in the Benelux [E1]. Erasure req
   assert.deepEqual(r.citedEvidenceIds, ['E1', 'E2']);
 });
 
+test('verifyDraft catches entity swaps, negation flips and unit/period swaps against the cited evidence', () => {
+  // Entity swap: the claim's subject is not the organisation the evidence is about.
+  const entitySwap = verifyDraft('Contoso Payments reconciles 2.3 million payments per day across 14 countries [E1].', EVIDENCE);
+  const entityClaim = entitySwap.claims[0];
+  assert.equal(entityClaim?.supported, false);
+  assert.match(entityClaim?.reason ?? '', /does not mention: contoso/);
+
+  // Negation flip: the evidence says recordings ARE deleted after 90 days; the claim says NOT.
+  const negationSwap = verifyDraft('Customer support recordings are not deleted after 90 days [E2].', EVIDENCE);
+  const negationClaim = negationSwap.claims[0];
+  assert.equal(negationClaim?.supported, false);
+  assert.match(negationClaim?.reason ?? '', /negation differs from the cited evidence/);
+
+  // Unit/period swap: the evidence says "per day"; the claim says "per week".
+  const unitSwap = verifyDraft('Northwind Bank reconciles 2.3 million payments per week across 14 countries [E1].', EVIDENCE);
+  const unitClaim = unitSwap.claims[0];
+  assert.equal(unitClaim?.supported, false);
+  assert.match(unitClaim?.reason ?? '', /does not state the unit\(s\)\/period\(s\): per week/);
+
+  // Headings are verified like sentences: a fabricated figure in an H2 is still a claim.
+  const headingClaim = verifyDraft('# Title\n\n## We process 9.9 million payments per day\n\nSee the reconciliation page [E1].', EVIDENCE);
+  assert.ok(headingClaim.unsupportedClaims >= 1, 'a fabricated figure in a heading is caught, not exempted');
+});
+
 test('uncited but closely matching sentences are auto-linked; uncited invented facts are not', () => {
   const r = verifyDraft('Customer support recordings are deleted after 90 days. The bank won an innovation award in 2024.', EVIDENCE);
   assert.equal(r.claims.find((c) => c.text.startsWith('Customer support'))?.supported, true);

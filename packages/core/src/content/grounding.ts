@@ -108,8 +108,36 @@ function normaliseFigure(f: string): string {
 }
 
 const QUALIFIER = /\b(best|largest|biggest|fastest|leading|first|only|most|number one|unrivalled|unmatched|world-class|top|guarantee|guaranteed|always|never|100%)\b/gi;
+const NEGATION = /\b(not|no|never|none|without|neither|nor|cannot|isn't|aren't|doesn't|don't|won't|wasn't|weren't)\b/gi;
+// Deliberately matches the sentence-initial word too: entity swaps are naturally written as the
+// claim's subject ("Contoso Payments reconciles…" for evidence about Northwind Bank), so excluding
+// the first word would blind the check to exactly the common case. The STOP-word filter below (not
+// this regex) is what keeps ordinary sentence-initial capitals ("The", "Every") from being treated
+// as entities.
+const PROPER_NOUN = /\b\p{Lu}[\p{L}\p{N}&'’-]+\b/gu;
+/** A figure and the unit or noun that follows it ("2.3 million", "14 countries", "90 days", "per day"). */
+const FIGURE_UNIT = /\d[\d.,]*\s*(%|percent|[A-Za-z]{2,})/g;
+const PER_UNIT = /\bper\s+([a-z]+)/gi;
 
-function supports(claim: string, evidenceText: string): { ok: boolean; overlap: number; missingFigures: string[]; missingQualifiers: string[] } {
+function negations(text: string): Set<string> {
+  return new Set((text.match(NEGATION) ?? []).map((n) => n.toLowerCase()));
+}
+
+/** Best-matching evidence sentence for a claim (by content-word overlap). */
+function bestSentence(claim: string, evidenceText: string): string {
+  const c = contentWords(claim);
+  let best = evidenceText;
+  let bestScore = -1;
+  for (const s of splitSentences(evidenceText)) {
+    const e = contentWords(s.text);
+    let inter = 0;
+    for (const w of c) if (e.has(w)) inter += 1;
+    if (inter > bestScore) { bestScore = inter; best = s.text; }
+  }
+  return best;
+}
+
+function supports(claim: string, evidenceText: string): { ok: boolean; overlap: number; missingFigures: string[]; missingQualifiers: string[]; missingEntities: string[]; missingUnits: string[]; negationMismatch: boolean } {
   const clean = claim.replace(MARKER, '');
   const c = contentWords(clean);
   const e = contentWords(evidenceText);
@@ -118,16 +146,27 @@ function supports(claim: string, evidenceText: string): { ok: boolean; overlap: 
   const overlap = c.size ? inter / c.size : 0;
   const evFigures = new Set(figuresIn(evidenceText).map(normaliseFigure));
   const missingFigures = figuresIn(clean).map(normaliseFigure).filter((f) => !evFigures.has(f));
-  // Superlatives and promises must literally appear in the evidence: "largest" is a claim, not a paraphrase.
   const lowerEvidence = evidenceText.toLowerCase();
+  // Superlatives and promises must literally appear in the evidence: "largest" is a claim, not a paraphrase.
   const missingQualifiers = [...new Set((clean.match(QUALIFIER) ?? []).map((q) => q.toLowerCase()))].filter((q) => !lowerEvidence.includes(q));
-  return { ok: overlap >= 0.3 && missingFigures.length === 0 && missingQualifiers.length === 0, overlap, missingFigures, missingQualifiers };
+  // Proper nouns (who/what the claim is about) must appear in the evidence: "Acme Bank reconciles…" is not supported by a Northwind passage.
+  const missingEntities = [...new Set((clean.match(PROPER_NOUN) ?? []).map((w) => w.toLowerCase()))].filter((w) => !STOP.has(w) && !lowerEvidence.includes(w));
+  // Units and periods attached to figures must match: "2.3 million per week" is not "2.3 million per day".
+  const evUnits = new Set([...(evidenceText.match(FIGURE_UNIT) ?? []).map((m) => m.replace(/^[\d.,\s]+/, '').toLowerCase()), ...(evidenceText.match(PER_UNIT) ?? []).map((m) => m.toLowerCase())]);
+  const missingUnits = [...new Set([...(clean.match(FIGURE_UNIT) ?? []).map((m) => m.replace(/^[\d.,\s]+/, '').toLowerCase()), ...(clean.match(PER_UNIT) ?? []).map((m) => m.toLowerCase())])].filter((u) => !evUnits.has(u));
+  // Negation must agree with the best-matching evidence sentence.
+  const claimNeg = negations(clean);
+  const evNeg = negations(bestSentence(clean, evidenceText));
+  const negationMismatch = claimNeg.size !== evNeg.size || [...claimNeg].some((n) => !evNeg.has(n));
+  return { ok: overlap >= 0.3 && missingFigures.length === 0 && missingQualifiers.length === 0 && missingEntities.length === 0 && missingUnits.length === 0 && !negationMismatch, overlap, missingFigures, missingQualifiers, missingEntities, missingUnits, negationMismatch };
 }
 
 export function verifyDraft(draft: string, evidence: readonly EvidenceItem[]): VerificationReport {
   const byId = new Map(evidence.map((e) => [e.id, e]));
   const placeholders = draft.match(PLACEHOLDER) ?? [];
-  const body = draft.replace(PLACEHOLDER, '').replace(/^#.*$/gm, '');
+  // Headings are verified like sentences (a fabricated figure in a heading is still a claim);
+  // the H1 title line is exempt because it names the piece rather than asserting a fact.
+  const body = draft.replace(PLACEHOLDER, '').replace(/^#\s[^\n]*$/m, '').replace(/^#{2,6}\s+/gm, '');
   const claims: ClaimVerification[] = [];
   const cited = new Set<string>();
   const superlatives: string[] = [];
@@ -135,7 +174,8 @@ export function verifyDraft(draft: string, evidence: readonly EvidenceItem[]): V
     const markers = [...s.text.matchAll(MARKER)].map((m) => `E${m[1]}`);
     for (const m of markers) cited.add(m);
     const clean = s.text.replace(MARKER, '').trim();
-    const found = extractClaims(clean, { minWords: 4 });
+    // Short sentences with figures or proper nouns are claims too ("Founded 1998.").
+    const found = extractClaims(clean, { minWords: /\d|\p{Lu}/u.test(clean.slice(1)) ? 2 : 4 });
     if (!found.length) continue;
     const kind = found[0]?.kind ?? 'fact';
     const candidates = markers.length ? markers.map((m) => byId.get(m)).filter((e): e is EvidenceItem => !!e) : evidence;
@@ -144,6 +184,9 @@ export function verifyDraft(draft: string, evidence: readonly EvidenceItem[]): V
     let bestOverlap = 0;
     let missing: string[] = [];
     let missingQualifiers: string[] = [];
+    let missingEntities: string[] = [];
+    let missingUnits: string[] = [];
+    let negationMismatch = false;
     for (const e of candidates) {
       const r = supports(clean, e.text);
       bestOverlap = Math.max(bestOverlap, r.overlap);
@@ -151,6 +194,9 @@ export function verifyDraft(draft: string, evidence: readonly EvidenceItem[]): V
       else if (markers.includes(e.id)) {
         if (r.missingFigures.length) missing = r.missingFigures;
         if (r.missingQualifiers.length) missingQualifiers = r.missingQualifiers;
+        if (r.missingEntities.length) missingEntities = r.missingEntities;
+        if (r.missingUnits.length) missingUnits = r.missingUnits;
+        if (r.negationMismatch) negationMismatch = true;
       }
     }
     // Uncited sentences need stronger overlap to count as supported (auto-link is conservative).
@@ -160,9 +206,15 @@ export function verifyDraft(draft: string, evidence: readonly EvidenceItem[]): V
         ? 'no evidence cited and no passage matches closely'
         : missing.length
           ? `cited evidence does not contain figure(s): ${missing.join(', ')}`
-          : missingQualifiers.length
-            ? `cited evidence does not state the qualifier(s): ${missingQualifiers.join(', ')}`
-            : `cited evidence does not support the statement (best overlap ${bestOverlap.toFixed(2)})`;
+          : missingEntities.length
+            ? `cited evidence does not mention: ${missingEntities.join(', ')}`
+            : missingUnits.length
+              ? `cited evidence does not state the unit(s)/period(s): ${missingUnits.join(', ')}`
+              : negationMismatch
+                ? 'negation differs from the cited evidence'
+                : missingQualifiers.length
+                  ? `cited evidence does not state the qualifier(s): ${missingQualifiers.join(', ')}`
+                  : `cited evidence does not support the statement (best overlap ${bestOverlap.toFixed(2)})`;
     }
     if (kind === 'superlative' && !supported) superlatives.push(clean);
     claims.push({ text: clean, kind, citedEvidence: markers, supportedBy: supported ? supportedBy : [], supported, reason });

@@ -95,6 +95,7 @@ export function extractHtml(html: string): ExtractedPage {
   let linkBuf: { href: string; text: string; rel: string | null } | null = null;
   let lastIndex = 0;
   const landmarks = new Set<string>();
+  const hiddenStack: string[] = [];
   const sawMainTag = /<main[\s>]/i.test(html) || /role\s*=\s*["']?main/i.test(html);
 
   // Incremental whitespace normalisation keeps recorded offsets valid in the final text.
@@ -179,11 +180,16 @@ export function extractHtml(html: string): ExtractedPage {
       }
     }
 
-    if (DROP.has(name)) {
-      if (!isClose && !selfClose) dropDepth += 1;
+    // Elements hidden by attribute or inline style are dropped from extracted text so
+    // CSS-hidden instructions or figures cannot become "evidence" (readiness still
+    // sees them through the raw-HTML hygiene check).
+    const hiddenByStyle = !isClose && (attrs['hidden'] !== undefined || /(^|;)\s*(display\s*:\s*none|visibility\s*:\s*hidden|font-size\s*:\s*0(px|em|rem|%)?\s*(;|$)|opacity\s*:\s*0(?![.\d]))/i.test(attrs['style'] ?? ''));
+    if (DROP.has(name) || hiddenByStyle) {
+      if (!isClose && !selfClose) { dropDepth += 1; if (hiddenByStyle && !DROP.has(name)) hiddenStack.push(name); }
       else if (isClose) dropDepth = Math.max(0, dropDepth - 1);
-      continue;
+      if (DROP.has(name)) continue;
     }
+    if (isClose && hiddenStack.length && hiddenStack[hiddenStack.length - 1] === name) { hiddenStack.pop(); dropDepth = Math.max(0, dropDepth - 1); }
     if (BOILERPLATE.has(name) || (!isClose && ['navigation', 'banner', 'contentinfo', 'complementary'].includes(attrs['role'] ?? ''))) {
       if (!isClose) boilerplateDepth += 1;
       else boilerplateDepth = Math.max(0, boilerplateDepth - 1);
