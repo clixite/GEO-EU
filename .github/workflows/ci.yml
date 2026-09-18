@@ -30,7 +30,8 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - name: Deterministic evals
-        run: node packages/cli/src/main.ts evals run --db :memory: --out dist/evals-report.json
+        run: |
+          node packages/cli/src/main.ts evals run --db :memory: --out dist/evals-report.json
       - name: CLI smoke (offline demo flow)
         run: node scripts/smoke.ts
       - uses: actions/upload-artifact@v4
