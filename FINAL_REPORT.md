@@ -101,10 +101,14 @@ injection dataset. Scans run 2026-09-18: `gitleaks detect` — no leaks (test
 fixtures allow-listed in `.gitleaks.toml` with justification); `pnpm audit
 --audit-level=high` — no known vulnerabilities; licence gate — 0 unknown / 0
 disallowed (platform-optional binaries reported as not installed); CycloneDX
-1.5 SBOM — 316 components with SHA-512 hashes. CodeQL and Semgrep run in CI
-(not executed locally: tools absent). Independent adversarial review:
-docs/reviews/ADVERSARIAL_REVIEW.md — findings and their resolution are
-summarised in the section below.
+1.5 SBOM — 316 components with SHA-512 hashes. Semgrep runs in CI as the
+enforced SAST gate (not executed locally: tool absent here); CodeQL's
+`analyze` step also runs but is non-blocking, because GitHub Advanced
+Security — required for code scanning on a private repository — has not been
+purchased on this account (the step fails with "Code scanning is not enabled
+for this repository", not a finding; see `ci.yml`'s `sast` job). Independent
+adversarial review: docs/reviews/ADVERSARIAL_REVIEW.md — findings and their
+resolution are summarised in the section below.
 
 Documented residual risks: DNS rebinding after lookup (use an egress proxy),
 no built-in MFA/SSO (identity-aware proxy), regex-based injection detection
@@ -310,8 +314,13 @@ product states today.
 - Observatory: Gemini API terms restrict link-level monitoring; aggregates only.
 - Website not deployed; trademark clearance for "Evidentia" pending; legal
   notice fields (company/VAT numbers) to be completed by Clixite.
-- Lighthouse and Playwright ran locally on Windows; CI (CodeQL, Semgrep) runs
-  on push to GitHub and has not yet executed at the time of writing.
+- Lighthouse and Playwright ran locally on Windows; CI now runs on push and
+  on every PR (typecheck/tests/evals, website+admin build, Playwright,
+  supply-chain, SAST — all verified green on this PR's own CI run). CodeQL's
+  code-scanning step specifically cannot run on this private repository
+  without GitHub Advanced Security, which has not been purchased; it is
+  wired as non-blocking for that reason and Semgrep is the enforced SAST
+  gate until GHAS is purchased or the repository is made public.
 - Ledger archiving with re-anchoring is a documented operator procedure, not
   automated; ledger payloads are designed to avoid free-text personal data,
   but a legitimate accountability record (an approver's name) is retained

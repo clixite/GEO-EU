@@ -137,7 +137,13 @@ jobs:
       - uses: github/codeql-action/init@v3
         with:
           languages: javascript-typescript
+      # GitHub Advanced Security (which code scanning depends on for a private
+      # repository) is not purchased on this account — the analyze step fails with
+      # "Code scanning is not enabled for this repository" for that reason alone,
+      # not because of a finding. Non-blocking until GHAS is purchased or the repo
+      # is made public; Semgrep below is the enforced, always-available SAST gate.
       - uses: github/codeql-action/analyze@v3
+        continue-on-error: true
       - name: Semgrep
         run: |
           python3 -m pip install --quiet semgrep==1.*
