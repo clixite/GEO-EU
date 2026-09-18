@@ -127,6 +127,11 @@ jobs:
     permissions:
       contents: read
       security-events: write
+      # codeql-action/analyze looks up the current workflow run (for status/telemetry
+      # reporting) via the GitHub API after the scan itself completes; without this,
+      # that lookup returns 403 and the action reports "configuration error" even
+      # though the scan and its SARIF output succeeded.
+      actions: read
     steps:
       - uses: actions/checkout@v4
       - uses: github/codeql-action/init@v3
