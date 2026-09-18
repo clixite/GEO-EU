@@ -5,3 +5,7 @@ export * from './storage/database.ts';
 export * from './storage/migrations.ts';
 export * from './audit/ledger.ts';
 export * from './observability/logger.ts';
+export * from './governance/schemas.ts';
+export * from './governance/policy.ts';
+export * from './governance/registers.ts';
+export * from './governance/approvals.ts';

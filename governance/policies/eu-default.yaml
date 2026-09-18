@@ -1,0 +1,87 @@
+# Evidentia default governance policy for European organisations.
+# Machine-readable; validated by @evidentia/core PolicyDocument.
+# Model access is deny-by-default: a model may process a request only when every
+# data class in the request is covered by a satisfied allow rule.
+id: eu-default
+version: 1
+title: EU default policy
+description: >
+  Conservative defaults for organisations subject to GDPR and the EU AI Act.
+  Public content may use any approved model. Internal and confidential content
+  requires a provider with a DPA, no training on customer data and EU/EEA or
+  self-hosted inference. Personal data additionally requires zero data retention.
+  Special-category data never leaves self-hosted infrastructure.
+jurisdiction: EU
+
+modelAccess:
+  defaultEffect: deny
+  rules:
+    - id: public-approved
+      description: Public content may be processed by any approved model.
+      dataClasses: [public]
+      effect: allow
+      require:
+        approvalStatus: [approved]
+
+    - id: internal-eu-dpa-no-training
+      description: Internal and confidential content stays with DPA-covered, no-training, EU/EEA or self-hosted models.
+      dataClasses: [internal, confidential]
+      effect: allow
+      require:
+        approvalStatus: [approved]
+        usedForTraining: false
+        dpaAvailable: true
+        hosting: [eu, eea, self-hosted]
+
+    - id: personal-zero-retention
+      description: Personal data requires zero data retention on top of the internal requirements.
+      dataClasses: [personal]
+      effect: allow
+      require:
+        approvalStatus: [approved]
+        usedForTraining: false
+        dpaAvailable: true
+        zeroDataRetention: true
+        hosting: [eu, eea, self-hosted]
+
+    - id: special-category-self-hosted
+      description: Special-category data (Art. 9 GDPR) only on self-hosted models.
+      dataClasses: [special-category]
+      effect: allow
+      require:
+        approvalStatus: [approved]
+        hosting: [self-hosted]
+
+    - id: never-train-on-confidential
+      description: Explicit deny if a provider trains on inputs, whatever else is true.
+      dataClasses: [internal, confidential, personal, special-category]
+      effect: deny
+      require:
+        usedForTraining: true
+
+publication:
+  requireApprovalWhen:
+    aiAssisted: true
+    readinessBelow: 60
+    evidenceCoverageBelow: 0.8
+    topics: [health, finance, legal, public-interest, elections, safety]
+    always: false
+  disclosure:
+    requiredWhenAiAssisted: true
+    machineReadableMarking: true
+  blockWhen:
+    unsupportedClaims: true
+    evidenceCoverageBelow: 0.5
+    prohibitedSourceKinds: [anonymous-forum, unverified-social, content-farm]
+
+retentionDays:
+  audit_event: 3650
+  model_call: 365
+  observation: 730
+  draft: 1095
+  document: 1825
+  approval: 3650
+
+confidenceThresholds:
+  claimExtraction: 0.6
+  entityResolution: 0.7
