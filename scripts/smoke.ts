@@ -82,7 +82,12 @@ const report = await run(['observe', 'report', querySetId]);
 const overall = report['overall'] as { mention: { n: number; low: number; high: number } };
 assert(overall.mention.n === 28 && overall.mention.high > overall.mention.low, 'report carries Wilson intervals');
 
-await run(['observe', 'run', querySetId, '--models', 'mistral/mistral-large-latest', '--samples', '1'], 'writer@northwind.example', 3); // unapproved model denied by policy
+// An unapproved model is denied by policy: the run records the denial and returns normally
+// (exit 0) rather than aborting, so a mixed batch of approved/unapproved models still yields
+// results for the approved ones.
+const deniedRun = await run(['observe', 'run', querySetId, '--models', 'mistral/mistral-large-latest', '--samples', '1']);
+assert((deniedRun['denied'] as number) === 1, 'unapproved model is recorded as denied, not thrown');
+assert((deniedRun['observations'] as number) === 0, 'no observations are recorded for the denied model');
 
 const dsar = await run(['dsar', 'find', 'Anna Peeters']);
 assert((dsar['chunks'] as unknown[]).length >= 1, 'DSAR lookup finds the spokesperson');
