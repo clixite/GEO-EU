@@ -9,10 +9,10 @@ import { hashToken } from '../src/auth.ts';
 
 const SECRET = 'test-secret-that-is-at-least-32-characters-long';
 const users = [
-  { name: 'viewer@acme.example', role: 'viewer' as const, tokenHash: hashToken('viewer-token') },
-  { name: 'writer@acme.example', role: 'editor' as const, tokenHash: hashToken('writer-token') },
-  { name: 'editor@acme.example', role: 'approver' as const, tokenHash: hashToken('approver-token') },
-  { name: 'admin@acme.example', role: 'admin' as const, tokenHash: hashToken('admin-token') },
+  { name: 'viewer@acme.example', role: 'viewer' as const, tokenHash: hashToken('viewer-token-0123456789abcdef') },
+  { name: 'writer@acme.example', role: 'editor' as const, tokenHash: hashToken('writer-token-0123456789abcdef') },
+  { name: 'editor@acme.example', role: 'approver' as const, tokenHash: hashToken('approver-token-0123456789abcdef') },
+  { name: 'admin@acme.example', role: 'admin' as const, tokenHash: hashToken('admin-token-0123456789abcdef') },
 ];
 
 function setup() {
@@ -33,8 +33,14 @@ async function login(app: ReturnType<typeof createApp>, token: string): Promise<
   return { cookie, csrf };
 }
 
-const formPost = (app: ReturnType<typeof createApp>, path: string, cookie: string, fields: Record<string, string>) =>
-  app.request(path, { method: 'POST', body: new URLSearchParams(fields), headers: { 'content-type': 'application/x-www-form-urlencoded', cookie } });
+// A real HTTP client (browser form submit, curl, undici over the wire) always sends
+// Content-Length for a non-streamed body; the in-process fetch Request object used by
+// Hono's test harness does not compute it automatically, so it is set explicitly here to
+// mirror what actually reaches the server in production.
+const formPost = (app: ReturnType<typeof createApp>, path: string, cookie: string, fields: Record<string, string>) => {
+  const body = new URLSearchParams(fields).toString();
+  return app.request(path, { method: 'POST', body, headers: { 'content-type': 'application/x-www-form-urlencoded', 'content-length': String(Buffer.byteLength(body)), cookie } });
+};
 
 test('unauthenticated requests are redirected to login; wrong tokens are rejected and audited; security headers are set', async () => {
   const { app, runtime } = setup();
@@ -47,6 +53,10 @@ test('unauthenticated requests are redirected to login; wrong tokens are rejecte
   const bad = await app.request('/login', { method: 'POST', body: new URLSearchParams({ token: 'nope' }), headers: { 'content-type': 'application/x-www-form-urlencoded' } });
   assert.equal(bad.status, 401);
   assert.equal(runtime.ledger.list({ action: 'auth.login_failed' }).length, 1);
+  // A token that is short but happens to hash-collide would still be rejected: length is
+  // checked before any hash comparison runs.
+  const short = await app.request('/login', { method: 'POST', body: new URLSearchParams({ token: 'viewer-token' }), headers: { 'content-type': 'application/x-www-form-urlencoded' } });
+  assert.equal(short.status, 401, 'a token shorter than the minimum length is rejected even if a longer valid token shares its prefix');
   const health = await app.request('/healthz');
   assert.equal((await health.json() as { ok: boolean }).ok, true);
 });
@@ -63,7 +73,7 @@ test('login rate limiting blocks brute force', async () => {
 
 test('session cookie is signed; tampering or forging is rejected', async () => {
   const { app } = setup();
-  const { cookie } = await login(app, 'viewer-token');
+  const { cookie } = await login(app, 'viewer-token-0123456789abcdef');
   const forged = cookie.replace(/ev_session=([^.]+)\./, (_m, p: string) => `ev_session=${Buffer.from(Buffer.from(p, 'base64url').toString().replace('"viewer"', '"admin"')).toString('base64url')}.`);
   const res = await app.request('/', { headers: { cookie: forged } });
   assert.equal(res.status, 302, 'forged cookie treated as unauthenticated');
@@ -71,12 +81,15 @@ test('session cookie is signed; tampering or forging is rejected', async () => {
 
 test('CSRF and RBAC are enforced on mutations; the approval flow works end to end through the console', async () => {
   const { app, runtime } = setup();
-  const viewer = await login(app, 'viewer-token');
-  const writer = await login(app, 'writer-token');
-  const approver = await login(app, 'approver-token');
+  const viewer = await login(app, 'viewer-token-0123456789abcdef');
+  const writer = await login(app, 'writer-token-0123456789abcdef');
+  const approver = await login(app, 'approver-token-0123456789abcdef');
 
   const noCsrf = await formPost(app, '/knowledge/ingest', writer.cookie, { locator: 'x', content: 'y' });
   assert.equal(noCsrf.status, 403);
+  // A chunked-style request with no Content-Length must not bypass the body-size guard.
+  const noContentLength = await app.request('/knowledge/ingest', { method: 'POST', body: new URLSearchParams({ csrf: writer.csrf, locator: 'x', content: 'y' }).toString(), headers: { 'content-type': 'application/x-www-form-urlencoded', cookie: writer.cookie } });
+  assert.equal(noContentLength.status, 403, 'a request with no Content-Length header is refused, not silently allowed through');
   const viewerForbidden = await formPost(app, '/knowledge/ingest', viewer.cookie, { csrf: viewer.csrf, locator: 'x', content: 'y' });
   assert.equal(viewerForbidden.status, 403);
 
@@ -119,7 +132,7 @@ test('CSRF and RBAC are enforced on mutations; the approval flow works end to en
 
 test('readiness form analyses pasted HTML and records the analysis', async () => {
   const { app, runtime } = setup();
-  const writer = await login(app, 'writer-token');
+  const writer = await login(app, 'writer-token-0123456789abcdef');
   const res = await formPost(app, '/readiness', writer.cookie, { csrf: writer.csrf, url: 'https://www.northwind.example/x', html: '<html lang="en"><head><title>T</title></head><body><main><h1>T</h1><p>Short.</p></main></body></html>', robots: 'User-agent: *\nAllow: /' });
   assert.equal(res.status, 200);
   const html = await res.text();

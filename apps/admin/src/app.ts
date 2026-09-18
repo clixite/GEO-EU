@@ -17,6 +17,8 @@ export interface AppOptions {
   sessionSecret: string;
   publishDir?: string;
   now?: () => number;
+  /** Trust the X-Forwarded-For / X-Forwarded-Proto headers set by a reverse proxy. Off by default: without it, a client cannot spoof its rate-limit identity or force an insecure cookie by sending forged headers directly. */
+  trustProxy?: boolean;
 }
 
 type Vars = { session: Session | null; requestId: string };
@@ -30,6 +32,20 @@ export function createApp(options: AppOptions): Hono<{ Variables: Vars }> {
   const app = new Hono<{ Variables: Vars }>();
   const tenant = rt.ctx.tenantId;
 
+  // Rate-limit identity: the actual socket peer, unless the deployment explicitly
+  // trusts a reverse proxy (trustProxy) to set X-Forwarded-For truthfully — otherwise
+  // any client can forge that header to reset or evade its own rate limit.
+  const clientKey = (c: { req: { header(name: string): string | undefined }; env?: unknown }): string => {
+    if (options.trustProxy) {
+      const fwd = c.req.header('x-forwarded-for')?.split(',')[0]?.trim();
+      if (fwd) return fwd;
+    }
+    const info = (c.env as { incoming?: { socket?: { remoteAddress?: string } } } | undefined)?.incoming?.socket?.remoteAddress;
+    return info ?? 'unknown';
+  };
+  const isSecureRequest = (c: { req: { url: string; header(name: string): string | undefined } }): boolean =>
+    c.req.url.startsWith('https://') || ((options.trustProxy ?? false) && c.req.header('x-forwarded-proto') === 'https');
+
   app.use('*', async (c, next) => {
     c.set('requestId', c.req.header('x-request-id') ?? newId());
     c.set('session', signer.verify(getCookie(c, 'ev_session'), options.now?.() ?? Date.now()));
@@ -41,15 +57,17 @@ export function createApp(options: AppOptions): Hono<{ Variables: Vars }> {
     c.header('permissions-policy', 'camera=(), microphone=(), geolocation=()');
     c.header('cache-control', 'no-store');
     c.header('x-request-id', c.get('requestId'));
-    if (c.req.url.startsWith('https://')) c.header('strict-transport-security', 'max-age=31536000; includeSubDomains');
+    if (isSecureRequest(c)) c.header('strict-transport-security', 'max-age=31536000; includeSubDomains');
   });
 
+  // Cheap liveness check: verifyCached() only re-walks the ledger when the head
+  // changed since the last verification, instead of an O(n) walk on every hit.
   app.get('/assets/app.css', (c) => c.body(CSS, 200, { 'content-type': 'text/css; charset=utf-8', 'cache-control': 'public, max-age=3600' }));
-  app.get('/healthz', (c) => c.json({ ok: true, ledger: rt.ledger.verify().ok }));
+  app.get('/healthz', (c) => c.json({ ok: true, ledger: rt.ledger.verifyCached().ok }));
 
   app.get('/login', (c) => (c.get('session') ? c.redirect('/') : c.html(loginPage())));
   app.post('/login', async (c) => {
-    const ip = c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? 'local';
+    const ip = clientKey(c);
     if (!limiter.allow(ip, options.now?.() ?? Date.now())) return c.html(loginPage('Too many attempts. Try again later.'), 429);
     const body = await c.req.parseBody();
     const token = typeof body['token'] === 'string' ? body['token'] : '';
@@ -60,7 +78,7 @@ export function createApp(options: AppOptions): Hono<{ Variables: Vars }> {
     }
     limiter.reset(ip);
     const { cookie } = signer.create(user, options.now?.() ?? Date.now());
-    setCookie(c, 'ev_session', cookie, { httpOnly: true, sameSite: 'Strict', secure: c.req.url.startsWith('https://'), path: '/', maxAge: Math.floor(signer.ttlMs / 1000) });
+    setCookie(c, 'ev_session', cookie, { httpOnly: true, sameSite: 'Strict', secure: isSecureRequest(c), path: '/', maxAge: Math.floor(signer.ttlMs / 1000) });
     rt.ledger.append({ tenantId: tenant, actor: user.name, action: 'auth.login', objectType: 'console', objectId: 'login', evidence: { role: user.role } });
     return c.redirect('/');
   });
@@ -77,8 +95,12 @@ export function createApp(options: AppOptions): Hono<{ Variables: Vars }> {
     return s;
   };
   const checkCsrf = async (c: { get(k: 'session'): Session | null; req: { parseBody(): Promise<Record<string, string | File | (string | File)[]>>; header(n: string): string | undefined } }): Promise<Record<string, string>> => {
-    const len = Number(c.req.header('content-length') ?? 0);
-    if (len > MAX_BODY) throw new ForbiddenError('request body too large');
+    // Content-Length is required (not just checked): a chunked-encoded request with no
+    // Content-Length would otherwise bypass this size guard entirely.
+    const lenHeader = c.req.header('content-length');
+    if (lenHeader === undefined) throw new ForbiddenError('Content-Length header is required');
+    const len = Number(lenHeader);
+    if (!Number.isFinite(len) || len > MAX_BODY) throw new ForbiddenError('request body too large');
     const body = await c.req.parseBody();
     const flat: Record<string, string> = {};
     for (const [k, v] of Object.entries(body)) if (typeof v === 'string') flat[k] = v;

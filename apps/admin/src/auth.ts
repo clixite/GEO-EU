@@ -69,17 +69,26 @@ export class SessionSigner {
   }
 }
 
+/**
+ * Fixed-capacity login attempt tracker. The map is bounded and pruned on every
+ * call so a flood of distinct keys (spoofed IPs) cannot grow it without bound;
+ * once full, the oldest entries are evicted before a new key is admitted.
+ */
 export class LoginRateLimiter {
   readonly #attempts = new Map<string, { count: number; resetAt: number }>();
   readonly max: number;
   readonly windowMs: number;
-  constructor(max = 5, windowMs = 15 * 60 * 1000) {
+  readonly #capacity: number;
+  constructor(max = 5, windowMs = 15 * 60 * 1000, capacity = 10_000) {
     this.max = max;
     this.windowMs = windowMs;
+    this.#capacity = capacity;
   }
   allow(key: string, now = Date.now()): boolean {
+    this.#prune(now);
     const a = this.#attempts.get(key);
     if (!a || a.resetAt < now) {
+      if (!a && this.#attempts.size >= this.#capacity) this.#evictOldest();
       this.#attempts.set(key, { count: 1, resetAt: now + this.windowMs });
       return true;
     }
@@ -89,15 +98,27 @@ export class LoginRateLimiter {
   reset(key: string): void {
     this.#attempts.delete(key);
   }
+  #prune(now: number): void {
+    for (const [k, v] of this.#attempts) if (v.resetAt < now) this.#attempts.delete(k);
+  }
+  #evictOldest(): void {
+    const first = this.#attempts.keys().next();
+    if (!first.done) this.#attempts.delete(first.value);
+  }
 }
 
+const MIN_TOKEN_LENGTH = 24;
+
+/** Constant-time lookup against every configured user; rejects short tokens (guessable, low entropy) before hashing. */
 export function authenticate(users: readonly UserRecord[], token: string): UserRecord | null {
+  if (token.length < MIN_TOKEN_LENGTH) return null;
   const h = Buffer.from(hashToken(token));
+  let match: UserRecord | null = null;
   for (const u of users) {
     const uh = Buffer.from(u.tokenHash);
-    if (uh.length === h.length && timingSafeEqual(uh, h)) return u;
+    if (uh.length === h.length && timingSafeEqual(uh, h)) match = u;
   }
-  return null;
+  return match;
 }
 
 /** Parse EVIDENTIA_ADMIN_USERS (JSON array of {name, role, tokenHash}). */
