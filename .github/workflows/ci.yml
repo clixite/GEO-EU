@@ -87,6 +87,12 @@ jobs:
     name: Dependency audit, licences, SBOM, secrets
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
+      # gitleaks-action, on a pull_request event, lists the PR's commits via the
+      # GitHub API to scope its scan; without this it fails closed with 403
+      # "Resource not accessible by integration" rather than silently skipping.
+      pull-requests: read
     steps:
       - uses: actions/checkout@v4
         with:
