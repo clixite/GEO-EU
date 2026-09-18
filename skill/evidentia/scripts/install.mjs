@@ -2,7 +2,7 @@
 // Install or upgrade the Evidentia skill with validation, backup and post-install verification.
 import { cpSync, existsSync, mkdirSync, renameSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { SKILL_DIR, parseFlags, validatePackage, targetDir, listFiles, sha256File, output } from './lib.mjs';
+import { SKILL_DIR, parseFlags, validatePackage, targetDir, listFiles, sha256File, output, isManagedInstallDir } from './lib.mjs';
 
 const { flags } = parseFlags(process.argv.slice(2));
 const scope = flags.scope === 'project' ? 'project' : 'user';
@@ -15,6 +15,13 @@ if (typeof flags['target-dir'] === 'string') targets.splice(0, targets.length, f
 
 const results = [];
 for (const target of targets) {
+  // Refuse to touch a non-empty --target-dir that is not itself a skill install
+  // (no SKILL.md): renaming an arbitrary directory the caller pointed us at would
+  // be a destructive surprise, not an upgrade.
+  if (!isManagedInstallDir(target)) {
+    process.stderr.write(`refusing to install into ${target}: it exists, is not empty, and has no SKILL.md (looks unrelated to a skill install)\n`);
+    process.exit(1);
+  }
   let backup = null;
   if (existsSync(target)) {
     backup = `${target}.backup-${new Date().toISOString().replace(/[:.]/g, '-')}`;

@@ -96,6 +96,21 @@ export function targetDir(scope, kind = 'claude') {
   return kind === 'agents' ? join(root, '.agents', 'skills', 'evidentia') : join(root, '.claude', 'skills', 'evidentia');
 }
 
+/**
+ * True if `dir` looks like a directory this installer created or manages: empty,
+ * or containing a SKILL.md (any skill, not necessarily evidentia's own — a
+ * mismatch is still a skill directory, just the wrong one, and is reported as
+ * such rather than silently overwritten). A `--target-dir` pointed at an
+ * unrelated, non-empty directory (a home folder, a project checkout) must never
+ * be renamed away by install/uninstall.
+ */
+export function isManagedInstallDir(dir) {
+  if (!existsSync(dir)) return true;
+  const entries = readdirSync(dir);
+  if (entries.length === 0) return true;
+  return existsSync(join(dir, 'SKILL.md'));
+}
+
 export function output(value, flags, human) {
   if (flags.json) process.stdout.write(JSON.stringify(value, null, 2) + '\n');
   else process.stdout.write((human ? human(value) : JSON.stringify(value, null, 2)) + '\n');

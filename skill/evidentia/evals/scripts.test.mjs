@@ -1,7 +1,7 @@
 // Tests for the skill scripts: package validity, digest rendering, install/verify/uninstall round trip.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, existsSync, readFileSync, writeFileSync, readdirSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, existsSync, readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -77,6 +77,23 @@ test('install → verify → uninstall round trip in an isolated directory, with
   const u = run('uninstall.mjs', ['--target-dir', target, '--json']);
   assert.equal(u.status, 0);
   assert.ok(!existsSync(target));
+});
+
+test('install and uninstall refuse a --target-dir that is not a skill install (no blind rename of an unrelated directory)', () => {
+  const home = mkdtempSync(join(tmpdir(), 'evidentia-skill-'));
+  const target = join(home, 'not-a-skill');
+  mkdirSync(target, { recursive: true });
+  writeFileSync(join(target, 'important-unrelated-file.txt'), 'do not touch me');
+
+  const install = run('install.mjs', ['--target-dir', target, '--json']);
+  assert.notEqual(install.status, 0);
+  assert.match(install.stderr, /refusing to install/);
+  assert.ok(existsSync(join(target, 'important-unrelated-file.txt')), 'unrelated directory was left untouched');
+
+  const uninstall = run('uninstall.mjs', ['--target-dir', target, '--json']);
+  assert.notEqual(uninstall.status, 0);
+  assert.match(uninstall.stderr, /refusing to remove/);
+  assert.ok(existsSync(join(target, 'important-unrelated-file.txt')), 'unrelated directory was left untouched');
 });
 
 test('check-environment reports readiness without a store and never throws', () => {
