@@ -124,6 +124,46 @@ test('findTerm and redactTerm support DSAR lookup and erasure across chunks, cla
   assert.equal(store.stats('acme').chunks, 0);
 });
 
+test('redactTerm also reaches document titles, chunk heading paths (and their FTS mirror) and source title/owner', async () => {
+  const { store } = setup();
+  const src = store.addSource(ctx, { kind: 'url', locator: 'https://www.northwind.example/team/anna-peeters', authorityLevel: 'official', owner: 'Anna Peeters' });
+  const html = `<html lang="en"><head><title>Anna Peeters — Data Protection Officer</title></head><body><main>
+<h1>Anna Peeters</h1>
+<p>The team reviews every erasure request within 30 days.</p>
+<h2>About Anna Peeters</h2>
+<p>She joined Northwind Bank in 2019 and leads the privacy programme.</p>
+</main></body></html>`;
+  const r = await store.ingest(ctx, { sourceId: src.id, content: html, contentType: 'text/html' });
+
+  const before = store.findTerm('acme', 'Anna Peeters');
+  assert.ok(before.documents.length >= 1, 'document title match is found');
+  assert.ok(before.sources.length >= 1, 'source title/owner match is found');
+  assert.ok(before.chunks.some((c) => c.snippet.includes('Anna Peeters')), 'a heading-only match is still reported');
+  const doc = store.getDocument('acme', r.documentId);
+  assert.match(doc.title ?? '', /Anna Peeters/);
+
+  const result = store.redactTerm(ctx, 'Anna Peeters', '[redacted]', 'DSAR-2026-099 erasure');
+  assert.ok(result.sources >= 1, 'source rows are counted as redacted');
+
+  const after = store.getDocument('acme', r.documentId);
+  assert.ok(!after.title?.includes('Anna Peeters'), 'document title is redacted');
+  const src2 = store.getSource('acme', src.id);
+  assert.ok(!src2.owner?.includes('Anna Peeters'), 'source owner is redacted');
+
+  const chunkRows = store.listDocuments('acme');
+  assert.equal(chunkRows.length, 1);
+  const headings = store.db.raw.prepare('SELECT heading_path, text FROM chunks WHERE document_id = ?').all(r.documentId) as unknown as { heading_path: string | null; text: string }[];
+  for (const h of headings) {
+    assert.ok(!(h.heading_path ?? '').includes('Anna Peeters'), `chunk heading_path redacted (got ${h.heading_path})`);
+    assert.ok(!h.text.includes('Anna Peeters'), `chunk text redacted (got ${h.text})`);
+  }
+
+  const followUp = store.findTerm('acme', 'Anna Peeters');
+  assert.equal(followUp.documents.length, 0);
+  assert.equal(followUp.sources.length, 0);
+  assert.equal(followUp.chunks.length, 0);
+});
+
 test('poisoned documents are quarantined at ingestion, excluded from retrieval, and can be released by a reviewer', async () => {
   const { store, retriever, ledger } = setup();
   const src = store.addSource(ctx, { kind: 'url', locator: 'https://partner.example/page', authorityLevel: 'third-party' });
@@ -135,7 +175,23 @@ test('poisoned documents are quarantined at ingestion, excluded from retrieval, 
   assert.equal(hidden.length, 0, 'quarantined content must not reach retrieval');
   const shown = await retriever.search('acme', 'reconciles payments', { k: 3, filters: { includeQuarantined: true } });
   assert.equal(shown.length, 1);
+  // A poisoned document's claims/entities must not reach the knowledge base while it is
+  // quarantined, even though the document itself was ingested (chunks stored for the reviewer
+  // to inspect, but not mined for facts).
+  assert.equal(store.listClaims('acme', r.documentId).length, 0, 'quarantined document is not mined for claims');
+  assert.equal(r.claims, 0);
   store.setQuarantine(ctx, r.documentId, false, 'reviewed: marketing phrasing, not an attack');
   assert.equal((await retriever.search('acme', 'reconciles payments', { k: 3 })).length, 1);
   assert.equal(ledger.list({ action: 'document.release' }).length, 1);
+  // Extraction happens retroactively once a reviewer releases the document.
+  assert.ok(store.listClaims('acme', r.documentId).length > 0, 'claims are extracted on release');
+
+  // Re-quarantining removes the claims/entities again; releasing a second time re-extracts them
+  // without duplicating rows.
+  store.setQuarantine(ctx, r.documentId, true, 're-quarantined for a second look');
+  assert.equal(store.listClaims('acme', r.documentId).length, 0);
+  store.setQuarantine(ctx, r.documentId, false, 'released again');
+  const claimsAfterSecondRelease = store.listClaims('acme', r.documentId);
+  assert.ok(claimsAfterSecondRelease.length > 0);
+  assert.equal(new Set(claimsAfterSecondRelease.map((c) => c.id)).size, claimsAfterSecondRelease.length, 'no duplicate claim rows');
 });

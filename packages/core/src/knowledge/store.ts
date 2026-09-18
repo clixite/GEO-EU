@@ -223,6 +223,11 @@ export class KnowledgeStore {
         const vec = vectors?.[i];
         insChunk.run(chunkId, ctx.tenantId, documentId, c.ordinal, c.headingPath, c.text, c.charStart, c.charEnd, c.tokenEstimate, vec ? Buffer.from(vec.buffer, vec.byteOffset, vec.byteLength) : null, embeddingModel);
         insFts.run(c.text, c.headingPath, chunkId, ctx.tenantId);
+        // Quarantined content is never mined for claims or entities: a poisoned document's
+        // "facts" and "entities" would otherwise reach the knowledge base — and downstream
+        // drafting/retrieval — even though its chunks are excluded from search. Extraction
+        // runs retroactively in setQuarantine() when a reviewer releases the document.
+        if (quarantine) return;
         const mentions = extractEntities(c.text);
         const resolved = resolveEntities(mentions, 0.5);
         const entityNames = resolved.map((e) => e.canonical);
@@ -299,63 +304,153 @@ export class KnowledgeStore {
   }
 
   /**
-   * Find every chunk, claim and entity alias containing `term` (case-insensitive).
-   * Supports data-subject access requests: "what do you hold about X?".
+   * Find every chunk (text or heading), claim, document title, source field and
+   * entity alias containing `term` (case-insensitive). Supports data-subject
+   * access requests: "what do you hold about X?" — every location redactTerm can
+   * reach is also a location findTerm reports, so a DSAR answer and the erasure
+   * it justifies cover the same ground.
    */
-  findTerm(tenantId: string, term: string): { chunks: { id: string; documentId: string; snippet: string }[]; claims: { id: string; text: string }[]; entities: { id: string; canonical: string }[] } {
+  findTerm(tenantId: string, term: string): {
+    chunks: { id: string; documentId: string; snippet: string }[];
+    claims: { id: string; text: string }[];
+    entities: { id: string; canonical: string }[];
+    documents: { id: string; field: 'title' }[];
+    sources: { id: string; field: 'title' | 'owner' }[];
+  } {
     const like = `%${term.replace(/[%_\\]/g, (c) => '\\' + c)}%`;
-    const chunks = (this.db.raw.prepare("SELECT id, document_id, text FROM chunks WHERE tenant_id = ? AND text LIKE ? ESCAPE '\\'").all(tenantId, like) as unknown as { id: string; document_id: string; text: string }[]).map((r) => {
-      const i = r.text.toLowerCase().indexOf(term.toLowerCase());
-      return { id: r.id, documentId: r.document_id, snippet: r.text.slice(Math.max(0, i - 60), i + term.length + 60) };
+    const chunkRows = this.db.raw.prepare("SELECT id, document_id, text, heading_path FROM chunks WHERE tenant_id = ? AND (text LIKE ? ESCAPE '\\' OR heading_path LIKE ? ESCAPE '\\')").all(tenantId, like, like) as unknown as { id: string; document_id: string; text: string; heading_path: string | null }[];
+    const chunks = chunkRows.map((r) => {
+      const hay = r.text.toLowerCase().includes(term.toLowerCase()) ? r.text : (r.heading_path ?? '');
+      const i = hay.toLowerCase().indexOf(term.toLowerCase());
+      return { id: r.id, documentId: r.document_id, snippet: i === -1 ? hay : hay.slice(Math.max(0, i - 60), i + term.length + 60) };
     });
     const claims = this.db.raw.prepare("SELECT id, text FROM claims WHERE tenant_id = ? AND text LIKE ? ESCAPE '\\'").all(tenantId, like) as unknown as { id: string; text: string }[];
     const entities = (this.db.raw.prepare("SELECT id, canonical_name FROM entities WHERE tenant_id = ? AND (canonical_name LIKE ? ESCAPE '\\' OR aliases LIKE ? ESCAPE '\\')").all(tenantId, like, like) as unknown as { id: string; canonical_name: string }[]).map((r) => ({ id: r.id, canonical: r.canonical_name }));
-    return { chunks, claims, entities };
+    const documents = (this.db.raw.prepare("SELECT id FROM documents WHERE tenant_id = ? AND title LIKE ? ESCAPE '\\'").all(tenantId, like) as unknown as { id: string }[]).map((r) => ({ id: r.id, field: 'title' as const }));
+    const sources = (this.db.raw.prepare("SELECT id, title, owner FROM sources WHERE tenant_id = ? AND (title LIKE ? ESCAPE '\\' OR owner LIKE ? ESCAPE '\\')").all(tenantId, like, like) as unknown as { id: string; title: string | null; owner: string | null }[])
+      .map((r) => ({ id: r.id, field: (r.owner ?? '').toLowerCase().includes(term.toLowerCase()) ? ('owner' as const) : ('title' as const) }));
+    return { chunks, claims, entities, documents, sources };
   }
 
   /**
-   * Rectification / erasure: replace `term` everywhere (documents, chunks, FTS,
-   * claims, entity aliases) with `replacement`, and remove entities whose
+   * Rectification / erasure: replace `term` everywhere it can appear (chunk text,
+   * chunk heading paths and their FTS mirror, document content and title, source
+   * title and owner, claim text, entity aliases), and remove entities whose
    * canonical name matches. Audited with counts only (never the term itself in
    * clear text when `reason` marks it as personal data).
+   *
+   * Not covered here — documented residual scope, not silently dropped:
+   * `approvals.requested_by/decided_by` and `entities.canonical_name` (actor and
+   * entity identifiers, not free text a name search is expected to reach) and the
+   * append-only audit ledger, whose payloads are designed to carry hashes and ids
+   * rather than free text for exactly this reason (see docs/GDPR.md § ledger).
    */
-  redactTerm(ctx: Ctx, term: string, replacement: string, reason: string): { chunks: number; claims: number; entities: number; documents: number } {
+  redactTerm(ctx: Ctx, term: string, replacement: string, reason: string): { chunks: number; claims: number; entities: number; documents: number; sources: number } {
     if (term.length < 2) throw new EvidentiaError('validation', 'term too short');
     const found = this.findTerm(ctx.tenantId, term);
     const re = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
     return this.db.transaction(() => {
       const docIds = new Set<string>();
-      const updChunk = this.db.raw.prepare('UPDATE chunks SET text = ? WHERE id = ?');
+      const updChunk = this.db.raw.prepare('UPDATE chunks SET text = ?, heading_path = ? WHERE id = ?');
       const delFts = this.db.raw.prepare('DELETE FROM chunks_fts WHERE chunk_id = ?');
       const insFts = this.db.raw.prepare('INSERT INTO chunks_fts (text, heading_path, chunk_id, tenant_id) VALUES (?, ?, ?, ?)');
       for (const c of found.chunks) {
         const row = this.db.raw.prepare('SELECT text, heading_path FROM chunks WHERE id = ?').get(c.id) as unknown as { text: string; heading_path: string | null };
         const text = row.text.replace(re, replacement);
-        updChunk.run(text, c.id);
+        const headingPath = (row.heading_path ?? '').replace(re, replacement);
+        updChunk.run(text, headingPath, c.id);
         delFts.run(c.id);
-        insFts.run(text, row.heading_path ?? '', c.id, ctx.tenantId);
+        insFts.run(text, headingPath, c.id, ctx.tenantId);
         docIds.add(c.documentId);
       }
       const updClaim = this.db.raw.prepare('UPDATE claims SET text = ? WHERE id = ?');
       for (const cl of found.claims) updClaim.run(cl.text.replace(re, replacement), cl.id);
+      for (const d of found.documents) docIds.add(d.id);
       for (const d of docIds) {
-        const row = this.db.raw.prepare('SELECT content FROM documents WHERE id = ?').get(d) as unknown as { content: string };
-        this.db.raw.prepare('UPDATE documents SET content = ? WHERE id = ?').run(row.content.replace(re, replacement), d);
+        const row = this.db.raw.prepare('SELECT content, title FROM documents WHERE id = ?').get(d) as unknown as { content: string; title: string | null };
+        this.db.raw.prepare('UPDATE documents SET content = ?, title = ? WHERE id = ?').run(row.content.replace(re, replacement), row.title ? row.title.replace(re, replacement) : row.title, d);
+      }
+      const updSource = this.db.raw.prepare('UPDATE sources SET title = ?, owner = ? WHERE id = ?');
+      for (const s of found.sources) {
+        const row = this.db.raw.prepare('SELECT title, owner FROM sources WHERE id = ?').get(s.id) as unknown as { title: string | null; owner: string | null };
+        updSource.run(row.title ? row.title.replace(re, replacement) : row.title, row.owner ? row.owner.replace(re, replacement) : row.owner, s.id);
       }
       const delEntity = this.db.raw.prepare('DELETE FROM entities WHERE id = ?');
       for (const e of found.entities) delEntity.run(e.id);
-      const result = { chunks: found.chunks.length, claims: found.claims.length, entities: found.entities.length, documents: docIds.size };
+      const result = { chunks: found.chunks.length, claims: found.claims.length, entities: found.entities.length, documents: docIds.size, sources: found.sources.length };
       this.ledger.append({ tenantId: ctx.tenantId, actor: ctx.actor, action: 'knowledge.redact', objectType: 'tenant', objectId: ctx.tenantId, evidence: { reason, termHash: sha256(term), ...result } });
       return result;
     });
   }
 
-  /** Reviewer decision to release (or re-quarantine) a document after inspecting the injection findings. */
+  /**
+   * Reviewer decision to release (or re-quarantine) a document after inspecting the
+   * injection findings. Releasing a document that was quarantined at ingest time
+   * (so never mined for claims/entities) extracts them now, on the reviewer's
+   * decision rather than automatically; re-quarantining removes them again.
+   */
   setQuarantine(ctx: Ctx, documentId: string, quarantine: boolean, note: string): void {
     const doc = this.getDocument(ctx.tenantId, documentId);
+    const wasQuarantined = doc.metadata?.['quarantine'] === true;
     const metadata = { ...(doc.metadata ?? {}), quarantine, quarantineNote: note };
-    this.db.raw.prepare('UPDATE documents SET metadata = ? WHERE id = ?').run(canonicalJson(metadata), documentId);
-    this.ledger.append({ tenantId: ctx.tenantId, actor: ctx.actor, action: quarantine ? 'document.quarantine' : 'document.release', objectType: 'document', objectId: documentId, previousState: { quarantine: doc.metadata?.['quarantine'] ?? false }, newState: { quarantine }, evidence: { note } });
+    let claimCount = 0;
+    let entityCount = 0;
+    this.db.transaction(() => {
+      this.db.raw.prepare('UPDATE documents SET metadata = ? WHERE id = ?').run(canonicalJson(metadata), documentId);
+      if (!quarantine && wasQuarantined) {
+        const counts = this.#extractClaimsAndEntities(ctx.tenantId, documentId, doc.sourceId);
+        claimCount = counts.claims;
+        entityCount = counts.entities;
+      } else if (quarantine && !wasQuarantined) {
+        this.db.raw.prepare('DELETE FROM claims WHERE document_id = ?').run(documentId);
+        this.db.raw.prepare('DELETE FROM entity_mentions WHERE chunk_id IN (SELECT id FROM chunks WHERE document_id = ?)').run(documentId);
+        this.db.raw.prepare('DELETE FROM entities WHERE tenant_id = ? AND id NOT IN (SELECT DISTINCT entity_id FROM entity_mentions)').run(ctx.tenantId);
+      }
+    });
+    this.ledger.append({
+      tenantId: ctx.tenantId, actor: ctx.actor, action: quarantine ? 'document.quarantine' : 'document.release', objectType: 'document', objectId: documentId,
+      previousState: { quarantine: wasQuarantined }, newState: { quarantine }, evidence: { note, ...(claimCount || entityCount ? { extractedClaims: claimCount, extractedEntities: entityCount } : {}) },
+    });
+  }
+
+  /**
+   * Claim/entity extraction over a document's existing chunks. Used both when a
+   * quarantined document is released (extraction was skipped at ingest) and could
+   * be reused for backfilling older documents. Idempotent: clears any prior claims
+   * for the document first, so calling it twice does not duplicate rows.
+   */
+  #extractClaimsAndEntities(tenantId: string, documentId: string, sourceId: string): { claims: number; entities: number } {
+    const source = this.getSource(tenantId, sourceId);
+    const now = this.clock.now().toISOString();
+    const chunks = this.db.raw.prepare('SELECT id, text FROM chunks WHERE document_id = ?').all(documentId) as unknown as { id: string; text: string }[];
+    this.db.raw.prepare('DELETE FROM claims WHERE document_id = ?').run(documentId);
+    const insClaim = this.db.raw.prepare('INSERT INTO claims (id, tenant_id, chunk_id, document_id, text, kind, confidence, entities, valid_from, valid_until, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    const insEntity = this.db.raw.prepare('INSERT OR IGNORE INTO entities (id, tenant_id, canonical_name, kind, aliases, same_as, description, created_at) VALUES (?, ?, ?, ?, ?, NULL, NULL, ?)');
+    const selEntity = this.db.raw.prepare('SELECT id, aliases FROM entities WHERE tenant_id = ? AND canonical_name = ? AND kind = ?');
+    const updAliases = this.db.raw.prepare('UPDATE entities SET aliases = ? WHERE id = ?');
+    const insMention = this.db.raw.prepare('INSERT OR IGNORE INTO entity_mentions (entity_id, chunk_id, surface) VALUES (?, ?, ?)');
+    let claimCount = 0;
+    const entityCanon = new Set<string>();
+    for (const c of chunks) {
+      const mentions = extractEntities(c.text);
+      const resolved = resolveEntities(mentions, 0.5);
+      const entityNames = resolved.map((e) => e.canonical);
+      for (const c2 of extractClaims(c.text)) {
+        if (c2.confidence < this.claimConfidenceThreshold) continue;
+        const involved = entityNames.filter((n) => c2.text.toLowerCase().includes(n));
+        insClaim.run(newId(), tenantId, c.id, documentId, c2.text, c2.kind, c2.confidence, involved.length ? JSON.stringify(involved) : null, source.validFrom ?? null, source.validUntil ?? null, now);
+        claimCount += 1;
+      }
+      for (const e of resolved) {
+        insEntity.run(newId(), tenantId, e.canonical, e.kind, JSON.stringify(e.surfaces), now);
+        const row = selEntity.get(tenantId, e.canonical, e.kind) as unknown as { id: string; aliases: string | null };
+        const aliases = new Set<string>([...(row.aliases ? (JSON.parse(row.aliases) as string[]) : []), ...e.surfaces]);
+        updAliases.run(JSON.stringify([...aliases]), row.id);
+        for (const s of e.surfaces) insMention.run(row.id, c.id, s);
+        entityCanon.add(e.canonical);
+      }
+    }
+    return { claims: claimCount, entities: entityCanon.size };
   }
 
   /** Documents currently quarantined — the reviewer worklist. */
