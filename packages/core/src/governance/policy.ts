@@ -50,6 +50,8 @@ export const PolicyDocument = z.object({
         .object({
           aiAssisted: z.boolean().default(true),
           readinessBelow: z.number().min(0).max(100).default(0),
+          /** Require approval when no readiness analysis has been attached to the draft. */
+          readinessUnknown: z.boolean().default(false),
           evidenceCoverageBelow: z.number().min(0).max(1).default(0),
           topics: z.array(z.string()).default([]),
           always: z.boolean().default(false),
@@ -179,7 +181,8 @@ function deny(policy: PolicyDocument, matchedRules: string[], reasons: string[])
 
 export interface PublicationFacts {
   aiAssisted: boolean;
-  readinessScore: number;
+  /** null when no readiness analysis has been attached to the draft. */
+  readinessScore: number | null;
   /** Share of material factual claims backed by evidence, 0..1. */
   evidenceCoverage: number;
   unsupportedClaims: number;
@@ -191,6 +194,8 @@ export interface PublicationDecision extends Decision {
   requiresDisclosure: boolean;
   requiresMachineReadableMarking: boolean;
   blockers: string[];
+  /** Non-blocking observations (e.g. readiness not assessed). */
+  warnings: string[];
 }
 
 /** Publication gate: may block, require human approval, or allow. */
@@ -198,6 +203,7 @@ export function evaluatePublication(policy: PolicyDocument, facts: PublicationFa
   const p = policy.publication;
   const blockers: string[] = [];
   const reasons: string[] = [];
+  const warnings: string[] = [];
   if (p.blockWhen.unsupportedClaims && facts.unsupportedClaims > 0)
     blockers.push(`${facts.unsupportedClaims} unsupported factual claim(s)`);
   if (facts.evidenceCoverage < p.blockWhen.evidenceCoverageBelow)
@@ -216,7 +222,10 @@ export function evaluatePublication(policy: PolicyDocument, facts: PublicationFa
     const r = p.requireApprovalWhen;
     if (r.always) reasons.push('policy requires approval for all publications');
     if (r.aiAssisted && facts.aiAssisted) reasons.push('AI-assisted content requires human approval');
-    if (facts.readinessScore < r.readinessBelow) reasons.push(`readiness ${facts.readinessScore} below ${r.readinessBelow}`);
+    if (facts.readinessScore === null) {
+      if (r.readinessUnknown) reasons.push('readiness not assessed (policy requires an assessment before publication)');
+      else warnings.push('readiness not assessed; readiness threshold not applied');
+    } else if (facts.readinessScore < r.readinessBelow) reasons.push(`readiness ${facts.readinessScore} below ${r.readinessBelow}`);
     if (facts.evidenceCoverage < r.evidenceCoverageBelow)
       reasons.push(`evidence coverage ${facts.evidenceCoverage.toFixed(2)} below ${r.evidenceCoverageBelow}`);
     const sensitive = facts.topics.filter((t) => r.topics.includes(t));
@@ -232,6 +241,7 @@ export function evaluatePublication(policy: PolicyDocument, facts: PublicationFa
     requiresDisclosure,
     requiresMachineReadableMarking,
     blockers,
+    warnings,
   };
 }
 

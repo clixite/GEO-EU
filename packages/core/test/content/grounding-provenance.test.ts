@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildGroundedPrompt, renderWithSources, stripMarkers, verifyDraft, type EvidenceItem } from '../../src/content/grounding.ts';
 import { markdownToHtml } from '../../src/content/markdown.ts';
-import { createManifest, generateSigningKey, markingArtifacts, signManifest, verifyManifest } from '../../src/governance/provenance.ts';
+import { createManifest, generateSigningKey, jsonForScript, markingArtifacts, signManifest, verifyManifest } from '../../src/governance/provenance.ts';
 
 const EVIDENCE: EvidenceItem[] = [
   { id: 'E1', text: 'Northwind Bank SA reconciles 2.3 million payments per day across 14 countries.', locator: 'https://www.northwind.example/reconciliation', title: 'Payment reconciliation', headingPath: '', authorityLevel: 'official', modifiedAt: '2026-08-15' },
@@ -66,10 +66,11 @@ test('provenance manifest is signed, verifiable, bound to content and rendered a
   const key = generateSigningKey();
   const manifest = createManifest({
     content: 'Body text', title: 'T', generatedAt: '2026-09-18T10:00:00Z', aiAssisted: true, humanEdited: true, models: ['eu-llm/eu-large'], generationLogIds: ['call-1'], evidenceSources: ['https://www.northwind.example/reconciliation'],
-    editorialResponsibility: { name: 'Anna Peeters', role: 'Head of Communications', approvedAt: '2026-09-18T11:00:00Z', approvalId: 'a1' }, publisher: 'Northwind Bank SA',
+    editorialResponsibility: { name: 'Anna Peeters', role: 'Head of Communications', approvedAt: '2026-09-18T11:00:00Z', approvalId: 'a1', approvedBy: 'editor@northwind.example' }, publisher: 'Northwind Bank SA',
   });
   assert.equal(manifest.digitalSourceType, 'http://cv.iptc.org/newscodes/digitalsourcetype/compositeWithTrainedAlgorithmicMedia');
-  assert.match(manifest.disclosure, /reviewed and approved by Anna Peeters/);
+  assert.match(manifest.disclosure, /approved by editor@northwind\.example \(approval a1\)/);
+  assert.match(manifest.disclosure, /editorial responsibility of Anna Peeters \(Head of Communications\)/);
   const signed = signManifest(manifest, key);
   assert.deepEqual(verifyManifest(signed, key.publicKeyPem, 'Body text'), { valid: true, reason: 'ok' });
   assert.equal(verifyManifest(signed, key.publicKeyPem, 'Body text edited').valid, false);
@@ -81,6 +82,17 @@ test('provenance manifest is signed, verifiable, bound to content and rendered a
   assert.equal(art.jsonLd['iptc:DigitalSourceType'], manifest.digitalSourceType);
   assert.ok(art.metaTags.some((t) => t.includes('ai-assisted; human-reviewed')));
   assert.match(art.visibleNoticeHtml, /AI transparency notice/);
-  const human = createManifest({ content: 'x', title: 'T', generatedAt: '2026-09-18T10:00:00Z', aiAssisted: false, models: [], generationLogIds: [], evidenceSources: [], editorialResponsibility: { name: 'A', role: 'B', approvedAt: '2026-09-18', approvalId: null }, publisher: 'P' });
+  const human = createManifest({ content: 'x', title: 'T', generatedAt: '2026-09-18T10:00:00Z', aiAssisted: false, models: [], generationLogIds: [], evidenceSources: [], editorialResponsibility: { name: 'A', role: 'B', approvedAt: '2026-09-18', approvalId: null, approvedBy: null }, publisher: 'P' });
   assert.equal(human.digitalSourceType, 'http://cv.iptc.org/newscodes/digitalsourcetype/digitalCapture');
+  assert.match(human.disclosure, /written without AI assistance and published under the editorial responsibility of A \(B\)/);
+});
+
+test('jsonForScript escapes HTML-significant characters so JSON-LD cannot break out of its <script> element', () => {
+  const evil = { name: '</script><script>alert(1)</script>', note: 'a & b   c' };
+  const escaped = jsonForScript(evil);
+  assert.ok(!escaped.includes('</script>'));
+  assert.ok(!escaped.includes('<script>alert'));
+  assert.match(escaped, /\\u003c\/script\\u003e/);
+  assert.match(escaped, /\\u0026/);
+  assert.deepEqual(JSON.parse(escaped.replace(/\\u003c/g, '<').replace(/\\u003e/g, '>').replace(/\\u0026/g, '&').replace(/\\u2028/g, ' ')), evil);
 });

@@ -21,6 +21,17 @@ const EVIDENCE: EvidenceItem[] = [
 ];
 const writer = { tenantId: 'acme', actor: 'writer@acme.example' };
 const editor = { tenantId: 'acme', actor: 'editor@acme.example' };
+// Readiness is now assessed on the rendered artefact at verify() (not defaulted to 100), so a
+// bare one-sentence draft legitimately scores below the policy's readiness threshold and needs
+// a human look. This body carries an H1, a second heading and an outbound link to the cited
+// evidence — enough structure to clear the threshold — while adding no new, uncited claims.
+const WELL_STRUCTURED_BODY = `# Northwind Bank payment reconciliation
+
+Northwind Bank reconciles 2.3 million payments per day across 14 countries [E1].
+
+## Related resources
+
+Read the [payment reconciliation page](https://www.northwind.example/reconciliation) published by Northwind Bank for the underlying figures and methodology referenced above.`;
 
 function setup() {
   const db = openDatabase();
@@ -83,9 +94,10 @@ test('fabricated figure blocks publication; editing after approval voids the app
 
 test('human-written content with full evidence coverage is approved without a human gate but still audited and marked', async () => {
   const { pipeline, dir } = setup();
-  let d = pipeline.createDraft(writer, { title: 'Human', slug: 'human', body: 'Northwind Bank reconciles 2.3 million payments per day across 14 countries [E1].', aiAssisted: false, evidence: EVIDENCE });
+  let d = pipeline.createDraft(writer, { title: 'Human', slug: 'human', body: WELL_STRUCTURED_BODY, aiAssisted: false, evidence: EVIDENCE });
   d = pipeline.gate(writer, pipeline.verify(writer, d.id).id);
   assert.equal(d.status, 'approved');
+  assert.ok((d.readinessScore ?? 0) >= 60, `readiness ${d.readinessScore} should clear the policy threshold`);
   assert.equal(d.gate?.requiresDisclosure, false);
   const { draft } = await pipeline.publish(writer, d.id, 'static-export', { name: 'Anna Peeters', role: 'Editor' });
   assert.equal(draft.status, 'published');
@@ -115,8 +127,9 @@ test('generic HTTP adapter signs payloads that the receiver can verify; failures
   }) as typeof fetch;
   const adapter = new GenericHttpAdapter({ url: 'https://cms.example/hooks/evidentia', secretName: 'CMS', secrets, fetchOptions: { fetchImpl, resolve: async () => ['93.184.216.34'] } });
   const p2 = new ContentPipeline({ db, ledger, approvals: pipeline.approvals, policy, adapters: [adapter], publisher: 'P', clock });
-  let d = p2.createDraft(writer, { title: 'T', slug: 't2', body: 'Northwind Bank reconciles 2.3 million payments per day across 14 countries [E1].', aiAssisted: false, evidence: EVIDENCE });
+  let d = p2.createDraft(writer, { title: 'T', slug: 't2', body: WELL_STRUCTURED_BODY, aiAssisted: false, evidence: EVIDENCE });
   d = p2.gate(writer, p2.verify(writer, d.id).id);
+  assert.equal(d.status, 'approved');
   const { receipt } = await p2.publish(writer, d.id, 'http:cms.example', { name: 'a', role: 'b' });
   assert.equal(receipt.remoteId, 'r-1');
   assert.equal(receipt.url, 'https://cms.example/p/1');
@@ -126,8 +139,9 @@ test('generic HTTP adapter signs payloads that the receiver can verify; failures
 
   const failing = new GenericHttpAdapter({ url: 'https://cms.example/hooks/evidentia', secretName: 'CMS', secrets, id: 'failing', fetchOptions: { fetchImpl: (async () => new Response('nope', { status: 500 })) as typeof fetch, resolve: async () => ['93.184.216.34'] } });
   const p3 = new ContentPipeline({ db, ledger, approvals: pipeline.approvals, policy, adapters: [failing], publisher: 'P', clock });
-  let d3 = p3.createDraft(writer, { title: 'T3', slug: 't3', body: 'Northwind Bank reconciles 2.3 million payments per day across 14 countries [E1].', aiAssisted: false, evidence: EVIDENCE });
+  let d3 = p3.createDraft(writer, { title: 'T3', slug: 't3', body: WELL_STRUCTURED_BODY, aiAssisted: false, evidence: EVIDENCE });
   d3 = p3.gate(writer, p3.verify(writer, d3.id).id);
+  assert.equal(d3.status, 'approved');
   await assert.rejects(p3.publish(writer, d3.id, 'failing', { name: 'a', role: 'b' }), /responded 500/);
   assert.equal(p3.get('acme', d3.id).status, 'approved', 'a failed publish keeps the draft approved for retry');
   assert.equal(ledger.list({ action: 'draft.publish_failed' }).length, 1);

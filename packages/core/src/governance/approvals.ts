@@ -122,14 +122,36 @@ export class ApprovalService {
     return (this.db.raw.prepare("SELECT * FROM approvals WHERE tenant_id = ? AND status = 'pending' ORDER BY requested_at").all(tenantId) as unknown as Row[]).map(fromRow);
   }
 
-  decide(input: { tenantId: string; id: string; decidedBy: string; decision: 'approved' | 'rejected'; note?: string }): Approval {
+  /** Pending approvals older than this are expired on read (also enforced by retention). */
+  static readonly VALIDITY_DAYS = 30;
+
+  #expireIfStale(current: Approval): Approval {
+    const age = this.clock.now().getTime() - new Date(current.requestedAt).getTime();
+    if ((current.status === 'pending' || current.status === 'approved') && age > ApprovalService.VALIDITY_DAYS * 86_400_000) {
+      this.db.raw.prepare("UPDATE approvals SET status = 'expired' WHERE id = ?").run(current.id);
+      return { ...current, status: 'expired' };
+    }
+    return current;
+  }
+
+  /**
+   * Human decision. Four-eyes is enforced against every person who contributed to
+   * the object (`excludedActors`: author, editors, the person who requested the
+   * gate), not only the requester of the approval record.
+   */
+  decide(input: { tenantId: string; id: string; decidedBy: string; decision: 'approved' | 'rejected'; note?: string; excludedActors?: readonly string[] }): Approval {
+    // Expiry is checked (and, if stale, persisted) before opening the transaction below: if it
+    // ran inside that transaction and a later check in the same call threw, SQLite would roll
+    // the expiry write back along with everything else, leaving a stale approval marked "pending"
+    // forever.
+    const current = this.#expireIfStale(this.get(input.tenantId, input.id));
     return this.db.transaction(() => {
-      const current = this.get(input.tenantId, input.id);
       if (current.status !== 'pending') {
         throw new EvidentiaError('conflict', `approval is ${current.status}, not pending`, { id: input.id });
       }
-      if (current.requestedBy === input.decidedBy) {
-        throw new EvidentiaError('policy_denied', 'four-eyes rule: requester cannot approve their own request', { id: input.id });
+      const excluded = new Set([current.requestedBy, ...(input.excludedActors ?? [])]);
+      if (excluded.has(input.decidedBy)) {
+        throw new EvidentiaError('policy_denied', 'four-eyes rule: authors, editors and requesters cannot approve their own work', { id: input.id });
       }
       const now = this.clock.now().toISOString();
       this.db.raw
@@ -155,20 +177,29 @@ export class ApprovalService {
    * Verify that an approved decision exists for this exact payload and mark it
    * consumed so it cannot be replayed. Throws `approval_required` otherwise.
    */
+  /** Verify without consuming: approved, unexpired, and bound to this exact payload. */
+  assertValid(input: { tenantId: string; id: string; payload: unknown }): Approval {
+    const current = this.#expireIfStale(this.get(input.tenantId, input.id));
+    if (current.status !== 'approved') {
+      throw new EvidentiaError('approval_required', `approval ${input.id} is ${current.status}`, { id: input.id });
+    }
+    const hash = fingerprint(input.payload);
+    if (hash !== current.payloadHash) {
+      throw new EvidentiaError('approval_required', 'payload changed since approval; a new approval is required', {
+        id: input.id,
+        approvedHash: current.payloadHash,
+        presentedHash: hash,
+      });
+    }
+    return current;
+  }
+
   consume(input: { tenantId: string; id: string; payload: unknown; actor: string }): Approval {
+    // Called before the transaction for the same reason as in decide(): assertValid()'s expiry
+    // check must commit even when it goes on to throw.
+    const current = this.assertValid(input);
     return this.db.transaction(() => {
-      const current = this.get(input.tenantId, input.id);
-      if (current.status !== 'approved') {
-        throw new EvidentiaError('approval_required', `approval ${input.id} is ${current.status}`, { id: input.id });
-      }
-      const hash = fingerprint(input.payload);
-      if (hash !== current.payloadHash) {
-        throw new EvidentiaError('approval_required', 'payload changed since approval; a new approval is required', {
-          id: input.id,
-          approvedHash: current.payloadHash,
-          presentedHash: hash,
-        });
-      }
+      const hash = current.payloadHash;
       this.db.raw.prepare("UPDATE approvals SET status = 'consumed' WHERE id = ?").run(input.id);
       this.ledger.append({
         tenantId: input.tenantId,

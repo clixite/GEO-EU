@@ -41,9 +41,22 @@ export interface ContentManifest {
   models: string[];
   generationLogIds: string[];
   evidenceSources: string[];
-  editorialResponsibility: { name: string; role: string; approvedAt: string; approvalId: string | null };
+  editorialResponsibility: {
+    /** Declared by the publisher at publication time. */
+    name: string;
+    role: string;
+    approvedAt: string;
+    approvalId: string | null;
+    /** System-recorded identity of the approver (authenticated console user or CLI actor), when an approval exists. */
+    approvedBy: string | null;
+  };
   publisher: string;
   disclosure: string;
+}
+
+/** JSON that is safe to embed inside a <script> element (no `</script>`, no HTML-significant characters, no line separators). */
+export function jsonForScript(value: unknown): string {
+  return JSON.stringify(value).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
 }
 
 export function createManifest(input: Omit<ContentManifest, 'version' | 'contentHash' | 'digitalSourceType' | 'disclosure'> & { content: string; humanEdited?: boolean }): ContentManifest {
@@ -53,9 +66,11 @@ export function createManifest(input: Omit<ContentManifest, 'version' | 'content
     : humanEdited
       ? 'http://cv.iptc.org/newscodes/digitalsourcetype/compositeWithTrainedAlgorithmicMedia'
       : 'http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia';
+  const e = rest.editorialResponsibility;
+  const approvedClause = e.approvalId && e.approvedBy ? `approved by ${e.approvedBy} (approval ${e.approvalId}) and ` : '';
   const disclosure = rest.aiAssisted
-    ? `This text was drafted with the assistance of an AI system (${rest.models.join(', ') || 'model not recorded'}) from the organisation's own documented sources, and was reviewed and approved by ${rest.editorialResponsibility.name} (${rest.editorialResponsibility.role}), who takes editorial responsibility for it.`
-    : `This text was written and approved by ${rest.editorialResponsibility.name} (${rest.editorialResponsibility.role}) without AI assistance.`;
+    ? `This text was drafted with the assistance of an AI system (${rest.models.join(', ') || 'model not recorded'}) from the organisation's own documented sources, ${approvedClause}published under the editorial responsibility of ${e.name} (${e.role}).`
+    : `This text was written without AI assistance and ${approvedClause}published under the editorial responsibility of ${e.name} (${e.role}).`;
   return { version: 'evidentia-manifest/1', contentHash: sha256(content), digitalSourceType, disclosure, ...rest };
 }
 
@@ -107,6 +122,7 @@ export function markingArtifacts(signed: SignedManifest, options: { manifestUrl?
     'evidentia:aiAssisted': m.aiAssisted,
     'evidentia:models': m.models,
     'evidentia:editorialResponsibility': `${m.editorialResponsibility.name} (${m.editorialResponsibility.role})`,
+    ...(m.editorialResponsibility.approvedBy ? { 'evidentia:approvedBy': m.editorialResponsibility.approvedBy, 'evidentia:approvalId': m.editorialResponsibility.approvalId } : {}),
     'evidentia:contentHash': m.contentHash,
     'evidentia:signature': { algorithm: signed.algorithm, keyId: signed.keyId, value: signed.signature },
     ...(options.manifestUrl ? { 'evidentia:manifestUrl': options.manifestUrl } : {}),

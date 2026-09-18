@@ -67,6 +67,35 @@ test('approvals enforce four-eyes, bind to the payload hash and cannot be replay
   assert.equal(approvals.listPending('acme').length, 0);
 });
 
+test('approvals expire after 30 days and cannot be decided or consumed once stale', () => {
+  const { approvals, clock } = setup();
+  const payload = { draftId: 'd-exp', bodyHash: 'abc' };
+  const a = approvals.request({ tenantId: 'acme', action: 'draft.publish', objectType: 'draft', objectId: 'd-exp', requestedBy: 'writer', payload, policyId: 'eu-default' });
+  clock.tick(31 * 24 * 60 * 60 * 1000);
+  assert.throws(() => approvals.decide({ tenantId: 'acme', id: a.id, decidedBy: 'editor', decision: 'approved' }), /is expired/);
+  assert.equal(approvals.get('acme', a.id).status, 'expired');
+});
+
+test('an approval already granted also expires 30 days after the original request, so a stale approval cannot be consumed', () => {
+  const { approvals, clock } = setup();
+  const payload = { draftId: 'd-exp2', bodyHash: 'abc' };
+  const a = approvals.request({ tenantId: 'acme', action: 'draft.publish', objectType: 'draft', objectId: 'd-exp2', requestedBy: 'writer', payload, policyId: 'eu-default' });
+  approvals.decide({ tenantId: 'acme', id: a.id, decidedBy: 'editor', decision: 'approved' });
+  clock.tick(31 * 24 * 60 * 60 * 1000);
+  assert.throws(() => approvals.consume({ tenantId: 'acme', id: a.id, payload, actor: 'system' }), /is expired/);
+});
+
+test('four-eyes excludes every contributor passed via excludedActors, not only the original requester', () => {
+  const { approvals } = setup();
+  const payload = { draftId: 'd-multi', bodyHash: 'abc' };
+  const a = approvals.request({ tenantId: 'acme', action: 'draft.publish', objectType: 'draft', objectId: 'd-multi', requestedBy: 'writer', payload, policyId: 'eu-default' });
+  // The requester (writer) is always excluded; excludedActors additionally excludes an editor
+  // who contributed to the draft (e.g. by editing it) but did not request the gate themselves.
+  assert.throws(() => approvals.decide({ tenantId: 'acme', id: a.id, decidedBy: 'editor', decision: 'approved', excludedActors: ['editor'] }), /four-eyes/);
+  const decided = approvals.decide({ tenantId: 'acme', id: a.id, decidedBy: 'approver', decision: 'approved', excludedActors: ['editor'] });
+  assert.equal(decided.status, 'approved');
+});
+
 test('tenant isolation: approvals from another tenant are not visible', () => {
   const { approvals } = setup();
   const a = approvals.request({ tenantId: 'acme', action: 'x', objectType: 'o', objectId: '1', requestedBy: 'u', payload: {} });
