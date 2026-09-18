@@ -13,7 +13,7 @@ import Base from '../layouts/Base.astro';
           <a class="btn ghost" href="/installation">Install and run the offline demo</a>
         </div>
         <ul class="proof" aria-label="Verified on 2026-09-18 for release 1.0.0">
-          <li><strong>Lighthouse 100 / 100 / 100 / 100</strong> on this site</li>
+          <li><strong>Lighthouse 100 / 100 / 100 / 100</strong> audited 2026-09-18 (release 1.0.0); re-verify with <code>pnpm build &amp;&amp; pnpm test:e2e</code></li>
           <li><strong>0</strong> client-side scripts or trackers</li>
           <li><strong>68</strong> primary EU legal sources cited</li>
           <li><strong>31</strong> GEO techniques evidence-tiered</li>
@@ -42,7 +42,7 @@ import Base from '../layouts/Base.astro';
     <div class="wrap">
       <div class="facts" aria-label="What is different">
         <div><strong>Deny by default</strong><span>No model touches a data class the policy has not allowed. Fallback never leaves the allowed set.</span></div>
-        <div><strong>Zero unsupported claims</strong><span>Deterministic verification blocks drafts whose figures or superlatives are not in the cited evidence.</span></div>
+        <div><strong>Unsupported claims block publication</strong><span>Deterministic verification checks every material sentence against the cited evidence — figures, named entities, units and superlatives — and blocks the gate until it is fixed or the evidence is added.</span></div>
         <div><strong>Four-eyes, hash-bound</strong><span>Approvals are given by a second person and void if a single character changes.</span></div>
         <div><strong>Hash-chained ledger</strong><span>Every consequential action — policy, model, approval, publication — is in an append-only audit trail.</span></div>
       </div>

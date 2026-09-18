@@ -19,7 +19,7 @@ import Base from '../layouts/Base.astro';
   </div></section>
   <section class="block"><div class="wrap prose">
     <h2>Tested, not asserted</h2>
-    <p>The test suite exercises the security controls directly: ledger tampering and deletion detection; SSRF address classes, redirect targets and size caps; policy deny paths and fallback containment; four-eyes, hash binding and replay of approvals; quarantine exclusion from retrieval; tenant isolation; forged session cookies, CSRF and role escalation on the console; an adversarial injection dataset. The offline smoke flow runs the entire pipeline end to end.</p>
+    <p>The test suite exercises the security controls directly: ledger tampering and deletion detection; SSRF address classes, redirect targets and size caps; policy deny paths and fallback containment; four-eyes, hash binding and replay of approvals; quarantine exclusion from retrieval; tenant-scoped data access (application-level, not a database-engine boundary — see below); forged session cookies, CSRF and role escalation on the console; an adversarial injection dataset. The offline smoke flow runs the entire pipeline end to end.</p>
     <h2>Residual risks we document</h2>
     <ul>
       <li>DNS rebinding between lookup and connect is mitigated, not eliminated — use an egress proxy on hostile networks.</li>

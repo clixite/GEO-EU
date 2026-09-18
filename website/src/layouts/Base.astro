@@ -15,6 +15,11 @@ export interface Props {
 }
 
 const SITE = 'https://evidentia.clixite.eu';
+// Escape JSON before embedding it in a <script> element: a title/description containing
+// "</script>" or an HTML-significant character would otherwise close the script early or
+// be interpreted as markup by an HTML parser reading the raw response.
+const jsonForScript = (value: unknown): string =>
+  JSON.stringify(value).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
 const { title, description, path, pageType = 'WebPage', datePublished = '2026-09-18', dateModified = '2026-09-18', breadcrumbs = [], extraJsonLd = [] } = Astro.props;
 const canonical = `${SITE}${path === '/' ? '' : path}`;
 const fullTitle = path === '/' ? 'Evidentia — Governed generative visibility for European organisations' : `${title} · Evidentia`;
@@ -81,7 +86,7 @@ const nav = [
   <meta name="ai-disclosure" content="ai-assisted; human-reviewed">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt (informational)">
-  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  <script type="application/ld+json" set:html={jsonForScript(jsonLd)} />
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
