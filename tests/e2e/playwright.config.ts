@@ -28,8 +28,8 @@ export default defineConfig({
         EVIDENTIA_TENANT: 'e2e',
         EVIDENTIA_ADMIN_SECRET: 'e2e-secret-that-is-at-least-32-characters-long',
         EVIDENTIA_ADMIN_USERS: JSON.stringify([
-          { name: 'writer@e2e.example', role: 'editor', tokenHash: 'a95dde2c959d5f61672dd9e483d458da661eb483ba9105f014f6580ddca68d0b' },
-          { name: 'editor@e2e.example', role: 'approver', tokenHash: '1d6e48cc9cdc598c33d46528db30af9858c2b215ecd77065515dbf14db0e11bc' },
+          { name: 'writer@e2e.example', role: 'editor', tokenHash: 'cffb9f65cf2b287393ff0a931afd40f39801a7c08744b6209b918274ea861142' },
+          { name: 'editor@e2e.example', role: 'approver', tokenHash: '566acc6d9056ec0e4403aea52c1c66506dc36943421d6a030bb5167eef174139' },
         ]),
         PORT: '8787',
         HOST: '127.0.0.1',

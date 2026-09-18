@@ -13,7 +13,7 @@ async function login(page: Page, token: string): Promise<void> {
 test('critical flow: ingest → draft → verify → gate → approve (second user) → publish, all visible in the audit trail', async ({ browser }) => {
   const writer = await browser.newContext();
   const wp = await writer.newPage();
-  await login(wp, 'writer-e2e-token');
+  await login(wp, 'writer-e2e-token-0123456789abcdef');
   await expect(wp.getByRole('heading', { level: 1 })).toHaveText('Executive overview');
 
   await wp.goto(`${ADMIN}/knowledge`);
@@ -41,7 +41,7 @@ test('critical flow: ingest → draft → verify → gate → approve (second us
 
   const approver = await browser.newContext();
   const ap = await approver.newPage();
-  await login(ap, 'editor-e2e-token');
+  await login(ap, 'editor-e2e-token-0123456789abcdef');
   await ap.goto(draftUrl);
   await ap.getByLabel('Approval note').fill('checked');
   await ap.getByRole('button', { name: 'Approve' }).click();
@@ -64,7 +64,7 @@ test('security: forged cookie is rejected, CSRF-less POST is refused, headers ar
   expect(res.status()).toBe(302);
   expect(res.headers()['content-security-policy']).toContain("default-src 'none'");
   expect(res.headers()['x-frame-options']).toBe('DENY');
-  await login(page, 'writer-e2e-token');
+  await login(page, 'writer-e2e-token-0123456789abcdef');
   const noCsrf = await page.request.post(`${ADMIN}/knowledge/ingest`, { form: { locator: 'x', content: 'y' }, maxRedirects: 0 });
   expect(noCsrf.status()).toBe(403);
   await page.context().addCookies([{ name: 'ev_session', value: 'forged.value', url: ADMIN }]);
@@ -73,7 +73,7 @@ test('security: forged cookie is rejected, CSRF-less POST is refused, headers ar
 });
 
 test('accessibility of the console on key views', async ({ page }) => {
-  await login(page, 'writer-e2e-token');
+  await login(page, 'writer-e2e-token-0123456789abcdef');
   for (const path of ['/', '/knowledge', '/drafts', '/governance/models', '/audit']) {
     await page.goto(`${ADMIN}${path}`);
     const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag22aa']).analyze();
