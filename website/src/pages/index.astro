@@ -1,0 +1,90 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Evidentia" description="Evidentia is a governed Generative Engine Optimization platform and Agent Skill for European organisations: trusted knowledge, evidence-grounded content, publication gates, AI visibility measurement and EU AI Act / GDPR governance evidence. Built by Clixite SRL, Belgium." path="/">
+  <section class="hero wrap">
+    <div class="grid">
+      <div>
+        <span class="eyebrow reveal">Governed generative visibility · Europe</span>
+        <h1 class="reveal">Be discovered, understood and cited by AI answer engines — on evidence, not tricks.</h1>
+        <p class="lede reveal">Evidentia turns an organisation's own documented knowledge into content that ChatGPT, Claude, Perplexity, Gemini and Copilot can retrieve and cite, gates every publication behind evidence checks and human approval, and measures visibility with statistics you can defend.</p>
+        <div class="hero-actions">
+          <a class="btn" href="/installation">Install the platform and skill</a>
+          <a class="btn ghost" href="/geo-aeo">Read the methodology</a>
+        </div>
+        <p class="byline">Built and maintained by Clixite SRL — Belgium · Node.js 24 · self-hosted · model-agnostic</p>
+      </div>
+      <div class="diagram" aria-label="Evidentia pipeline: trusted knowledge to measurement" role="img">
+        <svg viewBox="0 0 420 380" xmlns="http://www.w3.org/2000/svg">
+          <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#0f6e6a"/></marker></defs>
+          <g font-size="13" fill="#101418">
+            <rect x="20" y="20" width="380" height="44" rx="8" fill="#e3f1ef" stroke="#0f6e6a"/><text x="34" y="47">1 · Trusted knowledge — your sources, fingerprinted, with provenance</text>
+            <rect x="20" y="84" width="380" height="44" rx="8" fill="#fff" stroke="#d8dde3"/><text x="34" y="111">2 · Structured understanding — chunks, claims, entities, hybrid retrieval</text>
+            <rect x="20" y="148" width="380" height="44" rx="8" fill="#fff" stroke="#d8dde3"/><text x="34" y="175">3 · Evidence-grounded drafts — every fact cites a passage [E1]</text>
+            <rect x="20" y="212" width="380" height="44" rx="8" fill="#fff" stroke="#d8dde3"/><text x="34" y="239">4 · Governance gate + four-eyes approval bound to the content hash</text>
+            <rect x="20" y="276" width="380" height="44" rx="8" fill="#fff" stroke="#d8dde3"/><text x="34" y="303">5 · Publish with disclosure and a signed provenance manifest</text>
+            <rect x="20" y="340" width="380" height="30" rx="8" fill="#101418"/><text x="34" y="360" fill="#fff">6 · Measure AI visibility with repeated sampling and Wilson intervals</text>
+            <g stroke="#0f6e6a" stroke-width="2" marker-end="url(#a)"><line x1="210" y1="64" x2="210" y2="82"/><line x1="210" y1="128" x2="210" y2="146"/><line x1="210" y1="192" x2="210" y2="210"/><line x1="210" y1="256" x2="210" y2="274"/><line x1="210" y1="320" x2="210" y2="338"/></g>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="facts" aria-label="What is different">
+        <div><strong>Deny by default</strong><span>No model touches a data class the policy has not allowed. Fallback never leaves the allowed set.</span></div>
+        <div><strong>Zero unsupported claims</strong><span>Deterministic verification blocks drafts whose figures or superlatives are not in the cited evidence.</span></div>
+        <div><strong>Four-eyes, hash-bound</strong><span>Approvals are given by a second person and void if a single character changes.</span></div>
+        <div><strong>Hash-chained ledger</strong><span>Every consequential action — policy, model, approval, publication — is in an append-only audit trail.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <span class="eyebrow">For whom</span>
+      <h2>Organisations whose credibility is the product.</h2>
+      <p class="lede">Banks, insurers, professional-services firms, public bodies, software companies and knowledge-intensive enterprises that want AI systems to describe them accurately — and need to show regulators, auditors and boards how content was produced.</p>
+      <div class="bento" style="margin-top:28px">
+        <div class="card wide"><span class="n">WHY GEO MATTERS</span><h3>Answer engines are a new front door — with different rules.</h3><p>AI answers cite sources that are retrievable, extractable and fresh. Google, OpenAI, Anthropic, Perplexity and Microsoft each document crawler access and snippet controls; the rest is evidence-tiered practice, not folklore. Evidentia encodes what is documented, labels what is only observed, and refuses what is myth.</p><p><a href="/geo-aeo">See the tiers →</a></p></div>
+        <div class="card"><span class="n">WHY EUROPEAN GOVERNANCE</span><h3>AI Act Article 50 is in force.</h3><p>AI-assisted public content needs disclosure and machine-readable marking, or a documented human-review route. Evidentia builds both into publishing.</p><p><a href="/eu-readiness">EU readiness →</a></p></div>
+        <div class="card ink"><span class="n">HOW IT SHIPS</span><h3>A platform and an Agent Skill.</h3><p>The <code>evidentia</code> CLI, a governance console and a Claude Code skill that routes requests to the right mode and never bypasses a gate.</p><p><a href="/installation">Install →</a></p></div>
+        <div class="card"><span class="n">MODEL-AGNOSTIC</span><h3>Anthropic, OpenAI-compatible, Google, self-hosted.</h3><p>Every model carries hosting, retention, training and DPA metadata. Policies decide which model may see which data.</p></div>
+        <div class="card accent"><span class="n">MEASURED, NOT GUESSED</span><h3>Visibility with confidence intervals.</h3><p>Repeated sampling through official APIs; single answers are never treated as rankings.</p><p><a href="/ai-visibility">AI visibility →</a></p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <span class="eyebrow">Ten minutes, offline</span>
+      <h2>Run the whole flow before you register a single API key.</h2>
+      <p class="measure">A fictional Belgian bank ships with the repository, including a deliberately poisoned blog post that is quarantined at ingestion. Draft, verify, gate, approve, publish and measure — every step audited.</p>
+<pre><code>pnpm install --frozen-lockfile
+evidentia init --db ./.evidentia/demo.db --tenant demo
+evidentia demo load --db ./.evidentia/demo.db --tenant demo
+evidentia draft generate --title "How Northwind reconciles corporate payments" \
+  --slug reconciliation-explained --query "payment reconciliation controls" --brand "Northwind Bank"
+evidentia draft gate &lt;draftId&gt;                # → awaiting_approval (AI-assisted content)
+evidentia draft approve &lt;draftId&gt; --actor editor@northwind.example
+evidentia draft publish &lt;draftId&gt; --target static:./out --editor "Anna Peeters" --role "Head of Communications"
+evidentia observe run &lt;querySetId&gt; --models demo/demo-eu --samples 8 && evidentia observe report &lt;querySetId&gt;</code></pre>
+      <p><a href="/docs/getting-started">Getting started guide →</a></p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <span class="eyebrow">What we will not do</span>
+      <h2>No content farms. No fake citations. No “EU compliant” badge.</h2>
+      <div class="cards">
+        <div class="card"><h3>No fabricated expertise</h3><p>Missing facts become <code>[NEEDS EVIDENCE]</code> placeholders, and placeholders block publication.</p></div>
+        <div class="card"><h3>No hidden text or prompt injection</h3><p>Pages that address AI systems are penalised by the analyser; ingested documents that do so are quarantined.</p></div>
+        <div class="card"><h3>No scraping of consumer AI apps</h3><p>The observatory uses official provider APIs only, and stores answer hashes rather than answer text.</p></div>
+        <div class="card"><h3>No compliance theatre</h3><p>We describe controls and evidence per framework, and mark what still requires legal assessment.</p></div>
+      </div>
+    </div>
+  </section>
+</Base>

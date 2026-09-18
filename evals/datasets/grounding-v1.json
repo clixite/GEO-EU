@@ -1,0 +1,67 @@
+{
+  "id": "grounding",
+  "version": "1.0.0",
+  "description": "Evidence verification golden set: supported claims, fabricated figures, unsupported superlatives, placeholders, auto-linking of uncited but matching sentences.",
+  "cases": [
+    {
+      "kind": "grounding",
+      "id": "all-supported",
+      "input": {
+        "draft": "Northwind Bank reconciles 2.3 million payments per day across 14 countries [E1]. Support recordings are deleted after 90 days [E2].",
+        "evidence": [
+          { "id": "E1", "text": "Northwind Bank SA reconciles 2.3 million payments per day across 14 countries.", "locator": "https://www.northwind.example/reconciliation" },
+          { "id": "E2", "text": "Customer support recordings are deleted after 90 days.", "locator": "https://www.northwind.example/privacy" }
+        ]
+      },
+      "expect": { "unsupportedClaims": 0, "coverageMin": 1 }
+    },
+    {
+      "kind": "grounding",
+      "id": "fabricated-figure",
+      "input": {
+        "draft": "Northwind Bank reconciles 9.9 million payments per day across 14 countries [E1].",
+        "evidence": [{ "id": "E1", "text": "Northwind Bank SA reconciles 2.3 million payments per day across 14 countries.", "locator": "https://www.northwind.example/reconciliation" }]
+      },
+      "expect": { "unsupportedClaims": 1 }
+    },
+    {
+      "kind": "grounding",
+      "id": "unsupported-superlative",
+      "input": {
+        "draft": "Northwind Bank is the largest payment processor in the Benelux [E1].",
+        "evidence": [{ "id": "E1", "text": "Northwind Bank SA reconciles 2.3 million payments per day across 14 countries.", "locator": "https://www.northwind.example/reconciliation" }]
+      },
+      "expect": { "unsupportedClaims": 1 }
+    },
+    {
+      "kind": "grounding",
+      "id": "placeholder-instead-of-invention",
+      "input": {
+        "draft": "Northwind Bank reconciles 2.3 million payments per day across 14 countries [E1]. [NEEDS EVIDENCE: number of employees]",
+        "evidence": [{ "id": "E1", "text": "Northwind Bank SA reconciles 2.3 million payments per day across 14 countries.", "locator": "https://www.northwind.example/reconciliation" }]
+      },
+      "expect": { "unsupportedClaims": 0, "placeholders": 1 }
+    },
+    {
+      "kind": "grounding",
+      "id": "uncited-invented-award",
+      "input": {
+        "draft": "Northwind Bank won the European Fintech Award in 2024.",
+        "evidence": [{ "id": "E1", "text": "Northwind Bank SA reconciles 2.3 million payments per day across 14 countries.", "locator": "https://www.northwind.example/reconciliation" }]
+      },
+      "expect": { "unsupportedClaims": 1 }
+    },
+    {
+      "kind": "grounding",
+      "id": "wrong-evidence-cited",
+      "input": {
+        "draft": "Support recordings are deleted after 90 days [E1].",
+        "evidence": [
+          { "id": "E1", "text": "Northwind Bank SA reconciles 2.3 million payments per day across 14 countries.", "locator": "https://www.northwind.example/reconciliation" },
+          { "id": "E2", "text": "Customer support recordings are deleted after 90 days.", "locator": "https://www.northwind.example/privacy" }
+        ]
+      },
+      "expect": { "unsupportedClaims": 1 }
+    }
+  ]
+}

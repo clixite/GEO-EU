@@ -21,11 +21,13 @@
     "sbom": "node scripts/sbom.ts",
     "licenses": "node scripts/licenses.ts",
     "secrets": "gitleaks detect --source . --no-banner --redact",
-    "verify": "pnpm typecheck && pnpm test && pnpm build"
+    "verify": "pnpm typecheck && pnpm test && pnpm build",
+    "smoke": "node scripts/smoke.ts"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
     "@types/node": "24.12.0",
-    "typescript": "7.0.2"
+    "typescript": "7.0.2",
+    "yaml": "2.9.1"
   }
 }

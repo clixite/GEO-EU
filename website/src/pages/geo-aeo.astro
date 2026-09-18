@@ -1,0 +1,63 @@
+---
+import Base from '../layouts/Base.astro';
+const techniques = [
+  ['Crawler access for AI search agents (OAI-SearchBot, Claude-SearchBot, PerplexityBot, Googlebot, bingbot)', 'B', 'The only deterministic prerequisite every engine documents. Training crawlers can be blocked separately.'],
+  ['No noindex / nosnippet / max-snippet:0 / noarchive', 'B', 'Snippet controls remove pages from quoting; NOARCHIVE removes them from Copilot.'],
+  ['Server-rendered main content', 'B', 'Google: not all bots run JavaScript.'],
+  ['Citing sources, statistics and quotations', 'A-conditional', 'Aggarwal et al. (KDD 2024) showed gains in-context; C-SEO Bench (NeurIPS 2025) found most rewrites ineffective for retrieval. Encoded as evidence quality, not a booster.'],
+  ['Substantive freshness (dateModified)', 'C', 'Large-N observational: AI-cited pages are newer and more recently updated (Ahrefs, Seer). Cosmetic date bumps are not rewarded.'],
+  ['Entity named at first mention; consistent naming', 'C / B', 'Small-N passage study plus Bing guidance on consistent entity representation.'],
+  ['Organization / Article JSON-LD', 'B', 'For entity and date understanding. The controlled Ahrefs study found no citation lift; scored as hygiene.'],
+  ['Tables and procedural lists', 'C', 'Comparisons and steps are among the extractable features of highly cited pages.'],
+  ['Semantic HTML landmarks, one H1, alt text', 'B', 'Accessibility-tree consumers include agents.'],
+  ['Keyword stuffing, hidden text, prompt injection', 'negative', 'Null or negative in every benchmark; explicitly named in Google and Bing spam policies.'],
+  ['Question-shaped headings', 'D', 'No isolating study; engines generate their own sub-questions.'],
+  ['FAQPage schema as a citation lever', 'E', 'FAQ rich results were removed in 2026; visible Q&A content is fine, the markup is inert.'],
+  ['llms.txt', 'E', 'Ignored by Google; no correlation across ~300k domains. Harmless to publish; we do, with this note.'],
+  ['"40–60 word answer blocks", "3× citations from schema", "+40% from author bios"', 'E', 'No traceable dataset.'],
+];
+---
+<Base title="GEO / AEO methodology" description="Evidentia's evidence-tiered Generative Engine Optimization methodology: what answer engines document, what studies support, what is only observed, and what is folklore. The readiness-v1 scoring model with published weights." path="/geo-aeo" pageType="TechArticle" breadcrumbs={[{ name: 'GEO / AEO methodology', path: '/geo-aeo' }]}>
+  <section class="hero wrap">
+    <span class="eyebrow">Methodology</span>
+    <h1>Evidence-tiered GEO. Every recommendation says why it counts.</h1>
+    <p class="lede">We researched the primary sources — engine documentation, peer-reviewed experiments, large-N observational studies — and tiered every technique. Tier D and E items are shown, at zero weight, so you can see what was checked and why it does not count.</p>
+  </section>
+  <section class="block"><div class="wrap">
+    <h2>Tiers</h2>
+    <div class="cards">
+      <div class="card"><span class="tier A">A-conditional</span><h3>Experimentally supported — in context only</h3><p>Shown in a controlled experiment where the page was already retrieved. Not shown to improve retrieval or traffic. Discounted accordingly.</p></div>
+      <div class="card"><span class="tier B">B</span><h3>Official engine guidance</h3><p>Documented by Google, OpenAI, Anthropic, Microsoft or Perplexity: crawler access, snippet controls, canonicalisation, structured-data uses, spam policies.</p></div>
+      <div class="card"><span class="tier C">C</span><h3>Observational</h3><p>Large-N correlational studies (freshness, format, off-site mentions). Useful, not causal.</p></div>
+      <div class="card"><span class="tier D">D / E</span><h3>Hypothesis / folklore</h3><p>Plausible but untested, or contradicted by evidence. Reported for transparency, never weighted.</p></div>
+    </div>
+  </div></section>
+  <section class="block"><div class="wrap">
+    <h2>Technique catalogue (excerpt)</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th scope="col">Technique</th><th scope="col">Tier</th><th scope="col">Why</th></tr></thead>
+      <tbody>{techniques.map(([t, tier, why]) => <tr><td>{t}</td><td><span class={`tier ${tier[0]}`}>{tier}</span></td><td>{why}</td></tr>)}</tbody>
+    </table></div>
+    <p class="kicker">Full catalogue with sources, access dates and measurable proxies: <a href="/docs/geo-methodology">docs/GEO_METHODOLOGY.md</a> (31 techniques, 90-entry source register).</p>
+  </div></section>
+  <section class="block"><div class="wrap prose">
+    <h2>The readiness-v1 score</h2>
+    <p>Readiness measures what a page controls and what engines document — never visibility, which is measured separately. Weights are a product design choice, published and versioned:</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th scope="col">Dimension</th><th scope="col">Weight</th><th scope="col">Type</th><th scope="col">Examples</th></tr></thead>
+      <tbody>
+        <tr><td>Retrievability &amp; access</td><td>30</td><td>deterministic</td><td>robots.txt per agent, noindex/snippet directives, canonical, server-rendered content. A hard block on all search agents zeroes the score.</td></tr>
+        <tr><td>Extractable evidence</td><td>25</td><td>deterministic text metrics</td><td>attributed statistics, outbound references, quotations, tables/lists, entity in first paragraph, direct summary before the first H2</td></tr>
+        <tr><td>Provenance &amp; freshness</td><td>20</td><td>deterministic</td><td>ISO dates, freshness, byline, Organization JSON-LD with sameAs, markup consistency</td></tr>
+        <tr><td>Structure &amp; semantics</td><td>10</td><td>deterministic</td><td>H1, heading hierarchy, landmarks, alt text, lang, hreflang</td></tr>
+        <tr><td>Content quality</td><td>15</td><td>judged (optional, labelled)</td><td>originality, first-hand experience, coverage of sub-questions — human or model rubric, always separable</td></tr>
+        <tr><td>Hygiene</td><td>−15 cap</td><td>deterministic penalties</td><td>keyword stuffing, hidden text / prompt injection, thin content, markup that lies</td></tr>
+        <tr><td>Off-site context</td><td>0 (reported)</td><td>external</td><td>brand mentions, YouTube, Wikipedia/Wikidata — real work, no shortcuts</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout">Retrievability dominates because it is the only category every engine documents as a hard prerequisite and it is fully deterministic. Evidence carries the only peer-reviewed positive result, discounted because it did not replicate broadly. Negative items subtract so that a page cannot offset spam with more tables.</div>
+    <h2>What triggers a re-tiering</h2>
+    <ul><li>An engine publishes ranking or citation criteria.</li><li>A controlled study with ≥1,000 pages contradicts a Tier B/C item.</li><li>An engine changes robots or user-agent documentation.</li><li>Google changes AI Overviews reporting or controls.</li></ul>
+    <p>Every check in the analyser references the section of the methodology that justifies it.</p>
+  </div></section>
+</Base>

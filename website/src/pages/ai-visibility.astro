@@ -1,0 +1,37 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="AI visibility" description="How Evidentia measures brand visibility in AI answer engines: versioned query sets, paraphrases, repeated sampling through official provider APIs, Wilson score intervals, per-model and per-intent breakdowns, and series breaks on model-version changes." path="/ai-visibility" pageType="TechArticle" breadcrumbs={[{ name: 'AI visibility', path: '/ai-visibility' }]}>
+  <section class="hero wrap">
+    <span class="eyebrow">Observatory</span>
+    <h1>One AI answer is an anecdote. Thirty-two, with an interval, is a measurement.</h1>
+    <p class="lede">Generative answers are stochastic: resampling the same prompt explains about a third of the variance in whether a brand appears, and the query language explains another quarter. Evidentia's observatory is built for that reality.</p>
+  </section>
+  <section class="block"><div class="wrap">
+    <div class="bento">
+      <div class="card wide"><span class="n">PROTOCOL</span><h3>Repeats × paraphrases × models × language × date</h3><p>Query sets are versioned. Each query carries an intent, a branded/unbranded flag and paraphrases. Each cell is sampled repeatedly (8 by default) through the provider's official API. Rates are reported with 95% Wilson score intervals and the sample size; a change is only called significant when a two-proportion test says so.</p></div>
+      <div class="card"><span class="n">TRACKED</span><h3>Per observation</h3><ul><li>brand mention (word-boundary, aliases)</li><li>citation of your domains</li><li>competitor mentions and first-mention order</li><li>provider, model, model version, retrieval mode</li><li>language, geography, sample index, timestamp</li><li>answer hash — not the answer text</li></ul></div>
+      <div class="card"><span class="n">SERIES BREAKS</span><h3>Model versions change</h3><p>When a provider silently updates a model, the report marks a break in the series instead of smoothing over it.</p></div>
+      <div class="card"><span class="n">TERMS</span><h3>Official APIs only</h3><p>Every major provider's consumer terms prohibit automated access to the chat interface. Evidentia calls Messages, Chat Completions, Sonar and Gemini APIs with the citations they return, and stores aggregates where terms restrict link-level monitoring.</p></div>
+      <div class="card ink"><span class="n">HONESTY</span><h3>n = 32 gives ±17 points at 50%.</h3><p>Detecting a 10-point change needs roughly 100 samples per cell. The console shows the interval next to every number so nobody reads noise as trend.</p></div>
+    </div>
+  </div></section>
+  <section class="block"><div class="wrap prose">
+    <h2>Reading a report</h2>
+<pre><code>northwind-reconciliation-be v2 — 224 observations (2026-09-01 → 2026-09-15)
+Overall mention 46% [39–53] n=224, citation 21% [16–27] n=224
+
+Per model:
+  mistral/mistral-large-latest: mention 51% [42–60], citation 24% [17–33]
+  anthropic/claude-x:           mention 41% [32–50], citation 19% [12–27]
+
+Per query:
+  q1 (commercial) …: mention 63% [49–75], citation 31% [20–45], avg position 1.4
+  q3 (navigational, branded) …: mention 97% [84–100], citation 44% [29–60]
+
+Series breaks (model version changed): anthropic/claude-x: 2026-08 → 2026-09</code></pre>
+    <p>Mention and citation behave differently by engine — some cite without naming, others name without citing — so both are always shown. Branded prompts are reported separately from unbranded ones.</p>
+    <h2>What it is not</h2>
+    <ul><li>Not a rank tracker: there is no stable "position 1" in generative answers.</li><li>Not a scraper: no consumer UI automation, no headless browsers against providers.</li><li>Not a promise: visibility depends on retrievability, evidence and off-site presence; the observatory tells you where you stand and whether a change was real.</li></ul>
+  </div></section>
+</Base>

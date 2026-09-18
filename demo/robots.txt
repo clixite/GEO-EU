@@ -1,0 +1,13 @@
+# Northwind Bank — demo robots.txt
+# Search-purpose AI agents are allowed; training crawlers are not.
+User-agent: *
+Allow: /
+Disallow: /internal/
+
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: CCBot
+User-agent: Google-Extended
+Disallow: /
+
+Sitemap: https://www.northwind.example/sitemap.xml

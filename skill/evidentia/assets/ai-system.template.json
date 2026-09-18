@@ -1,0 +1,24 @@
+{
+  "name": "Evidentia drafting assistant — <site>",
+  "capability": "Evidence-grounded drafting; GEO readiness analysis; AI visibility measurement",
+  "purpose": "<why the organisation uses it, in one sentence>",
+  "owner": "<accountable person or role>",
+  "provider": "<provider>",
+  "model": "<model>",
+  "version": "1",
+  "dataClasses": ["public", "internal"],
+  "jurisdiction": "BE",
+  "deploymentRole": "deployer",
+  "riskClassification": "limited",
+  "riskReasoning": "Annex III screening: <state which categories were considered and why none applies>. Article 50 transparency applies to published AI-assisted text.",
+  "article50Applicable": true,
+  "humanOversight": "<who reviews, how, before what>",
+  "approvedUses": ["<use 1>", "<use 2>"],
+  "prohibitedUses": ["Content about identifiable individuals", "Electoral or political content", "Health, safety, sustainability or investment claims without legal review"],
+  "reviewDate": "<YYYY-MM-DD>",
+  "evidence": [
+    { "label": "AI literacy briefing (Art. 4)", "reference": "<link or record id>" },
+    { "label": "DPIA", "reference": "<link or record id>" }
+  ],
+  "status": "active"
+}

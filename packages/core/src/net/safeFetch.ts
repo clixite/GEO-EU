@@ -171,7 +171,7 @@ export async function safeFetch(rawUrl: string, options: SafeFetchOptions = {}):
       const response = await fetchImpl(url, {
         method: options.method ?? 'GET',
         headers: { 'user-agent': options.userAgent ?? DEFAULT_UA, accept: 'text/html,application/json,text/plain,*/*;q=0.5', ...options.headers },
-        body: options.body ?? null,
+        ...(options.body === undefined ? {} : { body: options.body as unknown as NonNullable<RequestInit['body']> }),
         redirect: 'manual',
         signal: controller.signal,
       });

@@ -1,0 +1,34 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Product" description="Evidentia's capabilities: trusted knowledge base, hybrid retrieval, GEO readiness analysis, evidence-grounded drafting with deterministic verification, policy gates and four-eyes approvals, publishing with provenance manifests, AI visibility observatory, governance registers, audit ledger, cost governance." path="/product" breadcrumbs={[{ name: 'Product', path: '/product' }]}>
+  <section class="hero wrap">
+    <span class="eyebrow">Product</span>
+    <h1>One governed operating platform, from source to citation.</h1>
+    <p class="lede">Evidentia replaces a stack of disconnected GEO tools — crawlers, checkers, writers, schema generators, rank trackers — with a single audited pipeline whose every step produces evidence.</p>
+  </section>
+  <section class="block"><div class="wrap">
+    <div class="bento">
+      <div class="card wide"><span class="n">01 · KNOWLEDGE</span><h3>Trusted knowledge base</h3><p>Sources with owner, authority level, licence and validity dates. Documents are content-addressed (unchanged content is a no-op, changed content supersedes), chunked with heading paths, indexed for BM25 and embeddings, and mined for claims and entities. Data-subject lookups and audited redaction across every derived artefact.</p></div>
+      <div class="card"><span class="n">02 · RETRIEVAL</span><h3>Hybrid, explainable</h3><p>Lexical + semantic legs fused by reciprocal rank fusion, boosted by source authority and freshness, with exact character offsets for citations. Quarantined documents never surface.</p></div>
+      <div class="card"><span class="n">03 · READINESS</span><h3>GEO readiness analyser</h3><p><code>readiness-v1</code>: retrievability per AI agent, extractable evidence, provenance, structure, hygiene penalties; every check carries its evidence tier and points at stake.</p></div>
+      <div class="card"><span class="n">04 · DRAFTING</span><h3>Evidence-grounded generation</h3><p>Numbered passages, mandatory markers, placeholders instead of invention, no superlatives without a source — then deterministic verification of figures, qualifiers and overlap.</p></div>
+      <div class="card wide"><span class="n">05 · GOVERNANCE</span><h3>Policy gate, approvals, ledger</h3><p>Machine-readable YAML policies decide which model may process which data class and whether a publication is blocked, needs a human, or may proceed. Approvals are four-eyes and bound to the content hash. A hash-chained audit ledger records actor, action, object, policy, model, approval and evidence for every step.</p></div>
+      <div class="card"><span class="n">06 · PUBLISHING</span><h3>Disclosure and provenance</h3><p>Static export, WordPress REST or signed HTTP. Pages carry a visible AI transparency notice, IPTC digital-source metadata and an Ed25519-signed manifest naming the accountable editor.</p></div>
+      <div class="card"><span class="n">07 · OBSERVATORY</span><h3>AI visibility measurement</h3><p>Versioned query sets, paraphrases, repeated samples across models, Wilson intervals, series breaks on model-version change. Official APIs only.</p></div>
+      <div class="card"><span class="n">08 · REGISTERS</span><h3>AI systems, models, processing</h3><p>An AI system register with risk reasoning and oversight, a model registry with data-policy metadata, and GDPR Art. 30-style processing records.</p></div>
+      <div class="card"><span class="n">09 · COST</span><h3>Cost governance</h3><p>Tokens, duration, retries and EUR cost per call, per tenant and workload; soft budgets alert, hard budgets block.</p></div>
+      <div class="card"><span class="n">10 · SURFACES</span><h3>CLI, console, Agent Skill</h3><p>Everything is a CLI command (JSON output), the governance console renders the same services with RBAC and CSRF protection, and the Claude Code skill drives the CLI without bypassing a gate.</p></div>
+    </div>
+  </div></section>
+  <section class="block"><div class="wrap prose">
+    <h2>Principles that shaped the product</h2>
+    <ul>
+      <li><strong>Deterministic first.</strong> Extraction, verification, policy decisions, robots evaluation and statistics are plain code with tests — models are used where judgement is genuinely needed, and their output is treated as untrusted.</li>
+      <li><strong>Governance in the workflow, not beside it.</strong> The gate is a state transition, the approval is a database constraint, the disclosure is a rendering step.</li>
+      <li><strong>Small supply chain.</strong> The core engine has two runtime dependencies (schema validation and YAML). Node.js 24's built-in SQLite, crypto and test runner do the rest.</li>
+      <li><strong>Honest measurement.</strong> Rates come with sample sizes and intervals; the analyser separates deterministic from judged scores; folklore is shown at zero weight.</li>
+    </ul>
+    <p><a href="/architecture">Architecture →</a> · <a href="/docs">Documentation →</a></p>
+  </div></section>
+</Base>
