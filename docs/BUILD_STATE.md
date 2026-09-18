@@ -1,6 +1,6 @@
 # Build state — Evidentia (GEO-EU)
 
-Durable working state for long-horizon work. Updated 2026-09-18 (evening).
+Durable working state for long-horizon work. Updated 2026-09-18 (adversarial-review fixes complete).
 
 ## Identity
 - Product: **Evidentia** — governed generative visibility for European organisations.
@@ -27,19 +27,32 @@ Node 24.12 (native TS, node:sqlite/FTS5, node:test) · pnpm 10.26 · Docker 29 �
 | 12 | Website | done (build ok, 25 pages) | website/dist; e2e: structure/JSON-LD/sitemap/keyboard/responsive pass; contrast fixes applied |
 | 13 | Security: threat model, scans, SBOM | done | docs/THREAT_MODEL.md, SECURITY_ARCHITECTURE.md, SECURITY.md; gitleaks clean (fixture allowlist); pnpm audit clean; SBOM 316 components; licence gate ok (platform-optional binaries reported as not-installed) |
 | 14 | Tests: unit/integration/e2e | done / final e2e pass in progress | see Verification log |
-| 15 | Adversarial review + fixes | in progress (independent agent writing docs/reviews/ADVERSARIAL_REVIEW.md) | |
-| 16 | Release, FINAL_REPORT.md, PR | pending | |
+| 15 | Adversarial review + fixes | done | docs/reviews/ADVERSARIAL_REVIEW.md (0 critical / 9 high / 15 medium / 8 low); all 9 high + exploitable mediums fixed with regression tests — see FINAL_REPORT.md § Adversarial review |
+| 16 | Release, FINAL_REPORT.md, PR | done | FINAL_REPORT.md updated; this file; PR opened against `main` |
 
 ## Decisions
 ADR-0001 identity · ADR-0002 stack · ADR-0003 clean room · ADR-0004 native Node + SQLite · ADR-0005 deterministic verification before judgement.
 
 ## Blockers
-- None. Lighthouse not run locally (tool not installed); Playwright + axe cover accessibility/structure; performance budget documented, not measured with Lighthouse in this session.
+- None. Lighthouse ran locally (Chromium) on home, geo-aeo, eu-readiness and docs/cli — 100/100/100/100 each, dated 2026-09-18; Playwright + axe cover accessibility/structure on every page. CI's own Lighthouse/CodeQL/Semgrep jobs have not executed yet (they run on push to GitHub).
 
-## Verification log (2026-09-18)
+## Verification log (2026-09-18, first pass — pre adversarial review)
 - `pnpm test` (core): 81 pass · admin: 5 pass · skill scripts: 6 pass.
 - `node scripts/smoke.ts`: 18 steps pass (ingest+quarantine, search, analyse ≥85, grounded draft 0 unsupported, gate→approval, four-eyes refusal, publish with manifest, double publish refused, observatory 28 obs with Wilson, policy denial of unapproved model, DSAR, audit verify, evals 4/4 datasets, export).
 - `evidentia evals run`: readiness 4/4, governance 21/21, grounding 6/6, retrieval 3/3.
 - `pnpm build` (website): 25 pages.
-- `pnpm test:e2e`: 13/18 → remaining failures being fixed (contrast, mobile viewport) — see FINAL_REPORT for final numbers.
+- `pnpm test:e2e`: 13/18 → remaining failures being fixed (contrast, mobile viewport) — see below for final numbers.
 - `gitleaks detect`: no leaks. `pnpm audit --audit-level=high`: none. `node scripts/licenses.ts`: ok. `node scripts/sbom.ts`: dist/sbom.cdx.json.
+
+## Verification log (2026-09-18, second pass — after adversarial-review fixes)
+- `pnpm typecheck` (core, cli, admin; website via build): clean.
+- `pnpm test` (workspace): core 89/89 · cli 5/5 · admin 5/5.
+- `node --test skill/evidentia/evals/scripts.test.mjs`: 7/7 (added: install/uninstall refuse an unrelated `--target-dir`).
+- `evidentia evals run` (fresh store): readiness 4/4, governance 21/21, grounding 6/6, retrieval 3/3.
+- `node scripts/smoke.ts`: 18/18 steps pass, including the updated observatory-denial step (records `denied: 1`, no longer throws).
+- `pnpm build` (website): 25 pages; JSON-LD escaping (`jsonForScript`) verified in the built output.
+- `pnpm test:e2e` (Playwright, chromium + mobile): 18/18 pass.
+- `pnpm audit --prod`: no known vulnerabilities.
+- `node scripts/licenses.ts`: 0 disallowed after the SPDX AND/OR fix surfaced and resolved one real case (`@img/sharp-win32-x64`, LGPL-3.0-or-later allow-listed for unmodified dynamic use).
+- `gitleaks detect --source . --no-git -c .gitleaks.toml`: no leaks.
+- `node scripts/sbom.ts`: 316 components.

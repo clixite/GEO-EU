@@ -44,10 +44,40 @@ reference, residency. Example: demo/processing-record.json.
 
 ## Data subject requests — runbook
 
-1. Identify: `evidentia dsar find "<name>"` (chunks, claims, aliases).
+1. Identify: `evidentia dsar find "<name>"` (chunk text and heading paths, claims,
+   entity aliases, document titles, source titles and owners).
 2. Access: export the matching passages; `evidentia export` for full portability.
 3. Rectify/erase: `evidentia dsar redact "<name>" --replacement "[redacted]" --reason "DSAR-…"`.
+   Rewrites every location `find` reported, including the FTS index mirror of a
+   redacted heading, and removes entities whose canonical name matches.
 4. Confirm within 30 days; the ledger holds a hashed record of the operation.
+
+### § ledger — what redaction does not touch, and why
+
+`dsar redact` does not rewrite the audit ledger, `approvals.requested_by`/`decided_by`,
+or `entities.canonical_name` for a matched entity (the row is removed instead of
+edited, since a partially-redacted canonical name would no longer resolve
+correctly). This is a deliberate boundary, not an oversight:
+
+- The ledger is append-only and hash-chained by design (`packages/core/src/audit/ledger.ts`)
+  so that tampering with or deleting any entry breaks verification. Rewriting a
+  ledger payload to redact a name would itself be exactly the kind of tampering
+  the chain exists to detect. Ledger payloads are therefore designed to carry
+  identifiers, hashes and counts rather than free text wherever practical —
+  `knowledge.redact` events, for instance, record a `termHash` and row counts,
+  never the term itself.
+- Where a ledger event's `evidence`/`previousState`/`newState` necessarily carries
+  a legitimate business record naming a real person (an approver's name on a
+  `draft.publish` event, an editorial-responsibility name on a manifest), that is
+  accountability data the ledger exists to preserve, not personal data the
+  product is expected to erase on request — it is retained under the same
+  legal basis as the approval or publication itself and pruned only via the
+  documented retention/archiving procedure (`docs/OPERATIONS.md`), never through DSAR redaction.
+- If a request genuinely requires removing a name from the ledger itself (rare —
+  e.g. the name was captured in error, not as an accountability record), that is
+  an operator procedure: export the ledger, archive it, and re-anchor a new chain
+  head, documented in `docs/OPERATIONS.md`. It is intentionally not exposed as a
+  self-service redaction operation.
 
 ## Web scraping and third-party content
 

@@ -16,6 +16,14 @@ or ledger. Use a secret manager or your process supervisor's env injection.
 
 ## Running
 
+- **CLI trust boundary.** `--actor` (and `EVIDENTIA_ACTOR`) is a self-reported
+  string recorded in the audit ledger and in four-eyes exclusion sets — the CLI
+  has no login step and does not authenticate it. Run the CLI only under an
+  already-trusted operator identity (a named service account, restricted to
+  people who should be able to act as that actor), the same way you would trust
+  `git commit --author`. Actions that need real accountability against a
+  specific human — approving or rejecting a gated draft — should go through the
+  console, which does authenticate the session before recording `decidedBy`.
 - CLI: `node packages/cli/bin/evidentia.mjs …` (or alias `evidentia`).
 - Console: `pnpm --filter @evidentia/admin start` → `http://127.0.0.1:8787`.
   Put a TLS reverse proxy with SSO/MFA in front (Caddy, nginx, Cloudflare Access,
