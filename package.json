@@ -1,0 +1,31 @@
+{
+  "name": "evidentia-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Evidentia — governed generative visibility for European organisations. Built and maintained by Clixite SRL — Belgium.",
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "Clixite SRL (Belgium)",
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "packageManager": "pnpm@10.26.2",
+  "scripts": {
+    "typecheck": "pnpm -r --if-present typecheck",
+    "lint": "pnpm -r --if-present lint",
+    "test": "pnpm -r --if-present test",
+    "test:e2e": "playwright test -c tests/e2e/playwright.config.ts",
+    "build": "pnpm -r --if-present build",
+    "audit": "pnpm audit --audit-level=high",
+    "sbom": "node scripts/sbom.ts",
+    "licenses": "node scripts/licenses.ts",
+    "secrets": "gitleaks detect --source . --no-banner --redact",
+    "verify": "pnpm typecheck && pnpm test && pnpm build"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/node": "24.12.0",
+    "typescript": "7.0.2"
+  }
+}
