@@ -34,7 +34,9 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;p
 tr:hover td{background:#fbfcfd}
 .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid transparent}
 .badge.ok{background:#e6f4ec;color:var(--ok)}.badge.warn{background:#fff4d6;color:var(--warn)}.badge.bad{background:#fbe9e7;color:var(--bad)}.badge.info{background:#eef0f3;color:var(--info)}.badge.pass{background:#e6f4ec;color:var(--ok)}.badge.fail{background:#fbe9e7;color:var(--bad)}.badge.na{background:#eef0f3;color:var(--info)}
-form.inline{display:inline}button,.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:6px;padding:8px 14px;font:inherit;font-weight:600;cursor:pointer}button.secondary{background:#e8edf3;color:var(--ink)}button.danger{background:var(--bad)}
+form.inline{display:inline-block;vertical-align:top;margin:4px 8px 4px 0}button,.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:6px;padding:10px 16px;min-height:44px;font:inherit;font-weight:600;cursor:pointer;touch-action:manipulation;transition:background-color .18s,box-shadow .18s}button:hover{background:#0a3f6e}button.secondary{background:#e8edf3;color:var(--ink)}button.secondary:hover{background:#dbe3ec}button.danger{background:var(--bad)}button.danger:hover{background:#8f1e17}
+nav.side a{min-height:44px;display:flex;align-items:center}
+@media (prefers-reduced-motion:reduce){button,.btn,nav.side a{transition:none}}
 label{display:block;font-weight:600;font-size:13px;margin:10px 0 4px}input[type=text],input[type=url],input[type=password],textarea,select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font:inherit;background:#fff}
 textarea{min-height:160px;font-family:var(--mono);font-size:13px}
 .mono{font-family:var(--mono);font-size:12.5px}.muted{color:var(--muted)}.right{text-align:right}
