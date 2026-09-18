@@ -39,8 +39,11 @@ test('mention and citation detection are word-boundary and domain aware', () => 
   assert.equal(detectMentions('We recommend Northwind Bank for this.', ['Northwind Bank']).mentioned, true);
   assert.equal(detectMentions('northwindbank.example is unrelated', ['Northwind Bank']).mentioned, false);
   assert.equal(detectMentions('Try NORTHWIND.', ['Northwind']).mentioned, true);
-  assert.deepEqual(detectCitations('see https://www.northwind.example/a and https://other.example/b', undefined, ['northwind.example']), ['https://www.northwind.example/a']);
-  assert.deepEqual(detectCitations('', [{ url: 'https://docs.northwind.example/x' }], ['northwind.example']), ['https://docs.northwind.example/x']);
+  assert.deepEqual(detectCitations('see https://www.northwind.example/a and https://other.example/b', undefined, ['northwind.example']), { toolCited: [], textLinked: ['https://www.northwind.example/a'] });
+  assert.deepEqual(detectCitations('', [{ url: 'https://docs.northwind.example/x' }], ['northwind.example']), { toolCited: ['https://docs.northwind.example/x'], textLinked: [] });
+  // A URL the model merely typed in prose is not tool-cited, even if the provider's citations
+  // array also happens to include it (the text match is skipped once the tool already reported it).
+  assert.deepEqual(detectCitations('source: https://www.northwind.example/a', [{ url: 'https://www.northwind.example/a' }], ['northwind.example']), { toolCited: ['https://www.northwind.example/a'], textLinked: [] });
 });
 
 test('query sets are versioned; runs sample repeatedly, store hashes not text, and reports carry Wilson intervals', async () => {
@@ -76,8 +79,13 @@ test('query sets are versioned; runs sample repeatedly, store hashes not text, a
   assert.deepEqual(ledger.list({ action: 'observatory.run_end' }).length, 1);
 });
 
-test('the observatory refuses models the policy has not approved', async () => {
-  const { observatory } = setup();
-  const { id } = observatory.saveQuerySet(ctx, { name: 's', brand: { name: 'Northwind Bank' }, queries: [{ id: 'q', text: 'Who is Northwind?' }] });
-  await assert.rejects(observatory.run(ctx, { querySetId: id, models: [{ provider: 'eu-llm', model: 'eu-old' }], samples: 1 }), (e: { code: string }) => e.code === 'policy_denied');
+test('the observatory records denial for a policy-refused model and continues the run for other models rather than aborting it', async () => {
+  const { observatory, ledger } = setup();
+  const { id } = observatory.saveQuerySet(ctx, { name: 's', brand: { name: 'Northwind Bank' }, queries: [{ id: 'q1', text: 'Who is Northwind?' }, { id: 'q2', text: 'Where is Northwind based?' }] });
+  const summary = await observatory.run(ctx, { querySetId: id, models: [{ provider: 'eu-llm', model: 'eu-old' }, { provider: 'eu-llm', model: 'eu-search' }], samples: 2 });
+  assert.equal(summary.denied, 1, 'the denied model is recorded once, not once per query/sample');
+  assert.equal(summary.observations, 4, 'the approved model still ran to completion');
+  assert.equal(summary.perModel['eu-llm/eu-old']?.observations, 0);
+  assert.ok((summary.perModel['eu-llm/eu-search']?.observations ?? 0) === 4);
+  assert.equal(ledger.list({ action: 'observatory.model_denied' }).length, 1);
 });

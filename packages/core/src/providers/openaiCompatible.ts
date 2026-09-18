@@ -25,6 +25,9 @@ interface ChatResponse {
   system_fingerprint?: string;
   choices?: { message?: { content?: string | null; annotations?: { type?: string; url_citation?: { url: string; title?: string } }[] }; finish_reason?: string }[];
   usage?: { prompt_tokens?: number; completion_tokens?: number; prompt_tokens_details?: { cached_tokens?: number } };
+  /** Perplexity (Sonar) returns citations at the response root, not as per-message annotations: a flat URL list on older API versions, `search_results` with titles on newer ones. */
+  citations?: string[];
+  search_results?: { url?: string; title?: string }[];
 }
 
 interface EmbeddingsResponse {
@@ -63,7 +66,16 @@ export class OpenAICompatibleProvider implements ProviderAdapter {
     const res = await postJson<ChatResponse>(`${this.#opts.baseUrl}/chat/completions`, body, this.#headers(), this.#opts.fetchOptions);
     const choice = res.choices?.[0];
     if (!choice?.message) throw new EvidentiaError('provider_error', 'no completion choice returned', { provider: this.id });
-    const citations = (choice.message.annotations ?? []).filter((a) => a.type === 'url_citation' && a.url_citation).map((a) => ({ url: (a.url_citation as { url: string }).url, ...(a.url_citation?.title ? { title: a.url_citation.title } : {}) }));
+    const citations: { url: string; title?: string }[] = [];
+    for (const a of choice.message.annotations ?? []) {
+      if (a.type === 'url_citation' && a.url_citation) citations.push({ url: a.url_citation.url, ...(a.url_citation.title ? { title: a.url_citation.title } : {}) });
+    }
+    for (const r of res.search_results ?? []) {
+      if (r.url && !citations.some((c) => c.url === r.url)) citations.push({ url: r.url, ...(r.title ? { title: r.title } : {}) });
+    }
+    for (const url of res.citations ?? []) {
+      if (!citations.some((c) => c.url === url)) citations.push({ url });
+    }
     return {
       text: choice.message.content ?? '',
       provider: this.id,

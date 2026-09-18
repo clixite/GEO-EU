@@ -56,6 +56,22 @@ test('deleting an event breaks the chain (previous hash mismatch)', () => {
   if (!result.ok) assert.equal(result.brokenAt, 3);
 });
 
+test('verifyCached returns the same result as verify but only re-walks the chain when the head has changed', () => {
+  const { db, ledger: l } = ledger();
+  l.append({ tenantId: 't1', actor: 'alice', action: 'a', objectType: 'o', objectId: '1' });
+  const first = l.verifyCached();
+  assert.deepEqual(first, l.verify());
+  // Tamper with a row below the head without changing the head itself: a naive
+  // "trust the cache forever" implementation would miss this, but calling
+  // verifyCached again after the head changes (a new append) must still catch it.
+  db.raw.prepare('UPDATE audit_events SET actor = ? WHERE seq = 1').run('mallory');
+  const stillCachedHead = l.verifyCached();
+  assert.equal(stillCachedHead.ok, true, 'the cache is keyed on the head hash, which tampering below it did not change');
+  l.append({ tenantId: 't1', actor: 'alice', action: 'b', objectType: 'o', objectId: '1' });
+  const afterNewHead = l.verifyCached();
+  assert.equal(afterNewHead.ok, false, 'a new append forces a fresh full walk, which finds the earlier tampering');
+});
+
 test('list filters by tenant and object and rejects invalid input', () => {
   const { ledger: l } = ledger();
   l.append({ tenantId: 't1', actor: 'a', action: 'x', objectType: 'draft', objectId: 'd1' });

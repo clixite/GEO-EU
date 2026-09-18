@@ -217,6 +217,25 @@ export class AuditLedger {
     return { ok: true, count: rows.length, headHash: prev };
   }
 
+  #lastVerified: { headHash: string; count: number } | null = null;
+
+  /**
+   * Verification that is cheap on repeated calls: the full walk runs only when the
+   * head changed since the last successful verification (the chain below an
+   * unchanged, previously verified head cannot have been altered without changing
+   * the head hash it was derived from — unless rows were rewritten wholesale, which
+   * the scheduled full `verify()` catches).
+   */
+  verifyCached(): ReturnType<AuditLedger['verify']> {
+    const head = this.head();
+    if (this.#lastVerified && head && head.hash === this.#lastVerified.headHash && head.seq === this.#lastVerified.count) {
+      return { ok: true, count: this.#lastVerified.count, headHash: this.#lastVerified.headHash };
+    }
+    const result = this.verify();
+    this.#lastVerified = result.ok ? { headHash: result.headHash, count: result.count } : null;
+    return result;
+  }
+
   /** Throw if the chain is broken; used by release/verification gates. */
   assertIntact(): void {
     const result = this.verify();

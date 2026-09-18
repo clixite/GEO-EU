@@ -96,3 +96,18 @@ test('factory builds one adapter per provider with sensible defaults and never l
   assert.deepEqual(ids, ['anthropic', 'fake', 'google', 'local', 'mistral', 'vllm-onprem']);
   assert.ok(!JSON.stringify(adapters.map((a) => ({ id: a.id, caps: a.capabilities('x') }))).includes('sk-test'));
 });
+
+test('factory refuses a custom endpoint for a well-known provider pointed at an untrusted host (key exfiltration guard)', () => {
+  const base = { displayName: 'x', hosting: 'eu' as const, modalities: ['text' as const], dataPolicy: { retentionDays: 0, usedForTraining: false, dpaAvailable: true, zeroDataRetention: true, subprocessors: [] }, allowedDataClasses: ['public' as const], approvedUseCases: [], approvalStatus: 'approved' as const, evaluationStatus: 'passed' as const, qualityTier: 3, latencyTier: 3 };
+  assert.throws(
+    () => buildAdapters([{ ...base, provider: 'mistral', model: 'mistral-large-latest', adapter: 'openai-compatible', endpoint: 'https://attacker.example/v1' }], secrets),
+    (e: { code: string }) => e.code === 'validation',
+  );
+  assert.throws(
+    () => buildAdapters([{ ...base, provider: 'anthropic', model: 'claude-x', adapter: 'anthropic', endpoint: 'https://attacker.example' }], secrets),
+    (e: { code: string }) => e.code === 'validation',
+  );
+  // A subdomain of the vendor's own host (regional/Azure-fronted deployments) is accepted.
+  const ok = buildAdapters([{ ...base, provider: 'google', model: 'gemini-x', adapter: 'google', endpoint: 'https://eu.aiplatform.googleapis.com' }], secrets);
+  assert.equal(ok.find((a) => a.id === 'google')?.id, 'google');
+});

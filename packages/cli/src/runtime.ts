@@ -3,8 +3,29 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   AiSystemRegister, ApprovalService, AuditLedger, ContentPipeline, CostMeter, DemoProvider, HybridRetriever, KnowledgeStore, Logger, ModelRegistry, Observatory,
-  PolicyAwareRouter, ProcessingRegister, buildAdapters, envSecrets, generateSigningKey, openDatabase, parsePolicy, type Database, type PolicyDocument, type ProviderAdapter, type SigningKeyPair,
+  PolicyAwareRouter, ProcessingRegister, buildAdapters, envSecrets, generateSigningKey, openDatabase, parsePolicy, type Budget, type Database, type PolicyDocument, type ProviderAdapter, type SigningKeyPair,
 } from '@evidentia/core';
+
+/**
+ * Parse EVIDENTIA_BUDGETS: a JSON array of `Budget` objects. Without this,
+ * `CostMeter` is created with no budgets and never blocks spend, silently —
+ * cost governance exists in the code but does nothing until an operator sets
+ * this. Example: `[{"tenantId":"acme","windowDays":30,"limitEur":500,"hard":true,"maxCalls":50000}]`.
+ */
+export function parseBudgets(json: string | undefined, tenantId: string): Budget[] {
+  if (!json) return [];
+  const parsed: unknown = JSON.parse(json);
+  if (!Array.isArray(parsed)) throw new Error('EVIDENTIA_BUDGETS must be a JSON array');
+  return parsed.map((b: { tenantId?: unknown; workload?: unknown; windowDays?: unknown; limitEur?: unknown; hard?: unknown; maxCalls?: unknown }) => {
+    if (typeof b.windowDays !== 'number' || typeof b.limitEur !== 'number') throw new Error('invalid budget entry: windowDays and limitEur are required numbers');
+    return {
+      tenantId: typeof b.tenantId === 'string' ? b.tenantId : tenantId,
+      windowDays: b.windowDays, limitEur: b.limitEur, hard: b.hard === true,
+      ...(typeof b.workload === 'string' ? { workload: b.workload } : {}),
+      ...(typeof b.maxCalls === 'number' ? { maxCalls: b.maxCalls } : {}),
+    };
+  });
+}
 
 /**
  * Wires the core engine for a CLI session: one SQLite store, one policy, one
@@ -17,6 +38,8 @@ export interface RuntimeOptions {
   policyPath: string;
   signingKeyPath?: string | undefined;
   verbose?: boolean;
+  /** JSON array of Budget objects; falls back to EVIDENTIA_BUDGETS when omitted. See `parseBudgets`. */
+  budgetsJson?: string | undefined;
 }
 
 export interface Runtime {
@@ -63,7 +86,14 @@ export function createRuntime(options: RuntimeOptions): Runtime {
   const systems = new AiSystemRegister(db, ledger);
   const processing = new ProcessingRegister(db, ledger);
   const approvals = new ApprovalService(db, ledger);
-  const meter = new CostMeter(db);
+  const budgets = parseBudgets(options.budgetsJson ?? process.env['EVIDENTIA_BUDGETS'], options.tenantId);
+  const meter = new CostMeter(db, {
+    budgets,
+    onBudgetExceeded: (b, spent) => {
+      logger.warn('budget exceeded', { tenantId: b.tenantId, workload: b.workload ?? 'all', windowDays: b.windowDays, limitEur: b.limitEur, spentEur: spent, hard: b.hard });
+      ledger.append({ tenantId: b.tenantId, actor: 'system', action: 'cost.budget_exceeded', objectType: 'tenant', objectId: b.tenantId, evidence: { workload: b.workload ?? null, windowDays: b.windowDays, limitEur: b.limitEur, spentEur: spent, hard: b.hard } });
+    },
+  });
   const secrets = envSecrets();
   // The offline, self-hosted embedding model is always available so that ingestion
   // works before any external provider is contracted. Registered once, audited.

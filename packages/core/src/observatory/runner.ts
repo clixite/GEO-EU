@@ -107,18 +107,35 @@ export function detectMentions(text: string, names: readonly string[]): { mentio
   return { mentioned: first !== -1, firstIndex: first };
 }
 
-export function detectCitations(text: string, citations: readonly { url: string }[] | undefined, domains: readonly string[]): string[] {
-  const urls = new Set<string>();
-  for (const c of citations ?? []) urls.add(c.url);
-  for (const m of text.matchAll(/https?:\/\/[^\s)\]>"']+/g)) urls.add(m[0]);
-  return [...urls].filter((u) => {
+function matchDomains(urls: Iterable<string>, domains: readonly string[]): string[] {
+  const out: string[] = [];
+  for (const u of urls) {
     try {
       const host = new URL(u).hostname.replace(/^www\./, '');
-      return domains.some((d) => host === d.replace(/^www\./, '') || host.endsWith('.' + d.replace(/^www\./, '')));
+      if (domains.some((d) => host === d.replace(/^www\./, '') || host.endsWith('.' + d.replace(/^www\./, ''))))
+        out.push(u);
     } catch {
-      return false;
+      /* not a URL */
     }
-  });
+  }
+  return out;
+}
+
+/**
+ * Two distinct signals, kept separate rather than merged into one "cited" flag:
+ * `toolCited` — URLs the provider's own citation/grounding mechanism returned
+ * (OpenAI/Mistral `annotations`, Perplexity `citations`/`search_results`,
+ * Anthropic web-search citations, Google grounding chunks) — evidence the model
+ * actually retrieved and grounded on that source. `textLinked` — URLs that merely
+ * appear as text in the free-form answer, which a model can fabricate without any
+ * retrieval having happened. Treating the two as equivalent overstates citation
+ * rates with hallucinated links; official visibility metrics use `toolCited` only.
+ */
+export function detectCitations(text: string, citations: readonly { url: string }[] | undefined, domains: readonly string[]): { toolCited: string[]; textLinked: string[] } {
+  const toolUrls = new Set((citations ?? []).map((c) => c.url));
+  const textUrls = new Set<string>();
+  for (const m of text.matchAll(/https?:\/\/[^\s)\]>"']+/g)) if (!toolUrls.has(m[0])) textUrls.add(m[0]);
+  return { toolCited: matchDomains(toolUrls, domains), textLinked: matchDomains(textUrls, domains) };
 }
 
 export class Observatory {
@@ -169,7 +186,7 @@ export class Observatory {
     );
     this.ledger.append({ tenantId: ctx.tenantId, actor: ctx.actor, action: 'observatory.run_start', objectType: 'query_set', objectId: options.querySetId, ...(ctx.requestId ? { requestId: ctx.requestId } : {}), evidence: { runId, models: options.models, samples, queries: qs.queries.length } });
 
-    for (const m of options.models) {
+    modelLoop: for (const m of options.models) {
       const key = `${m.provider}/${m.model}`;
       summary.perModel[key] = { observations: 0, errors: 0 };
       for (const q of qs.queries) {
@@ -184,7 +201,14 @@ export class Observatory {
               });
             } catch (error) {
               const e = error as EvidentiaError;
-              if (e.code === 'policy_denied') { summary.denied += 1; throw e; }
+              if (e.code === 'policy_denied') {
+                // A denied model is denied for every remaining sample and query too; record it
+                // once and move on to the next model rather than aborting the whole run and
+                // discarding observations already collected for other models.
+                summary.denied += 1;
+                this.ledger.append({ tenantId: ctx.tenantId, actor: ctx.actor, action: 'observatory.model_denied', objectType: 'query_set', objectId: options.querySetId, evidence: { runId, model: key, reason: e.message } });
+                continue modelLoop;
+              }
               summary.errors += 1;
               (summary.perModel[key] as { errors: number }).errors += 1;
               continue;
@@ -201,8 +225,8 @@ export class Observatory {
             }
             positions.sort((a, b) => a.index - b.index);
             const position = mention.mentioned ? positions.findIndex((p) => p.name === qs.brand.name) + 1 : null;
-            const record = { paraphraseIndex: pIndex, promptText: text, answerLength: res.text.length, allCitations: res.citations?.map((c) => c.url) ?? [], attempts: res.attempts, ...(options.storeRawResponses ? { answer: res.text } : {}) };
-            insert.run(newId(), ctx.tenantId, options.querySetId, q.id, res.provider, res.model, res.modelVersion ?? null, res.citations ? 'web' : 'parametric', qs.language, qs.country ?? null, s, this.clock.now().toISOString(), sha256(res.text), mention.mentioned ? 1 : 0, cited.length ? 1 : 0, JSON.stringify(cited), JSON.stringify(competitorHits), position, canonicalJson(record));
+            const record = { paraphraseIndex: pIndex, promptText: text, answerLength: res.text.length, allCitations: res.citations?.map((c) => c.url) ?? [], textLinkedCitations: cited.textLinked, attempts: res.attempts, ...(options.storeRawResponses ? { answer: res.text } : {}) };
+            insert.run(newId(), ctx.tenantId, options.querySetId, q.id, res.provider, res.model, res.modelVersion ?? null, res.citations ? 'web' : 'parametric', qs.language, qs.country ?? null, s, this.clock.now().toISOString(), sha256(res.text), mention.mentioned ? 1 : 0, cited.toolCited.length ? 1 : 0, JSON.stringify(cited.toolCited), JSON.stringify(competitorHits), position, canonicalJson(record));
             summary.observations += 1;
             (summary.perModel[key] as { observations: number }).observations += 1;
           }

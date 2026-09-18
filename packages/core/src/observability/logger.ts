@@ -34,13 +34,18 @@ export interface LogRecord extends LogContext {
 
 export type LogSink = (record: LogRecord) => void;
 
-const SECRET_KEY = /(token|secret|password|passwd|authorization|cookie|api[-_]?key|credential|private[-_]?key)/i;
-const PAYLOAD_KEY = /^(prompt|messages|completion|response_text|responseText|system|content|input_text|inputText|body)$/;
+// Anchored at the end of the key so counters such as `inputTokens` or `token_estimate` are not redacted.
+const SECRET_KEY = /(token|secret|password|passwd|authorization|cookie|api[-_]?key|credential|private[-_]?key)$/i;
+const PAYLOAD_KEY = /^(prompt|messages|completion|response|response_text|responseText|system|content|input|input_text|inputText|body|text|answer|evidence|query|question|draft|excerpt|html|markdown|passage)$/i;
 const SECRET_VALUE = /(sk-[A-Za-z0-9_-]{8,}|Bearer\s+[A-Za-z0-9._-]{8,}|AKIA[0-9A-Z]{12,}|ghp_[A-Za-z0-9]{20,}|xox[baprs]-[A-Za-z0-9-]{10,})/g;
+const MAX_STRING = 2000;
 
 export function redact(value: unknown, depth = 0): unknown {
   if (depth > 8) return '[TRUNCATED]';
-  if (typeof value === 'string') return value.replace(SECRET_VALUE, '[REDACTED]');
+  if (typeof value === 'string') {
+    const masked = value.replace(SECRET_VALUE, '[REDACTED]');
+    return masked.length > MAX_STRING ? { sha256: sha256(masked), length: masked.length, head: masked.slice(0, 120) } : masked;
+  }
   if (Array.isArray(value)) return value.map((v) => redact(v, depth + 1));
   if (value && typeof value === 'object') {
     const out: Record<string, unknown> = {};

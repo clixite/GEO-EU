@@ -34,6 +34,14 @@ export interface Budget {
   windowDays: number;
   limitEur: number;
   hard: boolean;
+  /**
+   * Call-count ceiling for the same window, independent of cost. A model with no
+   * price in the registry records `costEur: null` and is invisible to `limitEur`
+   * (SUM ignores nulls), so an unpriced or misconfigured model could otherwise be
+   * called without limit under a "hard" budget. Set this whenever unpriced models
+   * may be routed under this budget.
+   */
+  maxCalls?: number;
 }
 
 export interface CostSummary {
@@ -86,6 +94,7 @@ export class CostMeter {
       if (b.tenantId !== call.tenantId || (b.workload && b.workload !== call.workload)) continue;
       const spent = this.spent(b);
       if (spent > b.limitEur) this.#alert(b, spent);
+      else if (costEur === null && b.maxCalls !== undefined && this.callCount(b) > b.maxCalls) this.#alert(b, spent);
     }
     return id;
   }
@@ -100,9 +109,22 @@ export class CostMeter {
     return row.c;
   }
 
-  /** Returns the hard budget that is exhausted for this tenant/workload, if any. */
+  /** Number of calls in the budget's window, regardless of price — the fallback signal for unpriced models (see `Budget.maxCalls`). */
+  callCount(budget: Budget): number {
+    const since = new Date(this.clock.now().getTime() - budget.windowDays * 86_400_000).toISOString();
+    const row = this.db.raw
+      .prepare(`SELECT COUNT(*) AS c FROM model_calls WHERE tenant_id = ? AND started_at >= ? ${budget.workload ? 'AND workload = ?' : ''}`)
+      .get(...(budget.workload ? [budget.tenantId, since, budget.workload] : [budget.tenantId, since])) as unknown as { c: number };
+    return row.c;
+  }
+
+  /** Returns the hard budget that is exhausted for this tenant/workload, if any — by euro spend, or by raw call count when `maxCalls` is set (catches unpriced models that never contribute to `spent`). */
   exhaustedHardBudget(tenantId: string, workload: string): Budget | undefined {
-    return this.#budgets.find((b) => b.hard && b.tenantId === tenantId && (!b.workload || b.workload === workload) && this.spent(b) >= b.limitEur);
+    return this.#budgets.find((b) => {
+      if (!b.hard || b.tenantId !== tenantId || (b.workload && b.workload !== workload)) return false;
+      if (this.spent(b) >= b.limitEur) return true;
+      return b.maxCalls !== undefined && this.callCount(b) >= b.maxCalls;
+    });
   }
 
   summary(tenantId: string, sinceIso?: string): CostSummary {
