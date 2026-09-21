@@ -1,0 +1,62 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Architecture" description="Evidentia system architecture: TypeScript monorepo on Node.js 24 with an embedded SQLite store, a framework-free core engine (knowledge, retrieval, readiness, governance, providers, observatory, publishing), a CLI, a server-rendered governance console, a static website and an Agent Skill." path="/architecture" pageType="TechArticle" breadcrumbs={[{ name: 'Architecture', path: '/architecture' }]}>
+  <section class="hero wrap">
+    <span class="eyebrow">Architecture</span>
+    <h1>A small, legible system you can run on a laptop and audit in an afternoon.</h1>
+    <p class="lede">No PHP, no Redis, no vector database, no client-side framework. Node.js 24 supplies SQLite, cryptography and the test runner; the core engine adds schema validation and YAML. Everything else is our code — and it is all tested.</p>
+  </section>
+  <section class="block"><div class="wrap">
+    <div class="diagram scroll" tabindex="0" role="img" aria-label="Evidentia component diagram: surfaces (CLI, console, Agent Skill) call the core engine, which uses SQLite and reaches model providers and publishing targets through a hardened outbound client">
+      <svg viewBox="0 0 960 560" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#3a424c"/></marker></defs>
+        <g font-size="13" fill="#101418">
+          <text x="24" y="30" font-weight="700" font-size="12" fill="#6b7480" letter-spacing="2">SURFACES</text>
+          <rect x="24" y="44" width="200" height="56" rx="8" fill="#fff" stroke="#d8dde3"/><text x="40" y="68" font-weight="600">evidentia CLI</text><text x="40" y="88" fill="#6b7480">JSON output · used by CI and the skill</text>
+          <rect x="248" y="44" width="220" height="56" rx="8" fill="#fff" stroke="#d8dde3"/><text x="264" y="68" font-weight="600">Governance console</text><text x="264" y="88" fill="#6b7480">Hono SSR · CSP · RBAC · CSRF</text>
+          <rect x="492" y="44" width="200" height="56" rx="8" fill="#fff" stroke="#d8dde3"/><text x="508" y="68" font-weight="600">Agent Skill</text><text x="508" y="88" fill="#6b7480">Claude Code · modes · guardrails</text>
+          <rect x="716" y="44" width="220" height="56" rx="8" fill="#fff" stroke="#d8dde3"/><text x="732" y="68" font-weight="600">Public website</text><text x="732" y="88" fill="#6b7480">Astro static · no scripts</text>
+
+          <text x="24" y="150" font-weight="700" font-size="12" fill="#6b7480" letter-spacing="2">CORE ENGINE (packages/core)</text>
+          <rect x="24" y="164" width="912" height="220" rx="12" fill="#f2f0ea" stroke="#d8dde3"/>
+          <g>
+            <rect x="44" y="184" width="200" height="52" rx="8" fill="#fff" stroke="#d8dde3"/><text x="58" y="206" font-weight="600">knowledge</text><text x="58" y="224" fill="#6b7480">extract · chunk · claims · entities</text>
+            <rect x="264" y="184" width="200" height="52" rx="8" fill="#fff" stroke="#d8dde3"/><text x="278" y="206" font-weight="600">retrieval</text><text x="278" y="224" fill="#6b7480">BM25 + vectors · RRF · citations</text>
+            <rect x="484" y="184" width="200" height="52" rx="8" fill="#fff" stroke="#d8dde3"/><text x="498" y="206" font-weight="600">geo</text><text x="498" y="224" fill="#6b7480">robots per agent · readiness-v1</text>
+            <rect x="704" y="184" width="212" height="52" rx="8" fill="#fff" stroke="#d8dde3"/><text x="718" y="206" font-weight="600">content</text><text x="718" y="224" fill="#6b7480">grounded prompts · verification</text>
+            <rect x="44" y="252" width="200" height="52" rx="8" fill="#e3f1ef" stroke="#0f6e6a"/><text x="58" y="274" font-weight="600">governance</text><text x="58" y="292" fill="#3a424c">policy · registers · approvals</text>
+            <rect x="264" y="252" width="200" height="52" rx="8" fill="#e3f1ef" stroke="#0f6e6a"/><text x="278" y="274" font-weight="600">audit ledger</text><text x="278" y="292" fill="#3a424c">hash chain · verify</text>
+            <rect x="484" y="252" width="200" height="52" rx="8" fill="#e3f1ef" stroke="#0f6e6a"/><text x="498" y="274" font-weight="600">providers</text><text x="498" y="292" fill="#3a424c">adapters · policy router · cost</text>
+            <rect x="704" y="252" width="212" height="52" rx="8" fill="#fff" stroke="#d8dde3"/><text x="718" y="274" font-weight="600">publishing · observatory</text><text x="718" y="292" fill="#6b7480">pipeline · manifests · sampling</text>
+            <rect x="44" y="320" width="872" height="44" rx="8" fill="#101418"/><text x="58" y="347" fill="#fff" font-weight="600">storage: SQLite (node:sqlite, FTS5, WAL, secure_delete) · migrations append-only · tenant id on every row</text>
+          </g>
+
+          <text x="24" y="430" font-weight="700" font-size="12" fill="#6b7480" letter-spacing="2">OUTSIDE THE TRUST BOUNDARY — via safeFetch only</text>
+          <rect x="24" y="444" width="280" height="56" rx="8" fill="#fff" stroke="#d8dde3"/><text x="40" y="468" font-weight="600">Model providers</text><text x="40" y="488" fill="#6b7480">Anthropic · OpenAI-compatible · Google · self-hosted</text>
+          <rect x="336" y="444" width="280" height="56" rx="8" fill="#fff" stroke="#d8dde3"/><text x="352" y="468" font-weight="600">Publishing targets</text><text x="352" y="488" fill="#6b7480">static export · WordPress REST · signed HTTP</text>
+          <rect x="648" y="444" width="288" height="56" rx="8" fill="#fff" stroke="#d8dde3"/><text x="664" y="468" font-weight="600">Web pages to analyse or ingest</text><text x="664" y="488" fill="#6b7480">https only · no private ranges · size caps</text>
+          <g stroke="#3a424c" stroke-width="1.5" marker-end="url(#arr)"><line x1="124" y1="100" x2="124" y2="162"/><line x1="358" y1="100" x2="358" y2="162"/><line x1="592" y1="100" x2="592" y2="162"/><line x1="164" y1="384" x2="164" y2="442"/><line x1="476" y1="384" x2="476" y2="442"/><line x1="792" y1="384" x2="792" y2="442"/></g>
+          <text x="24" y="540" fill="#6b7480" font-size="12">Every arrow into the core is audited; every arrow out is policy-checked and SSRF-hardened.</text>
+        </g>
+      </svg>
+    </div>
+  </div></section>
+  <section class="block"><div class="wrap prose">
+    <h2>Decisions on record</h2>
+    <ul>
+      <li><strong>ADR-0001 Product identity.</strong> Evidentia; vocabulary of Knowledge, Evidence, Readiness, Observatory, Gate, Register, Ledger, Policy.</li>
+      <li><strong>ADR-0002 Stack.</strong> TypeScript monorepo, Node ≥ 24, SQLite store, framework-free core, Hono console, Astro website; PostgreSQL adapter deferred.</li>
+      <li><strong>ADR-0003 Clean room.</strong> GEOFlow studied for ideas; no code, prompts, templates or text copied; attribution given voluntarily.</li>
+    </ul>
+    <h2>Data model</h2>
+    <p>Sources → documents → chunks (FTS + embedding) → claims and entities; drafts → publications; AI systems, model registry, processing records, approvals; query sets → observations; model calls; audit events. Fourteen tables, six append-only migrations.</p>
+    <h2>Operational shape</h2>
+    <ul>
+      <li>One process, one SQLite file per deployment (or per tenant); WAL mode; backups by file copy.</li>
+      <li>CLI for everything, console for people, skill for agents — all through the same services and the same ledger.</li>
+      <li>CI: typecheck, unit/integration tests, deterministic evals, offline smoke flow, browser tests, audits, licence gate, SBOM, secret scan, SAST.</li>
+    </ul>
+    <p><a href="/docs">Documentation →</a></p>
+  </div></section>
+</Base>

@@ -1,0 +1,27 @@
+{
+  "provider": "mistral",
+  "model": "mistral-large-latest",
+  "displayName": "Mistral Large (EU)",
+  "adapter": "openai-compatible",
+  "endpoint": "https://api.mistral.ai/v1",
+  "hosting": "eu",
+  "modalities": ["text"],
+  "dataPolicy": {
+    "retentionDays": 30,
+    "usedForTraining": false,
+    "dpaAvailable": true,
+    "zeroDataRetention": false,
+    "subprocessors": ["Mistral AI SAS (FR)"],
+    "processingRegion": "EU",
+    "policyReference": "DPA reference and provider data-policy URL"
+  },
+  "allowedDataClasses": ["public", "internal", "confidential"],
+  "approvedUseCases": ["drafting", "classification"],
+  "approvalStatus": "draft",
+  "evaluationStatus": "not-evaluated",
+  "contractualStatus": "DPA signed YYYY-MM-DD",
+  "riskNotes": "Fill in after reviewing the provider's contract; set approvalStatus to approved only through `evidentia model status`.",
+  "cost": { "inputPerMillionTokensEur": 1.8, "outputPerMillionTokensEur": 5.4 },
+  "qualityTier": 4,
+  "latencyTier": 3
+}

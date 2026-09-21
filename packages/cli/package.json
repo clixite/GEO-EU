@@ -1,0 +1,25 @@
+{
+  "name": "@evidentia/cli",
+  "version": "1.0.0",
+  "description": "Evidentia command-line interface — governed generative visibility for European organisations. Built and maintained by Clixite SRL — Belgium.",
+  "license": "SEE LICENSE IN ../../LICENSE",
+  "author": "Clixite SRL (Belgium)",
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "bin": {
+    "evidentia": "./bin/evidentia.mjs"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "node --disable-warning=ExperimentalWarning --test --test-reporter=spec \"test/**/*.test.ts\""
+  },
+  "dependencies": {
+    "@evidentia/core": "workspace:*"
+  },
+  "exports": {
+    ".": "./src/main.ts",
+    "./runtime": "./src/runtime.ts"
+  }
+}

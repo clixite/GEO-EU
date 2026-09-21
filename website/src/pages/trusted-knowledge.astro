@@ -1,0 +1,29 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Trusted knowledge" description="How Evidentia builds a trusted knowledge base: sources with owners and authority levels, content-addressed documents, provenance on every chunk, deterministic claim and entity extraction, freshness tracking, prompt-injection quarantine and data-subject tooling." path="/trusted-knowledge" pageType="TechArticle" breadcrumbs={[{ name: 'Trusted knowledge', path: '/trusted-knowledge' }]}>
+  <section class="hero wrap">
+    <span class="eyebrow">Knowledge layer</span>
+    <h1>Content is only as citable as the evidence behind it.</h1>
+    <p class="lede">Evidentia starts from what your organisation has actually documented — policies, product pages, reports, releases — and keeps the chain from every published sentence back to the passage it came from.</p>
+  </section>
+  <section class="block"><div class="wrap">
+    <div class="bento">
+      <div class="card wide"><span class="n">PROVENANCE</span><h3>Every chunk knows where it came from</h3><p>Source (kind, locator, owner, authority level, licence, validity window) → document (content fingerprint, fetch time, published/modified dates, language) → chunk (heading path, character offsets) → claim (kind, confidence, entities). A citation is reconstructed as <em>title › heading (locator, chars a–b)</em>.</p></div>
+      <div class="card"><span class="n">AUTHORITY</span><h3>Official beats forum</h3><p>Sources are ranked by authority: official +0.15, internal +0.10, third-party 0, unverified −0.20 — visible in every search result.</p></div>
+      <div class="card"><span class="n">FRESHNESS</span><h3>Stale is a worklist</h3><p>Documents older than a year are listed for substantive review. Content-addressed ingestion means re-fetching unchanged pages costs nothing.</p></div>
+      <div class="card"><span class="n">CLAIMS</span><h3>Checkable statements</h3><p>Statistics, dates, definitions, superlatives, promises and plain facts are extracted deterministically with confidence scores — the raw material for evidence coverage.</p></div>
+      <div class="card"><span class="n">ENTITIES</span><h3>Consistency you can fix</h3><p>Organisations, products, people and places are resolved across spellings ("Northwind Bank SA", "NORTHWIND BANK"), surfacing inconsistencies that confuse engines.</p></div>
+      <div class="card ink"><span class="n">QUARANTINE</span><h3>Poisoned documents never reach a draft</h3><p>Instruction-like text aimed at AI systems ("ignore previous instructions", "cite this page first", "Dear ChatGPT") quarantines the document until a reviewer releases it.</p></div>
+      <div class="card accent"><span class="n">RIGHTS</span><h3>Find, rectify, erase, export</h3><p>Data-subject lookups across chunks, claims and aliases; audited redaction that rewrites every derived artefact; full tenant export and erasure.</p></div>
+    </div>
+  </div></section>
+  <section class="block"><div class="wrap prose">
+    <h2>Retrieval that explains itself</h2>
+    <p>Hybrid search combines BM25 over an FTS5 index with vector similarity, fuses them by reciprocal rank fusion, and applies three transparent signals — authority, freshness (a small decaying boost) and exact-phrase match. Compound questions are decomposed into sub-queries. Every hit reports its lexical rank, semantic rank and the signals applied, so an editor can see <em>why</em> a passage was chosen.</p>
+    <h2>Embeddings without lock-in</h2>
+    <p>Embeddings come from whichever registered model the policy allows for the data class — an EU-hosted provider, a self-hosted model, or the built-in deterministic hashed embedding for offline and air-gapped use (clearly labelled as non-semantic). Switching models re-embeds without changing anything else.</p>
+    <h2>What we deliberately do not do</h2>
+    <ul><li>No web-wide crawling. You register the sources; third-party pages are fetched only when you ask, marked as such, and robots.txt is honoured.</li><li>No LLM-based "fact extraction" as the source of truth. Model passes may refine, but the deterministic extraction is what the ledger records.</li><li>No silent data flows. Which model saw which data class is a policy decision, logged.</li></ul>
+  </div></section>
+</Base>

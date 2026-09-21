@@ -1,0 +1,16 @@
+{
+  "name": "northwind-reconciliation-be",
+  "language": "en",
+  "country": "BE",
+  "brand": { "name": "Northwind Bank", "aliases": ["Northwind", "Northwind Bank SA"], "domains": ["northwind.example"] },
+  "competitors": [
+    { "name": "Contoso Payments", "aliases": ["Contoso"], "domains": ["contoso-payments.example"] },
+    { "name": "Fabrikam Treasury", "aliases": ["Fabrikam"], "domains": ["fabrikam-treasury.example"] }
+  ],
+  "queries": [
+    { "id": "q1", "text": "Which banks offer automated payment reconciliation for corporate treasuries in Belgium?", "intent": "commercial", "paraphrases": ["Belgian banks with payment reconciliation services for corporates", "corporate payment reconciliation providers Belgium"] },
+    { "id": "q2", "text": "How does payment reconciliation work at a bank?", "intent": "informational", "paraphrases": ["explain bank payment reconciliation controls"] },
+    { "id": "q3", "text": "What is Northwind Bank's data retention policy for support recordings?", "intent": "navigational", "branded": true },
+    { "id": "q4", "text": "Compare Northwind Bank and Contoso Payments for reconciliation", "intent": "comparison", "branded": true }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "description": "Prompts that should and should not activate the evidentia skill. Used with `claude plugin eval` style harnesses and for manual review of the description.",
+  "shouldTrigger": [
+    { "prompt": "Analyse https://www.example.com/services for AI search readiness and tell me what to fix first.", "expectedMode": "geo-optimisation" },
+    { "prompt": "Why does ChatGPT never cite our documentation pages?", "expectedMode": "geo-optimisation" },
+    { "prompt": "Ingest our privacy policy and product pages into the knowledge base and show the extracted claims.", "expectedMode": "knowledge" },
+    { "prompt": "Draft an explainer about our reconciliation service using only our own sources, and verify every claim.", "expectedMode": "content" },
+    { "prompt": "Set up monitoring of how often Perplexity and Gemini mention our brand for these ten questions.", "expectedMode": "visibility-observatory" },
+    { "prompt": "Register our drafting assistant in the AI system register with an Article 50 assessment.", "expectedMode": "governance" },
+    { "prompt": "Can we send confidential documents to the OpenAI model we registered?", "expectedMode": "governance" },
+    { "prompt": "A customer asked what we hold about them in Evidentia — find and redact their name.", "expectedMode": "privacy" },
+    { "prompt": "Publish the approved draft to WordPress with the AI disclosure.", "expectedMode": "publishing" },
+    { "prompt": "Is our robots.txt blocking Claude or OAI-SearchBot?", "expectedMode": "geo-optimisation" },
+    { "prompt": "Add Organization JSON-LD with sameAs to our site — does it help AI citations?", "expectedMode": "structured-data" },
+    { "prompt": "Should we add an llms.txt file?", "expectedMode": "geo-optimisation" }
+  ],
+  "shouldNotTrigger": [
+    { "prompt": "Find high-volume keywords for our Google Ads campaign." },
+    { "prompt": "Write a poem about spring." },
+    { "prompt": "Fix the failing unit test in the payments service." },
+    { "prompt": "Design a Facebook ad creative for our summer sale." }
+  ]
+}

@@ -1,0 +1,17 @@
+---
+import Base from '../../layouts/Base.astro';
+const docs = [
+  ['/docs/getting-started', 'Getting started', 'Install, initialise a store, run the offline demo, register a model.'],
+  ['/docs/cli', 'CLI reference', 'Every evidentia command, its options and exit codes.'],
+  ['/docs/geo-methodology', 'GEO methodology', 'Evidence tiers, technique catalogue, readiness-v1 scoring, measurement protocol.'],
+  ['/docs/eu-governance', 'EU governance', 'Applicability verdicts per framework with primary sources and dates.'],
+  ['/docs/skill', 'Agent Skill', 'Modes, workflow, guardrails, scripts, install and verification.'],
+  ['/docs/policies', 'Policies', 'Writing and testing governance policy files.'],
+];
+---
+<Base title="Documentation" description="Evidentia documentation: getting started, CLI reference, GEO methodology, EU governance analysis, Agent Skill guide and policy authoring." path="/docs" breadcrumbs={[{ name: 'Documentation', path: '/docs' }]}>
+  <section class="hero wrap"><span class="eyebrow">Documentation</span><h1>Public documentation.</h1><p class="lede">The repository holds the complete set (architecture, threat model, operations, release process, ADRs). These pages cover what most readers need first.</p></section>
+  <section class="block"><div class="wrap">
+    <div class="cards">{docs.map(([href, t, d]) => <div class="card"><h3><a href={href}>{t}</a></h3><p>{d}</p></div>)}</div>
+  </div></section>
+</Base>

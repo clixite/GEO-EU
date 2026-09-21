@@ -1,0 +1,27 @@
+---
+import Base from '../layouts/Base.astro';
+const faqs = [
+  ['Is Evidentia "EU AI Act compliant"?', 'No product can be; compliance is an outcome of how an organisation deploys and operates it. Evidentia implements the controls and produces the evidence that Article 50 transparency, human oversight and record-keeping call for, documents what remains the deployer\'s responsibility, and marks items that need legal assessment.'],
+  ['Which AI models can it use?', 'Any model reachable through the Anthropic Messages API, an OpenAI-compatible API (OpenAI, Mistral, Azure OpenAI, vLLM, Ollama…) or the Google Gemini API, plus a built-in offline provider for demos and tests. Each model is registered with hosting, retention, training and DPA metadata, and policies decide what it may process.'],
+  ['Does it send our documents to external providers?', 'Only to models the policy allows for the data class of the request. The default EU policy keeps internal and confidential content on EU/EEA-hosted or self-hosted models with a DPA and no training on inputs, personal data on zero-retention models, and special-category data self-hosted only. Denials are audited.'],
+  ['Does llms.txt help?', 'Not according to current evidence: Google ignores it and large-scale studies found no correlation. Publishing one is harmless, so the analyser reports it as informational at zero weight — and this site publishes one with the same note.'],
+  ['Does schema markup get us cited?', 'Organization and Article JSON-LD help engines understand entities and dates; the one controlled study found no citation lift. Evidentia scores structured data as hygiene, never as a booster.'],
+  ['Can the AI publish on its own?', 'No. AI-assisted drafts always require approval by a person other than the requester; the approval is bound to the content hash and any edit voids it. The Agent Skill can prepare and request, not approve.'],
+  ['How is visibility measured?', 'Versioned query sets with paraphrases are sampled repeatedly through official provider APIs. Mention and citation rates are reported with 95% Wilson intervals and sample sizes, per model, intent and language; model-version changes mark a break in the series.'],
+  ['What data does the observatory store?', 'Outcomes (mentioned, cited, competitor mentions, position) and a hash of the answer — not the answer text, unless an operator deliberately enables raw storage.'],
+  ['Is there a hosted version?', 'Evidentia is delivered as self-hosted software. Contact Clixite for operated deployments; Data Act export and switching obligations are built in either way.'],
+  ['What does it cost?', 'Evidentia is commercially licensed by Clixite SRL. Contact us for terms; model usage is metered per call so you can see provider costs per workload.'],
+  ['What is the relationship with GEOFlow?', 'Inspiration and independent implementation. GEOFlow (AGPL-3.0, Yao Jingang) established the idea of a GEO operations platform with trusted knowledge and quality gates; Evidentia shares no code and adds a European governance model.'],
+];
+const jsonLd = { '@type': 'FAQPage', mainEntity: faqs.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) };
+---
+<Base title="FAQ" description="Frequently asked questions about Evidentia: compliance claims, supported models, data flows, llms.txt and schema, human approval, visibility measurement, hosting, pricing and the relationship with GEOFlow." path="/faq" pageType="FAQPage" breadcrumbs={[{ name: 'FAQ', path: '/faq' }]} extraJsonLd={[jsonLd]}>
+  <section class="hero wrap">
+    <span class="eyebrow">FAQ</span>
+    <h1>Straight answers.</h1>
+    <p class="kicker">This page carries FAQPage markup for completeness; we do not expect it to influence AI citations (see the methodology).</p>
+  </section>
+  <section class="block"><div class="wrap prose">
+    {faqs.map(([q, a]) => <><h2>{q}</h2><p>{a}</p></>)}
+  </div></section>
+</Base>

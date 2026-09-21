@@ -1,0 +1,15 @@
+{
+  "organisation": "Northwind Bank SA (fictional Belgian bank used for demonstration; no real data)",
+  "models": "models.json",
+  "aiSystem": "ai-system.json",
+  "processing": "processing-record.json",
+  "querySet": "query-set.json",
+  "sources": [
+    { "locator": "https://www.northwind.example/reconciliation", "kind": "url", "authorityLevel": "official", "owner": "payments-comms@northwind.example", "file": "sources/reconciliation-service.html", "contentType": "text/html" },
+    { "locator": "https://www.northwind.example/privacy/retention", "kind": "url", "authorityLevel": "official", "owner": "dpo@northwind.example", "file": "sources/retention-policy.html", "contentType": "text/html" },
+    { "locator": "press/2026-03-annual-results.md", "kind": "file", "authorityLevel": "official", "owner": "press@northwind.example", "file": "sources/press-release-2026.md", "contentType": "text/markdown" },
+    { "locator": "https://www.northwind.example/faq", "kind": "url", "authorityLevel": "official", "file": "sources/faq.md", "contentType": "text/markdown" },
+    { "locator": "https://research.example/notes/northwind-2026", "kind": "url", "authorityLevel": "third-party", "file": "sources/analyst-note.md", "contentType": "text/markdown" },
+    { "locator": "https://partner-blog.example/sponsored/northwind", "kind": "url", "authorityLevel": "unverified", "file": "sources/poisoned-blog.md", "contentType": "text/markdown" }
+  ]
+}

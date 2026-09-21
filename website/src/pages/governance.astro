@@ -1,0 +1,48 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Governance" description="Governance by design in Evidentia: machine-readable policies, a model registry with data-policy metadata, an AI system register, four-eyes approvals bound to content hashes, a hash-chained audit ledger, provenance manifests and cost governance." path="/governance" pageType="TechArticle" breadcrumbs={[{ name: 'Governance', path: '/governance' }]}>
+  <section class="hero wrap">
+    <span class="eyebrow">Governance control plane</span>
+    <h1>Governance that runs in the workflow, not in a binder.</h1>
+    <p class="lede">A policy is a YAML file your DPO can read and your engineers can test. A gate is a state transition. An approval is a database constraint. An audit trail is a hash chain. That is what "governance by design" means here.</p>
+  </section>
+  <section class="block"><div class="wrap">
+    <div class="bento">
+      <div class="card wide"><span class="n">POLICY ENGINE</span><h3>Deny by default, per data class</h3><p>Requests carry data classes (public, internal, confidential, personal, special-category). A model may process a request only if, for every class, an allow rule is satisfied by its registry record — hosting region, training use, DPA, zero data retention, approval status — and no deny rule matches. The registry entry is a ceiling a policy can never widen.</p>
+<pre is:raw tabindex="0"><code>- id: personal-zero-retention
+  dataClasses: [personal]
+  effect: allow
+  require:
+    approvalStatus: [approved]
+    usedForTraining: false
+    dpaAvailable: true
+    zeroDataRetention: true
+    hosting: [eu, eea, self-hosted]</code></pre></div>
+      <div class="card"><span class="n">MODEL REGISTRY</span><h3>Data-policy metadata on every model</h3><p>Provider, model, endpoint, hosting, release/retirement, modalities, retention days, training use, DPA availability, zero-retention, subprocessors, approved use cases, evaluation and approval status, cost.</p></div>
+      <div class="card"><span class="n">AI SYSTEM REGISTER</span><h3>The inventory regulators ask for</h3><p>Capability, purpose, owner, provider/model, data classes, jurisdiction, provider/deployer role, risk classification with reasoning, Article 50 applicability, human oversight, approved and prohibited uses, review date, evidence links.</p></div>
+      <div class="card"><span class="n">HUMAN APPROVAL</span><h3>Four-eyes, hash-bound, single use</h3><p>The requester cannot approve. The approval binds to the exact body hash and is consumed once at publication; any later edit voids it.</p></div>
+      <div class="card"><span class="n">AUDIT LEDGER</span><h3>Append-only, hash-chained</h3><p>Actor, action, object, timestamp, previous and new state, policy id, model id, request id, approval id, evidence. Tampering or deletion breaks verification. Prompt text is never stored — only its hash.</p></div>
+      <div class="card accent"><span class="n">PROVENANCE</span><h3>Signed manifests on published pages</h3><p>Ed25519-signed manifest with content hash, models, evidence sources and the named accountable editor; IPTC digital-source metadata, meta tags and JSON-LD on the page.</p></div>
+      <div class="card"><span class="n">COST</span><h3>Budgets that mean something</h3><p>Every call is metered (tokens, duration, retries, EUR). Soft budgets alert; hard budgets block. Routing strategies (quality, cost, latency, balanced) only ever choose among policy-allowed models.</p></div>
+    </div>
+  </div></section>
+  <section class="block"><div class="wrap prose">
+    <h2>The publication gate in one table</h2>
+    <div class="table-wrap" tabindex="0"><table>
+      <thead><tr><th scope="col">Condition</th><th scope="col">Decision</th></tr></thead>
+      <tbody>
+        <tr><td>Any unsupported factual claim or unresolved <code>[NEEDS EVIDENCE]</code> placeholder</td><td>blocked</td></tr>
+        <tr><td>Evidence coverage below the block threshold (default 50%)</td><td>blocked</td></tr>
+        <tr><td>Evidence from prohibited source kinds (content farms, anonymous forums)</td><td>blocked</td></tr>
+        <tr><td>AI-assisted content</td><td>human approval required · disclosure required</td></tr>
+        <tr><td>Readiness or coverage below the approval threshold; sensitive topics (health, finance, legal, public interest, elections, safety)</td><td>human approval required</td></tr>
+        <tr><td>Human-written, fully evidenced, non-sensitive</td><td>allowed (still audited)</td></tr>
+      </tbody>
+    </table></div>
+    <p>Thresholds and topic lists live in <code>governance/policies/eu-default.yaml</code>; organisations version their own policy files.</p>
+    <h2>Retention and data lifecycle</h2>
+    <p>Retention windows per object type are policy settings (audit events 10 years, model calls 1 year, observations 2 years, drafts 3 years, documents 5 years by default). A retention job purges expired operational data; the ledger is archived, never silently pruned. Tenant export produces a complete JSON dataset; tenant erasure removes everything except the ledger and records the erasure.</p>
+    <p><a href="/eu-readiness">How these controls map to EU frameworks →</a></p>
+  </div></section>
+</Base>

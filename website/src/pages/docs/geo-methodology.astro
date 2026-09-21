@@ -1,0 +1,10 @@
+---
+import Base from '../../layouts/Base.astro';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+const md = readFileSync(resolve('../docs/GEO_METHODOLOGY.md'), 'utf8');
+---
+<Base title="GEO methodology (full)" description="The complete evidence-tiered GEO/AEO methodology brief: engine behaviour, technique catalogue with tiers and proxies, folklore list, measurement protocol, readiness score model and the full source register with access dates." path="/docs/geo-methodology" pageType="TechArticle" breadcrumbs={[{ name: 'Documentation', path: '/docs' }, { name: 'GEO methodology', path: '/docs/geo-methodology' }]}>
+  <section class="hero wrap"><span class="eyebrow">Docs · research brief</span><h1>GEO methodology — full brief</h1><p class="lede">Rendered from <code>docs/GEO_METHODOLOGY.md</code>. All sources accessed 2026-09-18.</p></section>
+  <section class="block"><div class="wrap prose"><pre tabindex="0" style="white-space:pre-wrap;background:#fff;color:var(--ink);border:1px solid var(--line)">{md}</pre></div></section>
+</Base>

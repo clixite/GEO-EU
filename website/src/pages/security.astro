@@ -1,0 +1,34 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Security" description="Evidentia security: threat model (STRIDE + abuse cases), SSRF-hardened egress, prompt-injection quarantine, deny-by-default model access, hash-chained audit ledger, signed provenance, console hardening, supply-chain controls (SBOM, audits, SAST, secret scanning), vulnerability disclosure and known limitations." path="/security" pageType="TechArticle" breadcrumbs={[{ name: 'Security', path: '/security' }]}>
+  <section class="hero wrap">
+    <span class="eyebrow">Security</span>
+    <h1>Security-first, because the product publishes on your behalf.</h1>
+    <p class="lede">A GEO platform reads untrusted web pages, calls external models, and writes to your website. Each of those is an attack surface. Here is what we built, what we tested, and what we still consider residual risk.</p>
+  </section>
+  <section class="block"><div class="wrap">
+    <div class="cards">
+      <div class="card"><h3>Untrusted content stays data</h3><p>Fetched pages, ingested documents, retrieved passages and model outputs are never treated as instructions. Poisoned documents are quarantined; verification is deterministic; the analyser penalises pages that address AI systems.</p></div>
+      <div class="card"><h3>Egress is allow-listed</h3><p>Every outbound request goes through one hardened client: HTTPS only, private and metadata ranges blocked on literal IPs and DNS results, redirects re-validated, size and time caps, vendor hosts pinned.</p></div>
+      <div class="card"><h3>Models are policy-gated</h3><p>Deny-by-default access per data class; fallback never escalates to a disallowed provider; every denial is audited.</p></div>
+      <div class="card"><h3>History is tamper-evident</h3><p>Hash-chained ledger verified on every console load and by a scheduled command; approvals bound to content hashes; Ed25519-signed provenance manifests.</p></div>
+      <div class="card"><h3>Console hardening</h3><p>Signed HttpOnly SameSite=Strict sessions, CSRF double submit, CSP <code>default-src 'none'</code> with no scripts at all, RBAC, login rate limiting, body-size limits, security headers.</p></div>
+      <div class="card"><h3>Small, audited supply chain</h3><p>Two runtime dependencies in the core engine; exact pins and lockfile; <code>pnpm audit</code>, licence allow-list, CycloneDX SBOM, gitleaks, CodeQL and Semgrep in CI.</p></div>
+    </div>
+  </div></section>
+  <section class="block"><div class="wrap prose">
+    <h2>Tested, not asserted</h2>
+    <p>The test suite exercises the security controls directly: ledger tampering and deletion detection; SSRF address classes, redirect targets and size caps; policy deny paths and fallback containment; four-eyes, hash binding and replay of approvals; quarantine exclusion from retrieval; tenant-scoped data access (application-level, not a database-engine boundary — see below); forged session cookies, CSRF and role escalation on the console; an adversarial injection dataset. The offline smoke flow runs the entire pipeline end to end.</p>
+    <h2>Residual risks we document</h2>
+    <ul>
+      <li>DNS rebinding between lookup and connect is mitigated, not eliminated — use an egress proxy on hostile networks.</li>
+      <li>No built-in MFA/SSO in the console — deploy behind an identity-aware proxy; OIDC is on the roadmap.</li>
+      <li>Regex-based injection detection can be evaded by novel phrasing — quarantine is a reviewer worklist, and the deterministic verifier remains the last line before the human approver.</li>
+      <li>SQLite is single-node; strong tenant isolation means one database per tenant.</li>
+      <li>Provenance keys live on the filesystem (0600); HSM/KMS integration is planned.</li>
+    </ul>
+    <h2>Vulnerability disclosure</h2>
+    <p>Report to <a href="mailto:security@clixite.eu">security@clixite.eu</a>. Acknowledgement within two business days, triage within five, coordinated disclosure by default at 90 days. Actively exploited vulnerabilities follow the Cyber Resilience Act reporting timeline (24 h / 72 h / 14 d). Full policy: <code>SECURITY.md</code>; threat model: <code>docs/THREAT_MODEL.md</code>.</p>
+  </div></section>
+</Base>

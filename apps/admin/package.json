@@ -1,0 +1,20 @@
+{
+  "name": "@evidentia/admin",
+  "version": "1.0.0",
+  "description": "Evidentia governance console — server-rendered admin application. Built and maintained by Clixite SRL — Belgium.",
+  "license": "SEE LICENSE IN ../../LICENSE",
+  "author": "Clixite SRL (Belgium)",
+  "type": "module",
+  "engines": { "node": ">=24.0.0" },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning src/server.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "node --disable-warning=ExperimentalWarning --test --test-reporter=spec \"test/**/*.test.ts\""
+  },
+  "dependencies": {
+    "@evidentia/cli": "workspace:*",
+    "@evidentia/core": "workspace:*",
+    "@hono/node-server": "2.1.1",
+    "hono": "4.13.8"
+  }
+}

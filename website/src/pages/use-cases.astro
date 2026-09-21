@@ -1,0 +1,25 @@
+---
+import Base from '../layouts/Base.astro';
+const cases = [
+  ['Enterprise websites', 'Service and product pages that AI assistants describe accurately; consistent entity naming across thousands of pages; readiness worklists per section.'],
+  ['Professional services', 'Firms whose expertise is the product: evidence-grounded explainers with named authors, quotations that really were said, and a paper trail for every claim.'],
+  ['Banking and insurance', 'Public content about products, fees, retention and processes that must match what the regulator sees; finance topics route to human approval by policy.'],
+  ['Public organisations', 'Official information that citizens increasingly obtain through AI answers; provenance manifests and disclosure by default; accessibility-first output.'],
+  ['Software companies', 'Documentation and comparison pages that are retrievable and citable; visibility measured per engine and language before and after changes.'],
+  ['Knowledge-intensive organisations', 'Research institutes, associations, standards bodies: large corpora with authority levels, freshness tracking and data-subject tooling.'],
+];
+---
+<Base title="Use cases" description="Where Evidentia fits: enterprise websites, professional services, banking and insurance, public organisations, software companies and knowledge-intensive organisations — with the governance those sectors require." path="/use-cases" breadcrumbs={[{ name: 'Use cases', path: '/use-cases' }]}>
+  <section class="hero wrap">
+    <span class="eyebrow">Use cases</span>
+    <h1>Built for organisations that cannot afford to be misquoted.</h1>
+    <p class="lede">The examples below describe how the platform is designed to be used. They are not endorsements: no sector, regulator or customer has approved Evidentia, and suitability is assessed per deployment.</p>
+  </section>
+  <section class="block"><div class="wrap">
+    <div class="cards">{cases.map(([t, d]) => <div class="card"><h3>{t}</h3><p>{d}</p></div>)}</div>
+  </div></section>
+  <section class="block"><div class="wrap prose">
+    <h2>A worked example (fictional)</h2>
+    <p>The repository ships a fictional Belgian bank, Northwind Bank SA, with six sources: an official service page, a retention policy, a press release, an FAQ, a third-party analyst note and a sponsored blog post that tries to instruct AI assistants. Loading the demo quarantines the blog post, extracts claims and entities from the rest, drafts an explainer that cites its passages, routes it to a second person for approval because it is AI-assisted, publishes it with a disclosure and a signed manifest, and measures how often the brand is mentioned and cited across repeated AI answers — with confidence intervals. <a href="/installation">Run it yourself →</a></p>
+  </div></section>
+</Base>

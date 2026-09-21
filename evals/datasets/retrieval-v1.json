@@ -1,0 +1,47 @@
+{
+  "id": "retrieval",
+  "version": "1.0.0",
+  "description": "Golden retrieval set over a small fictional corpus: the expected source must rank first for each query, with authority weighting favouring official sources over forum posts.",
+  "cases": [
+    {
+      "kind": "retrieval",
+      "id": "retention-question",
+      "input": {
+        "corpus": [
+          { "locator": "https://www.northwind.example/privacy/retention", "authorityLevel": "official", "text": "Data retention policy. Northwind Bank SA retains transaction records for 10 years as required by Belgian anti-money-laundering law. Customer support recordings are deleted after 90 days. Erasure requests are handled within 30 days." },
+          { "locator": "docs/product.md", "authorityLevel": "internal", "text": "Reconciliation platform overview. The Northwind reconciliation platform matches 2.3 million payments per day. It was launched in 2021 and serves 14 countries." },
+          { "locator": "https://forum.example/t/1", "authorityLevel": "unverified", "text": "Someone said Northwind deletes support recordings after 5 days but I am not sure about retention." }
+        ],
+        "query": "how long are support recordings kept",
+        "semantic": true
+      },
+      "expect": { "topLocator": "https://www.northwind.example/privacy/retention", "withinTop": 1 }
+    },
+    {
+      "kind": "retrieval",
+      "id": "volume-question-lexical-only",
+      "input": {
+        "corpus": [
+          { "locator": "https://www.northwind.example/privacy/retention", "authorityLevel": "official", "text": "Data retention policy. Northwind Bank SA retains transaction records for 10 years. Customer support recordings are deleted after 90 days." },
+          { "locator": "docs/product.md", "authorityLevel": "internal", "text": "Reconciliation platform overview. The Northwind reconciliation platform matches 2.3 million payments per day. It was launched in 2021 and serves 14 countries." }
+        ],
+        "query": "payments per day",
+        "semantic": false
+      },
+      "expect": { "topLocator": "docs/product.md", "withinTop": 1 }
+    },
+    {
+      "kind": "retrieval",
+      "id": "erasure-handling",
+      "input": {
+        "corpus": [
+          { "locator": "https://www.northwind.example/privacy/retention", "authorityLevel": "official", "text": "Erasure requests are handled within 30 days by the Data Protection Officer." },
+          { "locator": "https://www.northwind.example/careers", "authorityLevel": "official", "text": "We are hiring engineers in Brussels and Antwerp. Applications are handled within 30 days." }
+        ],
+        "query": "how are erasure requests handled",
+        "semantic": true
+      },
+      "expect": { "topLocator": "https://www.northwind.example/privacy/retention", "withinTop": 1 }
+    }
+  ]
+}

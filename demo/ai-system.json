@@ -1,0 +1,25 @@
+{
+  "name": "Evidentia drafting assistant — Northwind website",
+  "capability": "Evidence-grounded drafting of website content from approved knowledge; GEO readiness analysis; AI visibility measurement",
+  "purpose": "Help the communications team produce accurate, citable website content about Northwind Bank's services, reviewed and approved by a named editor before publication.",
+  "owner": "head-of-communications@northwind.example",
+  "provider": "demo",
+  "model": "demo-eu",
+  "version": "1",
+  "dataClasses": ["public", "internal"],
+  "jurisdiction": "BE",
+  "deploymentRole": "deployer",
+  "riskClassification": "limited",
+  "riskReasoning": "Annex III screening: the system does not perform biometric identification, critical-infrastructure control, education/vocational scoring, employment decisions, access to essential services, law enforcement, migration, or justice/democratic-process functions. It drafts corporate web content under human editorial control. Limited-risk transparency obligations (Art. 50) apply to published AI-assisted text.",
+  "article50Applicable": true,
+  "humanOversight": "Every AI-assisted draft passes deterministic evidence verification and a policy gate, then requires approval by a second named person (four-eyes). Published pages carry a visible AI transparency notice and a signed machine-readable manifest naming the accountable editor.",
+  "approvedUses": ["Drafting service explanations, FAQs and press-derived summaries from approved sources", "Readiness analysis of Northwind web pages", "Measuring brand visibility in AI answer engines through official APIs"],
+  "prohibitedUses": ["Content about individual customers or employees", "Financial advice or product recommendations to consumers", "Any electoral or political content", "Health, safety or investment claims without legal review"],
+  "reviewDate": "2027-03-01",
+  "evidence": [
+    { "label": "AI literacy briefing for the communications team (Art. 4)", "reference": "internal://training/ai-literacy-2026-05" },
+    { "label": "DPIA — Evidentia knowledge ingestion", "reference": "internal://dpia/2026-02-evidentia" },
+    { "label": "Model registry approval record", "reference": "evidentia://model/demo/demo-eu" }
+  ],
+  "status": "active"
+}

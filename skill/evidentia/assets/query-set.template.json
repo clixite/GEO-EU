@@ -1,0 +1,14 @@
+{
+  "name": "<topic>-<market>",
+  "language": "en",
+  "country": "BE",
+  "brand": { "name": "<Brand>", "aliases": ["<short name>"], "domains": ["<brand-domain.tld>"] },
+  "competitors": [
+    { "name": "<Competitor A>", "aliases": [], "domains": ["<competitor-a.tld>"] }
+  ],
+  "queries": [
+    { "id": "q1", "text": "<unbranded commercial question>", "intent": "commercial", "paraphrases": ["<paraphrase 1>", "<paraphrase 2>"] },
+    { "id": "q2", "text": "<informational question>", "intent": "informational", "paraphrases": ["<paraphrase>"] },
+    { "id": "q3", "text": "<branded question about <Brand>>", "intent": "navigational", "branded": true }
+  ]
+}

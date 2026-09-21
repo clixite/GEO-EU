@@ -1,0 +1,18 @@
+{
+  "purpose": "Ingestion of Northwind's own published documents and web pages for GEO analysis and evidence-grounded drafting",
+  "legalBasis": "legitimate-interests",
+  "legitimateInterestAssessment": "internal://lia/2026-02-evidentia — first-party corporate content; incidental personal data limited to named spokespeople and authors; minimal impact; DSAR tooling available.",
+  "role": "controller",
+  "dataCategories": ["Names and roles of Northwind spokespeople and authors", "Business contact details published by Northwind", "Corporate figures and statements"],
+  "dataSubjects": ["Employees acting as spokespeople or authors"],
+  "recipients": ["Communications team", "Data Protection Officer (on request)"],
+  "processors": [
+    { "name": "Clixite SRL", "role": "Evidentia platform (self-hosted deployment: vendor, not processor)", "dpa": true, "location": "BE" }
+  ],
+  "internationalTransfers": [],
+  "retentionDays": 1825,
+  "securityMeasures": ["Tenant isolation", "Hash-chained audit ledger", "Secret redaction in logs", "Prompt-injection quarantine", "Role-separated approvals (four-eyes)"],
+  "dpiaRequired": true,
+  "dpiaReference": "internal://dpia/2026-02-evidentia",
+  "dataResidency": "EU (self-hosted in Belgium)"
+}

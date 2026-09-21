@@ -1,0 +1,20 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Changelog" description="Evidentia release history: what shipped in each version of the platform, the CLI, the governance console, the Agent Skill and the documentation, with dates." path="/changelog" breadcrumbs={[{ name: 'Changelog', path: '/changelog' }]}>
+  <section class="hero wrap"><span class="eyebrow">Changelog</span><h1>Releases</h1></section>
+  <section class="block"><div class="wrap prose">
+    <h2>1.0.0 — 2026-09-18</h2>
+    <p>Initial release.</p>
+    <ul>
+      <li>Core engine: knowledge store with content-addressed ingestion, claim and entity extraction, prompt-injection quarantine; hybrid retrieval with citations; readiness-v1 analyser with per-agent robots evaluation; evidence-grounded drafting and deterministic verification; policy engine, registers, four-eyes approvals, hash-chained ledger, Ed25519 provenance manifests, retention/export/erasure; policy-aware model router with cost metering; adapters for Anthropic, OpenAI-compatible and Google APIs plus local and demo providers; AI visibility observatory with Wilson intervals; publishing pipeline with static, WordPress and signed HTTP targets; deterministic evals runner.</li>
+      <li><code>evidentia</code> CLI covering the whole platform with JSON output and meaningful exit codes.</li>
+      <li>Governance console (server-rendered, CSP without scripts, RBAC, CSRF, rate-limited login).</li>
+      <li>Claude Code Agent Skill with mode routing, ten references, cross-platform scripts, install/verify/rollback and script tests.</li>
+      <li>Fictional demo dataset (Northwind Bank SA) and an 18-step offline smoke flow.</li>
+      <li>Documentation: architecture, GEO methodology with evidence tiers and a 90-entry source register, EU governance analysis with 68 primary sources, threat model, security architecture, operations, release process.</li>
+      <li>CI: typecheck, tests, evals, smoke, browser tests, dependency audit, licence gate, CycloneDX SBOM, secret scan, CodeQL and Semgrep.</li>
+    </ul>
+    <p>Full notes: <code>CHANGELOG.md</code> in the repository.</p>
+  </div></section>
+</Base>

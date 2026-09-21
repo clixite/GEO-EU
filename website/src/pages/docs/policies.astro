@@ -1,0 +1,43 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base title="Policies" description="Writing and testing Evidentia governance policies: model-access rules per data class, publication gate thresholds, disclosure settings, retention windows and confidence thresholds, validated by schema and exercised by the evals runner." path="/docs/policies" pageType="TechArticle" breadcrumbs={[{ name: 'Documentation', path: '/docs' }, { name: 'Policies', path: '/docs/policies' }]}>
+  <section class="hero wrap"><span class="eyebrow">Docs</span><h1>Policies</h1><p class="lede">A policy is a versioned YAML document validated against a schema. The router and the publication gate apply it; the evals runner tests it.</p></section>
+  <section class="block"><div class="wrap prose">
+    <h2>Structure</h2>
+<pre is:raw tabindex="0"><code>id: acme-eu
+version: 2
+title: ACME EU policy
+jurisdiction: EU
+modelAccess:
+  defaultEffect: deny
+  rules:
+    - id: public-approved
+      dataClasses: [public]
+      effect: allow
+      require: { approvalStatus: [approved] }
+    - id: internal-eu
+      dataClasses: [internal, confidential]
+      effect: allow
+      require: { approvalStatus: [approved], usedForTraining: false, dpaAvailable: true, hosting: [eu, eea, self-hosted] }
+    - id: never-train
+      dataClasses: [internal, confidential, personal, special-category]
+      effect: deny
+      require: { usedForTraining: true }
+publication:
+  requireApprovalWhen: { aiAssisted: true, readinessBelow: 60, evidenceCoverageBelow: 0.8, topics: [health, finance, legal] }
+  disclosure: { requiredWhenAiAssisted: true, machineReadableMarking: true }
+  blockWhen: { unsupportedClaims: true, evidenceCoverageBelow: 0.5, prohibitedSourceKinds: [content-farm] }
+retentionDays: { audit_event: 3650, model_call: 365, observation: 730, draft: 1095, document: 1825 }
+confidenceThresholds: { claimExtraction: 0.6, entityResolution: 0.7 }</code></pre>
+    <h2>Semantics</h2>
+    <ul>
+      <li>Model access is evaluated per data class in the request, most sensitive first. For each class, a deny rule that matches wins; otherwise at least one allow rule must be satisfied; otherwise deny.</li>
+      <li>The model's own <code>allowedDataClasses</code> is a ceiling a policy cannot widen.</li>
+      <li>Requirements: <code>approvalStatus</code>, <code>usedForTraining</code>, <code>dpaAvailable</code>, <code>zeroDataRetention</code>, <code>maxRetentionDays</code>, <code>hosting</code>, <code>providers</code>, <code>adapters</code>.</li>
+      <li>Publication: block conditions are checked first; then approval conditions; then allow.</li>
+    </ul>
+    <h2>Testing a policy</h2>
+    <p>Add cases of kind <code>policy-model-access</code> and <code>policy-publication</code> to a dataset and run <code>evidentia evals run --dataset my-policy-cases.json --policy acme-eu.yaml</code>. The CLI's <code>policy check</code> explains a single decision with the matched rules and reasons.</p>
+  </div></section>
+</Base>

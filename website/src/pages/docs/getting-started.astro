@@ -1,0 +1,43 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base title="Getting started" description="Step-by-step: install Evidentia, initialise a store, load the offline demo, search the knowledge base, generate and verify a grounded draft, gate and approve it, publish with a signed manifest, run the observatory and verify the audit ledger." path="/docs/getting-started" pageType="TechArticle" breadcrumbs={[{ name: 'Documentation', path: '/docs' }, { name: 'Getting started', path: '/docs/getting-started' }]}>
+  <section class="hero wrap"><span class="eyebrow">Docs</span><h1>Getting started</h1></section>
+  <section class="block"><div class="wrap prose">
+    <div class="toc"><strong>On this page</strong><ol><li>Install</li><li>Initialise</li><li>Load the demo</li><li>Search and inspect</li><li>Draft, verify, gate</li><li>Approve and publish</li><li>Measure</li><li>Audit and evals</li></ol></div>
+    <h2>1. Install</h2>
+<pre is:raw tabindex="0"><code>git clone https://github.com/clixite/GEO-EU.git && cd GEO-EU
+pnpm install --frozen-lockfile
+alias evidentia="node $PWD/packages/cli/bin/evidentia.mjs"</code></pre>
+    <h2>2. Initialise a store</h2>
+<pre is:raw tabindex="0"><code>evidentia init --db ./.evidentia/demo.db --tenant demo</code></pre>
+    <p>Creates the SQLite store, applies migrations, registers the offline embedding model and generates an Ed25519 signing key (<code>.evidentia/signing-key.json</code>, mode 0600).</p>
+    <h2>3. Load the demo</h2>
+<pre is:raw tabindex="0"><code>evidentia demo load --db ./.evidentia/demo.db --tenant demo</code></pre>
+    <p>Registers the demo models, an AI system record, a processing record, six sources (one is quarantined as a prompt-injection attempt) and a query set. The output lists the query set id you will need later.</p>
+    <h2>4. Search and inspect</h2>
+<pre is:raw tabindex="0"><code>evidentia status --db ./.evidentia/demo.db --tenant demo
+evidentia search "how long are support recordings kept" --db ./.evidentia/demo.db --tenant demo
+evidentia claims --db ./.evidentia/demo.db --tenant demo
+evidentia quarantine list --db ./.evidentia/demo.db --tenant demo</code></pre>
+    <h2>5. Draft, verify, gate</h2>
+<pre is:raw tabindex="0"><code>evidentia draft generate --title "How Northwind reconciles corporate payments" --slug reconciliation-explained \
+  --query "payment reconciliation controls and escalation" --brand "Northwind Bank" \
+  --db ./.evidentia/demo.db --tenant demo --actor writer@northwind.example
+evidentia draft gate &lt;draftId&gt; --db ./.evidentia/demo.db --tenant demo --actor writer@northwind.example</code></pre>
+    <p>The draft is verified on creation (every claim mapped to its evidence). The gate returns <code>awaiting_approval</code> because the content is AI-assisted. Try editing a figure in the body and re-verifying to see a block.</p>
+    <h2>6. Approve and publish</h2>
+<pre is:raw tabindex="0"><code>evidentia draft approve &lt;draftId&gt; --note "checked against the 2025 results" --db ./.evidentia/demo.db --tenant demo --actor editor@northwind.example
+evidentia draft publish &lt;draftId&gt; --target static:./out --editor "Anna Peeters" --role "Head of Communications" \
+  --db ./.evidentia/demo.db --tenant demo --actor editor@northwind.example</code></pre>
+    <p>Approving with the same actor who requested is refused (four-eyes). Publishing writes <code>out/reconciliation-explained.html</code> (with the AI transparency notice, meta tags and JSON-LD), <code>.md</code> and a signed <code>.manifest.json</code>.</p>
+    <h2>7. Measure</h2>
+<pre is:raw tabindex="0"><code>evidentia observe run &lt;querySetId&gt; --models demo/demo-eu --samples 8 --db ./.evidentia/demo.db --tenant demo
+evidentia observe report &lt;querySetId&gt; --db ./.evidentia/demo.db --tenant demo</code></pre>
+    <h2>8. Audit and evals</h2>
+<pre is:raw tabindex="0"><code>evidentia audit verify --db ./.evidentia/demo.db --tenant demo
+evidentia audit list --object-type draft --db ./.evidentia/demo.db --tenant demo
+evidentia evals run --db ./.evidentia/demo.db --tenant demo</code></pre>
+    <p>Next: register a real model (<a href="/installation">installation §3</a>), point sources at your own pages (<code>evidentia ingest --url https://… --authority official</code>), and analyse them (<code>evidentia analyze https://…</code>).</p>
+  </div></section>
+</Base>

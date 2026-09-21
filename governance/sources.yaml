@@ -1,0 +1,698 @@
+# Machine-readable source register — EU governance research for Clixite GEO platform
+# All entries: primary / official sources only. accessed = 2026-09-18.
+# type: regulation|directive|guideline|opinion|standard|official-page|code-of-practice
+meta:
+  research_date: "2026-09-18"
+  product: "Clixite SRL enterprise GEO platform"
+  status: "complete"
+sources:
+  # ---------------------------------------------------------------- AI Act
+  - id: AIA-REG
+    organisation: "European Parliament and Council of the EU (EUR-Lex)"
+    title: "Regulation (EU) 2024/1689 laying down harmonised rules on artificial intelligence (Artificial Intelligence Act)"
+    url: "https://eur-lex.europa.eu/eli/reg/2024/1689/oj/eng"
+    type: regulation
+    published: "2024-07-12"
+    updated: "2026-07-27"
+    accessed: "2026-09-18"
+    sections: ["Art. 3(3)-(4)", "Art. 4", "Art. 5", "Art. 6", "Art. 12", "Art. 26", "Art. 50", "Art. 53", "Art. 99", "Art. 113", "Annex III"]
+    notes: "OJ L, 12.7.2024; in force 1 Aug 2024. Amended by Reg. (EU) 2026/1744 (in force 27 Jul 2026). EUR-Lex text not retrievable in-session (WAF challenge); verbatim provisions taken from the Commission AI Act Service Desk entries below."
+  - id: OMNIBUS-AI-REG
+    organisation: "European Parliament and Council of the EU (EUR-Lex)"
+    title: "Regulation (EU) 2026/1744 of 8 July 2026 amending Regulations (EU) 2024/1689, (EU) 2018/1139 and (EU) 2023/1230 as regards the simplification of the implementation of harmonised rules on artificial intelligence (Digital Omnibus on AI)"
+    url: "https://eur-lex.europa.eu/eli/reg/2026/1744/oj/eng"
+    type: regulation
+    published: "2026-07-24"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["amended Art. 113 (Annex III → 2 Dec 2027; Annex I → 2 Aug 2028)", "Art. 50(2) transitional period to 2 Dec 2026", "Art. 4", "new prohibited practice (NCII/CSAM generation)"]
+    notes: "Entered into force 27 Jul 2026. EUR-Lex text not retrievable in-session; dates corroborated by COUNCIL-OMNIBUS-PR, EC-AI-TIMELINE, EC-ART50-GL para 153 and EC-AILIT-FAQ."
+  - id: COUNCIL-OMNIBUS-PR
+    organisation: "Council of the European Union"
+    title: "Artificial intelligence: Council gives final green light to simplify and streamline rules (press release)"
+    url: "https://www.consilium.europa.eu/en/press/press-releases/2026/06/29/artificial-intelligence-council-gives-final-green-light-to-simplify-and-streamline-rules/"
+    type: official-page
+    published: "2026-06-29"
+    updated: "2026-06-30"
+    accessed: "2026-09-18"
+    sections: ["Application dates (2 Dec 2027 stand-alone; 2 Aug 2028 embedded)", "grace period for transparency solutions reduced from 6 to 3 months → 2 Dec 2026", "sandboxes 2 Aug 2027", "new prohibition on non-consensual intimate content/CSAM"]
+    notes: "Fetched via curl (WebFetch returned 403). Proposal date 17 Nov 2025; provisional agreement 6 May 2026."
+  - id: EC-AI-TIMELINE
+    organisation: "European Commission (DG CNECT)"
+    title: "AI Act — Regulatory framework for AI (implementation timeline page)"
+    url: "https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai"
+    type: official-page
+    published: "2024-08-01"
+    updated: "2026-08-03"
+    accessed: "2026-09-18"
+    sections: ["2 Feb 2025 prohibitions & AI literacy", "2 Aug 2025 GPAI", "Aug 2026 transparency", "2 Dec 2027 Annex III", "2 Aug 2028 Annex I"]
+    notes: "Post-Omnibus timeline as published by the Commission."
+  - id: AIA-SD-ART3
+    organisation: "European Commission — AI Act Service Desk"
+    title: "AI Act, Article 3: Definitions"
+    url: "https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-3"
+    type: official-page
+    published: "2024-06-13"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["3(1) AI system", "3(3) provider", "3(4) deployer", "3(60) deep fake", "3(63) GPAI model", "3(66) GPAI system"]
+    notes: "Verbatim text of the AI Act (official version of 13 June 2024)."
+  - id: AIA-SD-ART4
+    organisation: "European Commission — AI Act Service Desk"
+    title: "AI Act, Article 4: AI literacy"
+    url: "https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-4"
+    type: official-page
+    published: "2024-06-13"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["Art. 4"]
+    notes: "Page carries banner: amended by the Digital Omnibus on AI; displayed text not yet updated."
+  - id: AIA-SD-ART6
+    organisation: "European Commission — AI Act Service Desk"
+    title: "AI Act, Article 6: Classification rules for high-risk AI systems"
+    url: "https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-6"
+    type: official-page
+    published: "2024-06-13"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["6(3) derogations (a)-(d)", "6(4) documentation and registration"]
+    notes: "Omnibus banner present."
+  - id: AIA-SD-ART12
+    organisation: "European Commission — AI Act Service Desk"
+    title: "AI Act, Article 12: Record-keeping"
+    url: "https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-12"
+    type: official-page
+    published: "2024-06-13"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["Art. 12(1)-(3)"]
+    notes: "Applies to high-risk AI systems only."
+  - id: AIA-SD-ART26
+    organisation: "European Commission — AI Act Service Desk"
+    title: "AI Act, Article 26: Obligations of deployers of high-risk AI systems"
+    url: "https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-26"
+    type: official-page
+    published: "2024-06-13"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["26(1)", "26(2)", "26(5)-(6) log retention ≥ 6 months", "26(7)", "26(9)", "26(11)"]
+    notes: "High-risk only."
+  - id: AIA-SD-ART50
+    organisation: "European Commission — AI Act Service Desk"
+    title: "AI Act, Article 50: Transparency obligations for providers and deployers of certain AI systems"
+    url: "https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-50"
+    type: official-page
+    published: "2024-06-13"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["50(1)", "50(2)", "50(3)", "50(4) incl. text exception (human review/editorial control + editorial responsibility)", "50(5)", "50(7)", "Recitals 132-137"]
+    notes: "Verbatim text."
+  - id: AIA-SD-ART53
+    organisation: "European Commission — AI Act Service Desk"
+    title: "AI Act, Article 53: Obligations for providers of general-purpose AI models"
+    url: "https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-53"
+    type: official-page
+    published: "2024-06-13"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["53(1)(a)-(d)", "53(1)(c) copyright policy / Art. 4(3) DSM reservation", "53(2) open-source exemption"]
+    notes: "Applicable since 2 Aug 2025."
+  - id: AIA-SD-ART99
+    organisation: "European Commission — AI Act Service Desk"
+    title: "AI Act, Article 99: Penalties"
+    url: "https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-99"
+    type: official-page
+    published: "2024-06-13"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["99(3) EUR 35m/7%", "99(4) EUR 15m/3%", "99(5) EUR 7.5m/1%", "99(6) SME lower-of rule"]
+    notes: "Omnibus banner present."
+  - id: AIA-SD-ART113
+    organisation: "European Commission — AI Act Service Desk"
+    title: "AI Act, Article 113: Entry into force and application"
+    url: "https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-113"
+    type: official-page
+    published: "2024-06-13"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["Art. 113(a)-(c) original staged dates"]
+    notes: "Omnibus banner present; superseded dates for Art. 6(1)/Annex I and Annex III — see OMNIBUS-AI-REG."
+  - id: AIA-SD-ANNEX3
+    organisation: "European Commission — AI Act Service Desk"
+    title: "AI Act, Annex III: High-risk AI systems referred to in Article 6(2)"
+    url: "https://ai-act-service-desk.ec.europa.eu/en/ai-act/annex-3"
+    type: official-page
+    published: "2024-06-13"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["Areas 1-8", "8(b) influencing elections/voting behaviour"]
+    notes: "Used for high-risk screening."
+  - id: EC-ART50-GL
+    organisation: "European Commission"
+    title: "Guidelines on the implementation of the transparency obligations for certain AI systems under Article 50 of Regulation (EU) 2024/1689 (AI Act) — C(2026) 5054 final, Annex"
+    url: "https://ec.europa.eu/newsroom/dae/redirection/document/131215"
+    type: guideline
+    published: "2026-07-20"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["2.3 responsible actors (paras 11-17)", "4.2 marking and detection (paras 72-88)", "6.2 text on matters of public interest (paras 130-138)", "8 transitional (para 153-154: 2 Dec 2026)"]
+    notes: "Downloaded PDF (51 pages); policy page https://digital-strategy.ec.europa.eu/en/policies/guidelines-transparency-ai-generated-content (updated 6 Aug 2026)."
+  - id: EC-ART50-QUICKFACTS
+    organisation: "European Commission (DG CNECT)"
+    title: "Quick Facts: Transparency rules for AI systems"
+    url: "https://digital-strategy.ec.europa.eu/en/factpages/quick-facts-transparency-rules-ai-systems"
+    type: official-page
+    published: "2026-07-20"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["dates", "grace period to Dec 2026 for existing generative systems", "penalties EUR 15m/3%"]
+    notes: ""
+  - id: EC-COP-TRANSPARENCY
+    organisation: "European Commission — AI Office (independent chairs: Bontcheva, Bechmann et al.)"
+    title: "Code of Practice on Transparency of AI-Generated Content (final)"
+    url: "https://ec.europa.eu/newsroom/dae/redirection/document/129555"
+    type: code-of-practice
+    published: "2026-06-10"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["Section 1 Commitment 1 Measure 1.1 (sub-measures 1.1.1 signed metadata, 1.1.2 watermarking, 1.1.3 fingerprinting/logging)", "Measure 1.2 non-removal", "Measure 3.4 interoperability (2 Feb 2027)", "Section 2 Commitment 1 (EU icon)", "Commitment 4 human review and editorial control", "Annex 1 EU icons"]
+    notes: "Policy page https://digital-strategy.ec.europa.eu/en/policies/code-practice-ai-generated-content; assessed adequate by Commission and AI Board. Second draft published 5 Mar 2026 (EC-COP-2ND-DRAFT)."
+  - id: EC-COP-SIGN-FAQ
+    organisation: "European Commission (DG CNECT)"
+    title: "Signing the Code of Practice on Transparency of AI-generated Content (FAQ)"
+    url: "https://digital-strategy.ec.europa.eu/en/faqs/signing-code-practice-transparency-ai-generated-content"
+    type: official-page
+    published: "2026-06-10"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["who can sign", "effects of signing", "deadline 27 Jul 2026 and later signature"]
+    notes: ""
+  - id: EC-COP-BACKING
+    organisation: "European Commission (DG CNECT)"
+    title: "Strong backing for the Code of Practice on Transparency of AI-generated Content"
+    url: "https://digital-strategy.ec.europa.eu/en/news/strong-backing-code-practice-transparency-ai-generated-content"
+    type: official-page
+    published: "2026-07-31"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["~190 signatories; 95 Section 1, 192 Section 2"]
+    notes: ""
+  - id: EC-COP-2ND-DRAFT
+    organisation: "European Commission (DG CNECT)"
+    title: "Commission publishes second draft Code of Practice on marking and labelling AI-generated content"
+    url: "https://digital-strategy.ec.europa.eu/en/library/commission-publishes-second-draft-code-practice-marking-and-labelling-ai-generated-content"
+    type: official-page
+    published: "2026-03-05"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["scope Art. 50(2)/(4)", "two-layer marking approach", "timeline"]
+    notes: ""
+  - id: EC-GPAI-GL
+    organisation: "European Commission"
+    title: "Guidelines on the scope of the obligations for providers of general-purpose AI models under the AI Act"
+    url: "https://digital-strategy.ec.europa.eu/en/library/guidelines-scope-obligations-providers-general-purpose-ai-models-under-ai-act"
+    type: guideline
+    published: "2025-07-18"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["10^23 FLOP indicative threshold", "downstream modifier one-third compute rule", "enforcement from 2 Aug 2026", "grandfathering to 2 Aug 2027"]
+    notes: "Policy page https://digital-strategy.ec.europa.eu/en/policies/guidelines-gpai-providers."
+  - id: EC-GPAI-COP
+    organisation: "European Commission — AI Office"
+    title: "The General-Purpose AI Code of Practice"
+    url: "https://digital-strategy.ec.europa.eu/en/policies/contents-code-gpai"
+    type: code-of-practice
+    published: "2025-07-10"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["Transparency chapter", "Copyright chapter (robots.txt, opt-outs, no paywall circumvention, output mitigation)", "Safety & Security chapter"]
+    notes: "Assessed adequate by Commission and AI Board; 21 signatories listed."
+  - id: EC-AILIT-FAQ
+    organisation: "European Commission (DG CNECT)"
+    title: "AI literacy – Questions & Answers"
+    url: "https://digital-strategy.ec.europa.eu/en/faqs/ai-literacy-questions-answers"
+    type: official-page
+    published: "2025-05-07"
+    updated: "2026-07-27"
+    accessed: "2026-09-18"
+    sections: ["Art. 4 applies to all providers/deployers since 2 Feb 2025", "no certificate required", "enforcement from 3 Aug 2026", "Omnibus rewording"]
+    notes: ""
+  # ---------------------------------------------------------------- GDPR / data protection
+  - id: GDPR
+    organisation: "European Parliament and Council of the EU (EUR-Lex)"
+    title: "Regulation (EU) 2016/679 (General Data Protection Regulation)"
+    url: "https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng"
+    type: regulation
+    published: "2016-05-04"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["Art. 4(7)-(8)", "Art. 5(1)(c),(e)", "Art. 6(1)(f)", "Art. 22", "Art. 28", "Art. 30", "Art. 35", "Arts. 44-49", "Art. 83"]
+    notes: "EUR-Lex text not retrievable in-session; article numbering stable; wording paraphrased."
+  - id: EDPB-OP-28-2024
+    organisation: "European Data Protection Board"
+    title: "Opinion 28/2024 on certain data protection aspects related to the processing of personal data in the context of AI models"
+    url: "https://www.edpb.europa.eu/system/files/2024-12/edpb_opinion_202428_ai-models_en.pdf"
+    type: opinion
+    published: "2024-12-17"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["paras 40-46 anonymity test", "3.3.2 legitimate interest three-step test", "paras 91-95 reasonable expectations", "paras 104-106 web-scraping mitigations (robots.txt/ai.txt)", "3.4 scenarios 1-3 unlawful development"]
+    notes: "Adopted 17 Dec 2024 on request of the Irish SA (Art. 64(2))."
+  - id: EDPB-GL-1-2024
+    organisation: "European Data Protection Board"
+    title: "Guidelines 1/2024 on processing of personal data based on Article 6(1)(f) GDPR (version 1.0)"
+    url: "https://www.edpb.europa.eu/system/files/2024-10/edpb_guidelines_202401_legitimateinterest_en.pdf"
+    type: guideline
+    published: "2024-10-08"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["three cumulative conditions", "section 2.3 reasonable expectations", "mitigating measures"]
+    notes: "Version adopted for public consultation; cited as authoritative by Opinion 28/2024 and Guidelines 03/2026."
+  - id: EDPB-GL-3-2026
+    organisation: "European Data Protection Board"
+    title: "Guidelines 03/2026 on web scraping in the context of generative AI (Version 1.0)"
+    url: "https://www.edpb.europa.eu/system/files/2026-07/edpb_guidelines_2020603_webscraping_v1_en_0.pdf"
+    type: guideline
+    published: "2026-07-07"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["paras 1-6 scope (excludes an organisation's own data)", "para 37-38 data minimisation (robots.txt, ai.txt, CAPTCHA, filters, pseudonymisation)", "paras 43-47 legal basis (consent not viable; legitimate interest)"]
+    notes: "Public consultation until 30 Oct 2026. Consultation page https://www.edpb.europa.eu/public-consultations/guidelines-032026-on-web-scraping-in-the-context-of-generative-ai_en"
+  - id: EDPB-NEWS-2026-07-08
+    organisation: "European Data Protection Board"
+    title: "EDPB sheds light on anonymisation and web scraping for generative AI and adopts final version of guidelines on blockchain"
+    url: "https://www.edpb.europa.eu/news/edpb-sheds-light-on-anonymisation-and-web-scraping-for-generative-ai-and-adopts-final-version_en"
+    type: official-page
+    published: "2026-07-08"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["draft anonymisation guidelines (three criteria)", "web scraping guidelines 03/2026", "consultation deadline 30 Oct 2026"]
+    notes: ""
+  - id: EDPB-GL-2-2023
+    organisation: "European Data Protection Board"
+    title: "Guidelines 2/2023 on Technical Scope of Art. 5(3) of ePrivacy Directive (Version 2.0)"
+    url: "https://www.edpb.europa.eu/system/files/2024-10/edpb_guidelines_202302_technical_scope_art_53_eprivacydirective_v2_en_0.pdf"
+    type: guideline
+    published: "2024-10-07"
+    updated: "2024-10-16"
+    accessed: "2026-09-18"
+    sections: ["paras 9-11 information regardless of personal data", "paras 32-34 gaining access (JS, SDK, pixels)", "3.1 URL/pixel tracking", "3.2 local processing", "3.3 IP-only tracking", "para 56 exemptions to be assessed"]
+    notes: "Document states 'Adopted on 7 October 2024'; EDPB page lists 16 Oct 2024 (publication). Version 1.0 was 14 Nov 2023."
+  - id: WP29-WP248
+    organisation: "Article 29 Working Party (endorsed by the EDPB)"
+    title: "Guidelines on Data Protection Impact Assessment (DPIA) and determining whether processing is 'likely to result in a high risk' (WP248 rev.01)"
+    url: "https://ec.europa.eu/newsroom/article29/items/611236"
+    type: guideline
+    published: "2017-10-04"
+    updated: "2018-05-25"
+    accessed: "2026-09-18"
+    sections: ["nine criteria", "two-criteria rule of thumb"]
+    notes: "Adopted 4 Apr 2017, revised 4 Oct 2017; endorsed by the EDPB on 25 May 2018. Criteria listed from the document (page confirmed in-session; PDF not re-read)."
+  - id: SCC-2021-914
+    organisation: "European Commission (EUR-Lex)"
+    title: "Commission Implementing Decision (EU) 2021/914 on standard contractual clauses for the transfer of personal data to third countries"
+    url: "https://eur-lex.europa.eu/eli/dec_impl/2021/914/oj/eng"
+    type: regulation
+    published: "2021-06-07"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["Art. 4 transition (27 Sep 2021 / 27 Dec 2022)", "Annex: Modules 1-4", "Clause 14 local laws (TIA)"]
+    notes: "Decision dated 4 Jun 2021. EUR-Lex text not retrievable in-session; details confirmed on EC-SCC-PAGE."
+  - id: EC-SCC-PAGE
+    organisation: "European Commission (DG JUST)"
+    title: "Standard contractual clauses for international transfers"
+    url: "https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/standard-contractual-clauses-scc/standard-contractual-clauses-international-transfers_en"
+    type: official-page
+    published: "2021-06-04"
+    updated: "2022-05-25"
+    accessed: "2026-09-18"
+    sections: ["four modules", "transition dates", "Clause 14"]
+    notes: ""
+  - id: DPF-ADEQUACY
+    organisation: "European Commission (EUR-Lex)"
+    title: "Commission Implementing Decision (EU) 2023/1795 on the adequate level of protection of personal data under the EU-US Data Privacy Framework"
+    url: "https://eur-lex.europa.eu/eli/dec_impl/2023/1795/oj/eng"
+    type: regulation
+    published: "2023-09-20"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["Art. 1 adequacy finding", "Art. 3 monitoring/review"]
+    notes: "Decision dated 10 Jul 2023. Text not retrievable in-session; status confirmed via EC-ADEQUACY-PAGE and CURIA-T-553-23."
+  - id: EC-ADEQUACY-PAGE
+    organisation: "European Commission (DG JUST)"
+    title: "Adequacy decisions — How the EU determines if a non-EU country has an adequate level of data protection"
+    url: "https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/adequacy-decisions_en"
+    type: official-page
+    published: "2019-01-01"
+    updated: "2026-07-23"
+    accessed: "2026-09-18"
+    sections: ["list incl. United States (DPF)", "UK renewal Dec 2025", "Brazil 10 Feb 2026", "Korea review 23 Jul 2026", "DPF first review report Oct 2024"]
+    notes: ""
+  - id: EC-EUUS-PAGE
+    organisation: "European Commission (DG JUST)"
+    title: "EU-US data transfers"
+    url: "https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/eu-us-data-transfers_en"
+    type: official-page
+    published: "2023-07-10"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["adequacy decision 10 Jul 2023", "EO 14086 safeguards", "redress mechanism"]
+    notes: ""
+  - id: CURIA-T-553-23
+    organisation: "Court of Justice of the European Union — General Court"
+    title: "Case T-553/23 Latombe v Commission (judgment of 3 September 2025); appeal C-703/25 P pending"
+    url: "https://curia.europa.eu/juris/liste.jsf?num=T-553/23"
+    type: official-page
+    published: "2025-09-03"
+    updated: "2025-10-31"
+    accessed: "2026-09-18"
+    sections: ["operative part: action dismissed", "appeal C-703/25 P lodged 31 Oct 2025"]
+    notes: "curia listing rendered minimal content in-session; judgment date and dismissal confirmed; appeal pending, no hearing date found."
+  - id: APD-AI-BROCHURE
+    organisation: "Autorité de protection des données / Gegevensbeschermingsautoriteit (Belgium)"
+    title: "Artificial Intelligence Systems and the GDPR — A Data Protection Perspective (information brochure)"
+    url: "https://www.dataprotectionauthority.be/publications/artificial-intelligence-systems-and-the-gdpr---a-data-protection-perspective.pdf"
+    type: guideline
+    published: "2024-09-19"
+    updated: "2024-12-01"
+    accessed: "2026-09-18"
+    sections: ["audience (controllers/processors developing and deploying AI)", "accountability tools: ROPA, DPIA 'mandatory when processing high-risk data or implementing new technologies'", "AI Act interplay"]
+    notes: "PDF header: 'Original version – version December 2024'. Also at autoriteprotectiondonnees.be (blocked in-session)."
+  - id: APD-COOKIE-CHECKLIST
+    organisation: "Autorité de protection des données (Belgium)"
+    title: "Check-list cookies"
+    url: "https://www.dataprotectionauthority.be/publications/checklist-cookies.pdf"
+    type: guideline
+    published: "2023-10-20"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["prior consent", "reject-all at same level as accept-all", "no cookie walls / deceptive design", "6-month preference cookie", "exemptions: technical essential and strictly necessary functional only", "footnote 12: visitor counting not strictly necessary", "footnote 1 & 11: Art. 10/2 framework law of 30 Jul 2018"]
+    notes: "French version; news item 20 Oct 2023."
+  # ---------------------------------------------------------------- Copyright
+  - id: DSM-2019-790
+    organisation: "European Parliament and Council of the EU (EUR-Lex)"
+    title: "Directive (EU) 2019/790 on copyright and related rights in the Digital Single Market"
+    url: "https://eur-lex.europa.eu/eli/dir/2019/790/oj/eng"
+    type: directive
+    published: "2019-05-17"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["Art. 2(2)", "Art. 3", "Art. 4(1)-(3) TDM and machine-readable reservation", "Recital 18", "Art. 15 press publishers' right"]
+    notes: "EUR-Lex text not retrievable in-session; paraphrased."
+  - id: INFOSOC-2001-29
+    organisation: "European Parliament and Council of the EU (EUR-Lex)"
+    title: "Directive 2001/29/EC on the harmonisation of certain aspects of copyright and related rights in the information society"
+    url: "https://eur-lex.europa.eu/eli/dir/2001/29/oj/eng"
+    type: directive
+    published: "2001-06-22"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["Art. 2 reproduction right", "Art. 5(3)(d) quotation", "Art. 5(5) three-step test"]
+    notes: "EUR-Lex text not retrievable in-session; paraphrased."
+  - id: CURIA-C-5-08
+    organisation: "Court of Justice of the European Union"
+    title: "Case C-5/08 Infopaq International v Danske Dagblades Forening (judgment of 16 July 2009)"
+    url: "https://curia.europa.eu/juris/liste.jsf?num=C-5/08"
+    type: official-page
+    published: "2009-07-16"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["originality = author's own intellectual creation", "11-word extract may be protected"]
+    notes: ""
+  - id: CURIA-C-250-25
+    organisation: "Court of Justice of the European Union (Grand Chamber)"
+    title: "Case C-250/25 Like Company v Google Ireland (pending) — hearing 10 Mar 2026; AG opinion scheduled 3 Sep 2026"
+    url: "https://curia.europa.eu/juris/liste.jsf?num=C-250/25"
+    type: official-page
+    published: "2025-04-01"
+    updated: "2026-03-10"
+    accessed: "2026-09-18"
+    sections: ["questions on reproduction (training), communication to the public (chatbot output), Art. 15 DSM, Art. 4 TDM"]
+    notes: "curia listing rendered minimal content in-session; procedural facts taken from EC-IPHELPDESK-2026-04-24. Whether the AG opinion was delivered on 3 Sep 2026 could not be verified."
+  - id: EC-IPHELPDESK-2026-04-24
+    organisation: "European Commission — European IP Helpdesk"
+    title: "CJEU Grand Chamber rules on music sampling and pastiche (C-590/23) — First CJEU hearing on generative AI and copyright: Like Company v Google"
+    url: "https://intellectual-property-helpdesk.ec.europa.eu/news-events/news/cjeu-grand-chamber-rules-music-sampling-and-pastiche-first-cjeu-hearing-generative-ai-and-copyright-2026-04-24_en"
+    type: official-page
+    published: "2026-04-24"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["C-250/25 questions and AG date 3 Sep 2026", "C-590/23 Pelham II 14 Apr 2026"]
+    notes: ""
+  - id: EP-STUDY-GENAI-COPYRIGHT
+    organisation: "European Parliament — Policy Department for Justice, Civil Liberties and Institutional Affairs (for JURI)"
+    title: "Generative AI and Copyright — Training, Creation, Regulation (study, N. Lucchi)"
+    url: "https://www.europarl.europa.eu/thinktank/en/document/IUST_STU(2025)774095"
+    type: official-page
+    published: "2025-07-09"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["uncertain status of AI-generated content", "TDM mismatch", "harmonised opt-out recommendation"]
+    notes: "Research study commissioned by Parliament; not a legislative act."
+  - id: EC-COPYRIGHT-REVIEW
+    organisation: "European Commission (DG CNECT)"
+    title: "Commission seeks views on the review of EU copyright rules (call for evidence)"
+    url: "https://digital-strategy.ec.europa.eu/en/news/commission-seeks-views-review-eu-copyright-rules"
+    type: official-page
+    published: "2026-05-18"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["review of Directive 2019/790", "generative AI licensing/enforcement challenges", "feedback deadline 25 Jun 2026"]
+    notes: ""
+  # ---------------------------------------------------------------- Cyber Resilience Act
+  - id: CRA-REG
+    organisation: "European Parliament and Council of the EU (EUR-Lex)"
+    title: "Regulation (EU) 2024/2847 on horizontal cybersecurity requirements for products with digital elements (Cyber Resilience Act)"
+    url: "https://eur-lex.europa.eu/eli/reg/2024/2847/oj/eng"
+    type: regulation
+    published: "2024-11-20"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["Art. 2", "Art. 3(1),(2),(14)", "Art. 13", "Art. 14", "Art. 24", "Art. 64", "Art. 71", "Annex I Parts I-II", "Recitals 12, 15, 19"]
+    notes: "In force 10 Dec 2024. EUR-Lex text not retrievable in-session; content taken from EC-CRA-SUMMARY, EC-CRA-REPORTING and EC-CRA-GUIDANCE."
+  - id: EC-CRA-SUMMARY
+    organisation: "European Commission (DG CNECT)"
+    title: "The Cyber Resilience Act — Summary of the legislative text"
+    url: "https://digital-strategy.ec.europa.eu/en/policies/cra-summary"
+    type: official-page
+    published: "2024-12-10"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["dates 10 Dec 2024 / 11 Jun 2026 / 11 Sep 2026 / 11 Dec 2027", "scope incl. SaaS exclusion", "manufacturer obligations", "conformity classes", "penalties"]
+    notes: ""
+  - id: EC-CRA-REPORTING
+    organisation: "European Commission (DG CNECT)"
+    title: "Cyber Resilience Act — Reporting obligations"
+    url: "https://digital-strategy.ec.europa.eu/en/policies/cra-reporting"
+    type: official-page
+    published: "2026-09-11"
+    updated: "2026-09-11"
+    accessed: "2026-09-18"
+    sections: ["manufacturers from 11 Sep 2026", "stewards from 11 Dec 2027", "24h/72h/14d/1m", "CRA Single Reporting Platform"]
+    notes: ""
+  - id: EC-CRA-GUIDANCE
+    organisation: "European Commission"
+    title: "Commission guidance on the application of Regulation (EU) 2024/2847 (Cyber Resilience Act) — C(2026) 5252 final and Annex"
+    url: "https://ec.europa.eu/newsroom/dae/redirection/document/131456"
+    type: guideline
+    published: "2026-07-27"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["3.2 commercial activity (paras 41-62)", "3.3 open-source software stewards (paras 69-71)", "8.1 remote data processing solutions three-element test (paras 184-188)", "8.3 SaaS use cases"]
+    notes: "Library page https://digital-strategy.ec.europa.eu/en/library/commission-publishes-new-guidance-support-timely-cyber-resilience-act-implementation"
+  - id: ENISA-SRP-NEWS
+    organisation: "ENISA"
+    title: "The CRA Single Reporting Platform is launched"
+    url: "https://www.enisa.europa.eu/news/the-cra-single-reporting-platform-is-launched"
+    type: official-page
+    published: "2026-09-11"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["launch 11 Sep 2026", "manufacturers now; stewards 11 Dec 2027"]
+    notes: ""
+  - id: ENISA-SRP-FAQ
+    organisation: "ENISA"
+    title: "CRA Single Reporting Platform — Frequently Asked Questions"
+    url: "https://www.enisa.europa.eu/topics/product-security/single-reporting-platform-srp/frequently-asked-questions"
+    type: official-page
+    published: "2026-07-31"
+    updated: "2026-09-11"
+    accessed: "2026-09-18"
+    sections: ["definitions of actively exploited vulnerability and severe incident", "timelines", "EU Login + MFA", "applies to products placed on the market before 11 Sep 2026", "portal https://portal.cra-srp.enisa.europa.eu"]
+    notes: ""
+  # ---------------------------------------------------------------- NIS2
+  - id: NIS2-DIR
+    organisation: "European Parliament and Council of the EU (EUR-Lex)"
+    title: "Directive (EU) 2022/2555 on measures for a high common level of cybersecurity across the Union (NIS 2 Directive)"
+    url: "https://eur-lex.europa.eu/eli/dir/2022/2555/oj/eng"
+    type: directive
+    published: "2022-12-27"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["Art. 2 scope", "Art. 20", "Art. 21(2)(a)-(j) incl. (d) supply chain", "Art. 23 reporting", "Art. 34 penalties", "Art. 41 transposition 17 Oct 2024"]
+    notes: "EUR-Lex text not retrievable in-session; paraphrased; confirmed by EC-NIS2-PAGE."
+  - id: EC-NIS2-PAGE
+    organisation: "European Commission (DG CNECT)"
+    title: "NIS2 Directive: new rules on cybersecurity of network and information systems"
+    url: "https://digital-strategy.ec.europa.eu/en/policies/nis2-directive"
+    type: official-page
+    published: "2023-01-16"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["transposition 17 Oct 2024", "18 sectors", "supply-chain policies", "management accountability"]
+    notes: ""
+  - id: BE-NIS2-LAW
+    organisation: "Kingdom of Belgium (Moniteur belge / Belgisch Staatsblad)"
+    title: "Loi du 26 avril 2024 établissant un cadre pour la cybersécurité des réseaux et des systèmes d'information d'intérêt général pour la sécurité publique (NIS2 Law)"
+    url: "https://www.ejustice.just.fgov.be/"
+    type: regulation
+    published: "2024-05-17"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["Art. 30 (measures; §1 4° supply chain; §5 written security policy)"]
+    notes: "In force 18 Oct 2024. Moniteur belge ELI resolver did not return the text in-session; article references come from CCB material and secondary summaries — verify wording with counsel."
+  - id: CCB-NIS2-PAGE
+    organisation: "Centre for Cybersecurity Belgium (CCB) — Safeonweb@Work"
+    title: "The NIS2 Law"
+    url: "https://atwork.safeonweb.be/nis2"
+    type: official-page
+    published: "2024-10-18"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["registration deadlines 18 Dec 2024 / 18 Mar 2025", "CyberFundamentals and ISO/IEC 27001 conformity routes", "advice: supply-chain suppliers at least CyFun Basic"]
+    notes: "Direct fetch returned HTTP 403 (bot protection); content taken from the search index rendering of the page. Related: https://ccb.belgium.be/news/belgium-sets-standard-first-member-state-fully-implement-new-european-rules-cyber-security-0 (also 403)."
+  # ---------------------------------------------------------------- ePrivacy
+  - id: EPRIVACY-DIR
+    organisation: "European Parliament and Council of the EU (EUR-Lex)"
+    title: "Directive 2002/58/EC (ePrivacy Directive), consolidated text as amended by Directive 2009/136/EC"
+    url: "https://eur-lex.europa.eu/eli/dir/2002/58/2009-12-19/eng"
+    type: directive
+    published: "2002-07-31"
+    updated: "2009-12-19"
+    accessed: "2026-09-18"
+    sections: ["Art. 5(3)"]
+    notes: "EUR-Lex text not retrievable in-session; paraphrased. Belgian implementation: Art. 10/2 of the framework law of 30 Jul 2018 (per APD checklist)."
+  # ---------------------------------------------------------------- DSA
+  - id: DSA-REG
+    organisation: "European Parliament and Council of the EU (EUR-Lex)"
+    title: "Regulation (EU) 2022/2065 on a Single Market for Digital Services (Digital Services Act)"
+    url: "https://eur-lex.europa.eu/eli/reg/2022/2065/oj/eng"
+    type: regulation
+    published: "2022-10-27"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["Art. 2(1)", "Art. 3(g),(i),(k)", "Recitals 13-14", "Arts. 11-17 hosting duties", "Art. 93 application 17 Feb 2024"]
+    notes: "Definitions confirmed from the EUR-Lex HTML in-session (one successful fetch)."
+  # ---------------------------------------------------------------- Accessibility
+  - id: EAA-DIR
+    organisation: "European Parliament and Council of the EU (EUR-Lex)"
+    title: "Directive (EU) 2019/882 on the accessibility requirements for products and services (European Accessibility Act)"
+    url: "https://eur-lex.europa.eu/eli/dir/2019/882/oj/eng"
+    type: directive
+    published: "2019-06-07"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["Art. 2 scope", "Art. 3(30) e-commerce services", "Art. 4(5) microenterprises", "Art. 31 application 28 Jun 2025", "Art. 32 transitional to 28 Jun 2030", "Annex I"]
+    notes: "EUR-Lex text not retrievable in-session; scope list confirmed on EC-EAA-PAGE."
+  - id: EC-EAA-PAGE
+    organisation: "European Commission (DG JUST)"
+    title: "European Accessibility Act"
+    url: "https://commission.europa.eu/strategy-and-policy/policies/justice-and-fundamental-rights/disability/union-equality-strategy-rights-persons-disabilities-2021-2030/european-accessibility-act_en"
+    type: official-page
+    published: "2019-04-17"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["ten covered product/service categories incl. e-commerce", "transposition by June 2022"]
+    notes: ""
+  - id: WAD-DIR
+    organisation: "European Parliament and Council of the EU (EUR-Lex)"
+    title: "Directive (EU) 2016/2102 on the accessibility of the websites and mobile applications of public sector bodies"
+    url: "https://eur-lex.europa.eu/eli/dir/2016/2102/oj/eng"
+    type: directive
+    published: "2016-12-02"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["Art. 1", "Art. 4", "Art. 6 presumption of conformity"]
+    notes: "EUR-Lex text not retrievable in-session; confirmed via EC-WAD-PAGE."
+  - id: EC-WAD-PAGE
+    organisation: "European Commission (DG CNECT)"
+    title: "Web Accessibility (policy page)"
+    url: "https://digital-strategy.ec.europa.eu/en/policies/web-accessibility"
+    type: official-page
+    published: "2018-12-21"
+    updated: "2021-08-11"
+    accessed: "2026-09-18"
+    sections: ["harmonised standard EN 301 549 v3.2.1 via Implementing Decision (EU) 2021/1339"]
+    notes: "No mention of V4.1.1 yet."
+  - id: ETSI-EN301549-V411
+    organisation: "ETSI / CEN / CENELEC"
+    title: "EN 301 549 V4.1.1 (2026-09) Harmonised European Standard — Accessibility requirements for ICT products and services"
+    url: "https://www.etsi.org/deliver/etsi_en/301500_301599/301549/04.01.01_60/en_301549v040101p.pdf"
+    type: standard
+    published: "2026-09-01"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["Foreword: clauses 9-11 aligned with WCAG 2.2", "Annex ZA (Dir. 2016/2102)", "Annex ZB (Dir. 2019/882)", "national transposition dates 24 Aug 2026 / 30 Nov 2026; doa 31 May 2027"]
+    notes: "Downloaded via curl (WebFetch blocked the domain). Not yet cited in the OJ as harmonised under WAD/EAA as of 2026-09-18."
+  - id: W3C-WCAG22
+    organisation: "W3C"
+    title: "Web Content Accessibility Guidelines (WCAG) 2.2 — W3C Recommendation"
+    url: "https://www.w3.org/TR/WCAG22/"
+    type: standard
+    published: "2023-10-05"
+    updated: "2024-12-12"
+    accessed: "2026-09-18"
+    sections: ["nine new success criteria", "4.1.1 Parsing removed"]
+    notes: ""
+  # ---------------------------------------------------------------- Data Act
+  - id: DATA-ACT
+    organisation: "European Parliament and Council of the EU (EUR-Lex)"
+    title: "Regulation (EU) 2023/2854 on harmonised rules on fair access to and use of data (Data Act)"
+    url: "https://eur-lex.europa.eu/eli/reg/2023/2854/oj/eng"
+    type: regulation
+    published: "2023-12-22"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["Art. 2(8)", "Arts. 23-31 switching", "Art. 29 charges (12 Jan 2027)", "Art. 32 international access", "Art. 50 application 12 Sep 2025"]
+    notes: "EUR-Lex text not retrievable in-session; confirmed via EC-DATA-ACT-EXPLAINED."
+  - id: EC-DATA-ACT-EXPLAINED
+    organisation: "European Commission (DG CNECT)"
+    title: "Data Act explained (factpage)"
+    url: "https://digital-strategy.ec.europa.eu/en/factpages/data-act-explained"
+    type: official-page
+    published: "2024-01-11"
+    updated: "2025-09-12"
+    accessed: "2026-09-18"
+    sections: ["dates 12 Sep 2025 / 12 Sep 2026 / 12 Jan 2027", "IaaS/PaaS/SaaS coverage", "2-month notice, 30-day transition, export, open interfaces", "custom-built exemption", "Chapter VII international access"]
+    notes: ""
+  # ---------------------------------------------------------------- Provenance
+  - id: C2PA-SPEC-2.4
+    organisation: "Coalition for Content Provenance and Authenticity (C2PA)"
+    title: "Content Credentials: C2PA Technical Specification, version 2.4"
+    url: "https://spec.c2pa.org/specifications/specifications/2.4/specs/C2PA_Specification.html"
+    type: standard
+    published: "2026-04-21"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["asset types incl. HTML, text, PDF", "hard/soft bindings, remote manifests", "c2pa.ai-disclosure assertion", "crJSON", "C2PA Trust List (since 2.2)"]
+    notes: "Prior versions: 2.2 (1 May 2025), 2.3 (Jan 2026). Index https://spec.c2pa.org/specifications/specifications/2.4/index.html"
+  - id: C2PA-AIML-GUIDANCE
+    organisation: "C2PA"
+    title: "Guidance for Artificial Intelligence and Machine Learning (C2PA Specifications 2.3)"
+    url: "https://spec.c2pa.org/specifications/specifications/2.3/ai-ml/ai_ml.html"
+    type: standard
+    published: "2026-01-05"
+    updated: null
+    accessed: "2026-09-18"
+    sections: ["digitalSourceType trainedAlgorithmicMedia", "c2pa.trainedAlgorithmicData", "data-mining assertions"]
+    notes: "No text/HTML-specific guidance; no reference to the EU AI Act."
+  - id: IPTC-DST
+    organisation: "IPTC (International Press Telecommunications Council)"
+    title: "IPTC Digital Source Type NewsCodes vocabulary"
+    url: "https://cv.iptc.org/newscodes/digitalsourcetype"
+    type: standard
+    published: "2022-06-14"
+    updated: "2024-10-23"
+    accessed: "2026-09-18"
+    sections: ["trainedAlgorithmicMedia", "compositeWithTrainedAlgorithmicMedia", "algorithmicMedia", "compositeSynthetic", "digitalCapture", "humanEdits"]
+    notes: "18 active concepts."

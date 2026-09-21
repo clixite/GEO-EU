@@ -1,0 +1,19 @@
+{
+  "name": "@evidentia/website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Evidentia public website — static, English-only. Built and maintained by Clixite SRL — Belgium.",
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "typecheck": "echo website: type-checked by astro build"
+  },
+  "dependencies": {
+    "astro": "7.3.3"
+  }
+}
