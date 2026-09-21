@@ -111,6 +111,23 @@ test('provenance manifest is signed, verifiable, bound to content and rendered a
   assert.match(human.disclosure, /written without AI assistance and published under the editorial responsibility of A \(B\)/);
 });
 
+test('verifyDraft does not exhibit polynomial-time (ReDoS) blowup on adversarial evidence text', () => {
+  // CodeQL js/polynomial-redos on FIGURE_UNIT (a figure-and-unit matcher applied to
+  // evidence text, which is ingested third-party content — attacker-influenced by
+  // design). The pre-fix pattern (`\d[\d.,]*\s*(unit)`) backtracked quadratically on
+  // a long run of digits/separators with no matching unit suffix: 80,000 characters
+  // took ~42 seconds. This proves the fix (a bounded digit run) keeps a much larger
+  // adversarial payload fast, and that verifyDraft's normal, documented behaviour on
+  // real evidence is unaffected (covered by the other tests in this file).
+  const attackEvidence = '9'.repeat(200_000) + '.' + ','.repeat(200_000); // digits/separators, no unit ever follows
+  const evidence: EvidenceItem[] = [{ id: 'E1', text: attackEvidence, locator: 'https://attacker.example/evidence', title: 'x', headingPath: '', authorityLevel: 'unverified', modifiedAt: '2026-01-01' }];
+  const draft = 'Northwind Bank reconciles 2.3 million payments per day across 14 countries [E1].';
+  const start = performance.now();
+  verifyDraft(draft, evidence);
+  const elapsedMs = performance.now() - start;
+  assert.ok(elapsedMs < 2000, `verifyDraft took ${elapsedMs.toFixed(0)}ms on adversarial evidence text (must stay well under the ~40s+ pre-fix blowup)`);
+});
+
 test('jsonForScript escapes HTML-significant characters so JSON-LD cannot break out of its <script> element', () => {
   const evil = { name: '</script><script>alert(1)</script>', note: 'a & b   c' };
   const escaped = jsonForScript(evil);

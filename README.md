@@ -5,12 +5,6 @@
 
 Built and maintained by **Clixite SRL — Belgium**.
 
-[![CI](https://github.com/clixite/GEO-EU/actions/workflows/ci.yml/badge.svg)](https://github.com/clixite/GEO-EU/actions/workflows/ci.yml)
-[![Licence: proprietary / source-available](https://img.shields.io/badge/licence-proprietary%20%2F%20source--available-blue)](LICENSE)
-[![Node.js >= 24](https://img.shields.io/badge/node-%3E%3D24-339933)](package.json)
-
-Version 1.0.0 (first release, 2026-09-18) · monorepo package `evidentia-monorepo` · product name working, trademark clearance pending.
-
 ---
 
 Generative engines now answer questions your customers, regulators and
@@ -32,6 +26,12 @@ confidence intervals. All of it runs under an EU governance layer: a policy
 engine, model/AI-system/processing registers, and a hash-chained audit
 ledger. This repository is the product — engine, CLI, governance console,
 governance policies and public website, source-available for evaluation.
+
+[![CI](https://github.com/clixite/GEO-EU/actions/workflows/ci.yml/badge.svg)](https://github.com/clixite/GEO-EU/actions/workflows/ci.yml)
+[![Licence: proprietary / source-available](https://img.shields.io/badge/licence-proprietary%20%2F%20source--available-blue)](LICENSE)
+[![Node.js >= 24](https://img.shields.io/badge/node-%3E%3D24-339933)](package.json)
+
+Version 1.0.0 (first release, 2026-09-18) · monorepo package `evidentia-monorepo` · product name working, trademark clearance pending.
 
 ## The governance case
 

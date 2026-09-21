@@ -115,8 +115,19 @@ const NEGATION = /\b(not|no|never|none|without|neither|nor|cannot|isn't|aren't|d
 // this regex) is what keeps ordinary sentence-initial capitals ("The", "Every") from being treated
 // as entities.
 const PROPER_NOUN = /\b\p{Lu}[\p{L}\p{N}&'’-]+\b/gu;
-/** A figure and the unit or noun that follows it ("2.3 million", "14 countries", "90 days", "per day"). */
-const FIGURE_UNIT = /\d[\d.,]*\s*(%|percent|[A-Za-z]{2,})/g;
+/**
+ * A figure and the unit or noun that follows it ("2.3 million", "14 countries",
+ * "90 days", "per day"). The digit run is bounded (real figures are never more
+ * than a couple of dozen digits/separators) rather than unbounded `[\d.,]*`: an
+ * unbounded run followed by a *mandatory* alternation is a classic ReDoS shape —
+ * on a long run of digits with no matching suffix, the engine backtracks through
+ * every possible split of the digit run at every starting position, which is
+ * quadratic in input length (confirmed: 80k characters of "digit soup" took
+ * ~42s before this bound; bounded, the same input is sub-millisecond). This
+ * pattern runs on ingested third-party content and drafted text, both
+ * attacker-influenced, so the unbounded form was a real, exploitable DoS.
+ */
+const FIGURE_UNIT = /\d[\d.,]{0,20}\s*(%|percent|[A-Za-z]{2,})/g;
 const PER_UNIT = /\bper\s+([a-z]+)/gi;
 
 function negations(text: string): Set<string> {
