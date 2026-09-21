@@ -51,6 +51,48 @@ test('extractHtml pulls metadata, JSON-LD, headings, main text and structure wit
   assert.equal(decodeEntities('&eacute;&#233;&#xE9;&amp;'), 'ééé&');
 });
 
+test('extractHtml strips comments, CDATA and DOCTYPE (any casing) without leaking their content or markup into extracted text', () => {
+  const html = '<!doctype html><html lang="en"><head><!-- header comment --><title>My <!-- inline --> Title</title></head>'
+    + '<body><![CDATA[should not appear]]><main><h1>Heading <!-- hidden --> Text</h1>'
+    + '<p>Paragraph with a <!-- comment inside --> sentence that continues after the comment.</p></main>'
+    + '<!-- trailing comment --></body></html>';
+  const p = extractHtml(html);
+  assert.equal(p.title, 'My Title');
+  assert.equal(p.text, 'Heading Text\n\nParagraph with a sentence that continues after the comment.');
+  assert.deepEqual(p.headings.map((h) => h.text), ['Heading Text']);
+  assert.ok(!p.text.includes('should not appear'), 'CDATA content must not leak into text');
+
+  for (const doctype of ['<!doctype html>', '<!DOCTYPE html>', '<!DocType html>']) {
+    const page = extractHtml(`${doctype}<html><body><p>Real content.</p></body></html>`);
+    assert.equal(page.text, 'Real content.', `${doctype} must be stripped regardless of casing`);
+  }
+
+  // A comment that is never closed is treated as extending to the end of the document
+  // (safe/conservative), not as literal text — this also protects against fake markup
+  // hidden inside an unclosed comment corrupting the tag-depth tracking.
+  const unclosed = extractHtml('<p>before</p><!-- unclosed comment with <p>fake tag</p> and more text');
+  assert.equal(unclosed.text, 'before');
+});
+
+test('extractHtml does not exhibit polynomial-time (ReDoS) blowup on adversarial comment/CDATA/DOCTYPE input', () => {
+  // CodeQL js/polynomial-redos on the original TAG_RE: unbounded "match anything
+  // then find this literal closer" for <!--...-->, <![CDATA[...]]> and
+  // <!DOCTYPE...> is a textbook ReDoS shape. On ingested (attacker-controlled)
+  // HTML consisting of many repetitions of a bare opener with no closer
+  // anywhere, the original pattern re-scanned the remaining input at every
+  // repetition — quadratic in input length (confirmed: 40,000 repetitions of
+  // "<!DOCTYPE" took ~8 seconds). The fix replaces the regex alternatives with
+  // a single linear `indexOf`-based scan (stripCommentsAndDeclarations), which
+  // is linear by construction rather than empirically tuned.
+  for (const trigger of ['<!--', '<![CDATA[', '<!DOCTYPE']) {
+    const attack = trigger.repeat(300_000); // several MB, no closer anywhere
+    const start = performance.now();
+    extractHtml(attack);
+    const elapsedMs = performance.now() - start;
+    assert.ok(elapsedMs < 2000, `extractHtml took ${elapsedMs.toFixed(0)}ms on ${JSON.stringify(trigger)} repeated 300,000 times (must stay well under the ~8s+ pre-fix blowup)`);
+  }
+});
+
 test('extractText handles markdown headings', () => {
   const r = extractText('# Title\n\nBody text.\n\n## Sub\n\nMore.');
   assert.deepEqual(r.headings.map((h) => h.text), ['Title', 'Sub']);

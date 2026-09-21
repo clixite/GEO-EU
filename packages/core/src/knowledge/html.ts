@@ -73,11 +73,67 @@ function parseAttrs(raw: string): Record<string, string> {
 
 const normaliseWs = (s: string) => s.replace(/[ \t\r\f\v]+/g, ' ').replace(/ ?\n ?/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
 
-const TAG_RE = /<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<!DOCTYPE[^>]*>|<\/?([a-zA-Z][a-zA-Z0-9:-]*)((?:\s+[^\s=/"'<>]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'<>`]+))?)*)\s*(\/?)>/g;
+/**
+ * Removes `<!-- comments -->`, `<![CDATA[ … ]]>` sections and `<!DOCTYPE …>`
+ * declarations in one linear pass (`String.prototype.indexOf`, no regex).
+ *
+ * The regex form previously used for these three constructs
+ * (`<!--[\s\S]*?-->` etc.) is a textbook ReDoS shape: an unbounded "match
+ * anything, then find this literal terminator" ahead of a mandatory close
+ * token. On ingested third-party HTML — attacker-controlled by design, since
+ * this product ingests arbitrary URLs — an input consisting of many
+ * repetitions of a bare opener with no closer anywhere (e.g. "<!--" repeated)
+ * makes the regex engine re-scan the remaining input at every repetition,
+ * which is quadratic in input length (CodeQL js/polynomial-redos; the
+ * original pattern took several seconds on inputs well under the 8MB size
+ * cap below). Bounding the regex's repetition empirically turned out not to
+ * be reliably safe either: measured timings for a given bound varied
+ * non-trivially with total input size and with which V8 code path a
+ * particular quantifier/class shape happened to hit, which is not something
+ * to depend on for a security fix. `indexOf`-based scanning has no such
+ * dependency — it is linear by construction, one substring search per
+ * construct found, however many times the opener repeats without a closer.
+ *
+ * Malformed input (an opener with no matching closer anywhere in the rest of
+ * the document) is treated as extending to the end of the document, which is
+ * the safe, conservative reading — the alternative of falling back to
+ * treating an unterminated "<!--" as ordinary text risks emitting whatever
+ * was meant to stay hidden inside it.
+ */
+function stripCommentsAndDeclarations(html: string): string {
+  // DOCTYPE's keyword is case-insensitive per the HTML5 spec (browsers treat
+  // "<!doctype html>" — how virtually every real page writes it — identically
+  // to "<!DOCTYPE html>"); comments and CDATA have no letters to case-fold, or
+  // are case-sensitive by spec (CDATA), so only the DOCTYPE search needs a
+  // lowercased haystack. `toLowerCase()` keeps positions aligned with `html`
+  // for the ASCII markers searched here.
+  const lower = html.toLowerCase();
+  let out = '';
+  let i = 0;
+  const n = html.length;
+  while (i < n) {
+    const c = html.indexOf('<!--', i);
+    const d = html.indexOf('<![CDATA[', i);
+    const t = lower.indexOf('<!doctype', i);
+    let next = -1;
+    let opener = '';
+    let closer = '';
+    for (const [pos, open, close] of [[c, '<!--', '-->'], [d, '<![CDATA[', ']]>'], [t, '<!doctype', '>']] as const) {
+      if (pos !== -1 && (next === -1 || pos < next)) { next = pos; opener = open; closer = close; }
+    }
+    if (next === -1) { out += html.slice(i); break; }
+    out += html.slice(i, next);
+    const closeAt = html.indexOf(closer, next + opener.length);
+    i = closeAt === -1 ? n : closeAt + closer.length;
+  }
+  return out;
+}
 
-export function extractHtml(html: string): ExtractedPage {
-  const bytes = Buffer.byteLength(html, 'utf8');
-  if (bytes > MAX_BYTES) html = html.slice(0, MAX_BYTES);
+const TAG_RE = /<\/?([a-zA-Z][a-zA-Z0-9:-]*)((?:\s+[^\s=/"'<>]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'<>`]+))?)*)\s*(\/?)>/g;
+
+export function extractHtml(rawHtml: string): ExtractedPage {
+  const bytes = Buffer.byteLength(rawHtml, 'utf8');
+  const html = stripCommentsAndDeclarations(bytes > MAX_BYTES ? rawHtml.slice(0, MAX_BYTES) : rawHtml);
 
   const page: ExtractedPage = {
     title: null, lang: null, canonical: null, metaDescription: null, robots: null, og: {}, hreflang: [], jsonLd: [], jsonLdErrors: 0,
@@ -129,7 +185,6 @@ export function extractHtml(html: string): ExtractedPage {
     if (m.index > lastIndex) emitText(html.slice(lastIndex, m.index));
     lastIndex = m.index + m[0].length;
     const full = m[0];
-    if (full.startsWith('<!')) continue;
     const name = (m[1] ?? '').toLowerCase();
     const isClose = full.startsWith('</');
     const attrs = isClose ? {} : parseAttrs(m[2] ?? '');
