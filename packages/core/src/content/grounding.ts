@@ -71,7 +71,18 @@ export function buildGroundedPrompt(brief: DraftBrief, evidence: readonly Eviden
 }
 
 const MARKER = /\[E(\d+)\]/g;
-const PLACEHOLDER = /\[NEEDS EVIDENCE:[^\]]*\]/g;
+/**
+ * A drafting placeholder, e.g. "[NEEDS EVIDENCE: number of employees]". Bounded
+ * (a real placeholder note is a short phrase) rather than unbounded `[^\]]*`:
+ * on a draft consisting of many repetitions of the literal "[NEEDS EVIDENCE:"
+ * with no closing "]" anywhere, each repetition's failed match scans to the end
+ * of the remaining text before giving up, and with `g`/matchAll retrying at
+ * every such repetition this is quadratic in input length (CodeQL
+ * js/polynomial-redos, confirmed: 20,000 repetitions took ~3.8s; bounded, the
+ * same input is sub-millisecond). Draft text is user/model-authored and can be
+ * adversarial, so this was a real DoS vector, not just a theoretical one.
+ */
+const PLACEHOLDER = /\[NEEDS EVIDENCE:[^\]]{0,300}\]/g;
 const STOP = new Set('the a an and or of to in on for with by from at as is are was were be been it its this that these those we you they our your their not no can will may more most other such into over under about after before between than then also which who what when where how all any each per via has have had do does did but if so'.split(' '));
 
 export interface ClaimVerification {

@@ -128,6 +128,22 @@ test('verifyDraft does not exhibit polynomial-time (ReDoS) blowup on adversarial
   assert.ok(elapsedMs < 2000, `verifyDraft took ${elapsedMs.toFixed(0)}ms on adversarial evidence text (must stay well under the ~40s+ pre-fix blowup)`);
 });
 
+test('verifyDraft does not exhibit polynomial-time (ReDoS) blowup on a draft with many unclosed placeholder markers', () => {
+  // CodeQL js/polynomial-redos on PLACEHOLDER (`\[NEEDS EVIDENCE:[^\]]*\]`), applied
+  // to drafted text. The attack shape here is different from the figure/unit one
+  // above: not one long unclosed marker, but *many repetitions* of the bare
+  // "[NEEDS EVIDENCE:" trigger with no "]" ever appearing. Each repetition's failed
+  // match scanned the rest of the string before giving up, and with the `g` flag
+  // retrying at every repetition this was quadratic (confirmed: 20,000 repetitions
+  // took ~3.8 seconds pre-fix). The fix bounds the placeholder body to 300
+  // characters — no real placeholder note is anywhere near that long.
+  const attackDraft = '[NEEDS EVIDENCE:'.repeat(40_000);
+  const start = performance.now();
+  verifyDraft(attackDraft, []);
+  const elapsedMs = performance.now() - start;
+  assert.ok(elapsedMs < 2000, `verifyDraft took ${elapsedMs.toFixed(0)}ms on a draft with 40,000 unclosed placeholder markers (must stay well under the ~4s+ pre-fix blowup)`);
+});
+
 test('jsonForScript escapes HTML-significant characters so JSON-LD cannot break out of its <script> element', () => {
   const evil = { name: '</script><script>alert(1)</script>', note: 'a & b   c' };
   const escaped = jsonForScript(evil);
